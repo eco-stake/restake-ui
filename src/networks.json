@@ -1,9 +1,7 @@
 [
   {
     "name": "osmosis",
-    "gasPrice": "0.0025uosmo",
     "ownerAddress": "osmovaloper1u5v0m74mql5nzfx2yh43s2tke4mvzghr6m2n5t",
-    "default": true,
     "maxPerDay": 1,
     "apiVersions": {
       "gov": "v1beta1"
@@ -11,16 +9,11 @@
   },
   {
     "name": "juno",
-    "gasPrice": "0.0025ujuno",
-    "ownerAddress": "junovaloper19ur8r2l25qhsy9xvej5zgpuc5cpn6syydmwtrt",
-    "autostake": {
-      "batchTxs": 25
-    }
+    "ownerAddress": "junovaloper19ur8r2l25qhsy9xvej5zgpuc5cpn6syydmwtrt"
   },
   {
     "name": "cosmoshub",
-    "ownerAddress": "cosmosvaloper1a37ze3yrr2y9nn98l6frhjskmufvd40cpyd0gq",
-    "gasPrice": "0.0025uatom"
+    "ownerAddress": "cosmosvaloper1a37ze3yrr2y9nn98l6frhjskmufvd40cpyd0gq"
   },
   {
     "name": "akash",
@@ -28,20 +21,14 @@
   },
   {
     "name": "chihuahua",
-    "ownerAddress": "chihuahuavaloper19vwcee000fhazmpt4ultvnnkhfh23ppwxll8zz",
-    "gasPrice": "1uhuahua"
+    "ownerAddress": "chihuahuavaloper19vwcee000fhazmpt4ultvnnkhfh23ppwxll8zz"
   },
   {
-    "name": "gravitybridge",
-    "gasPrice": "0.025ugraviton"
+    "name": "gravitybridge"
   },
   {
     "name": "regen",
-    "gasPrice": "0.03uregen",
-    "ownerAddress": "regenvaloper1c4y3j05qx652rnxm5mg4yesqdkmhz2f6dl7hhk",
-    "autostake": {
-      "batchTxs": 5
-    }
+    "ownerAddress": "regenvaloper1c4y3j05qx652rnxm5mg4yesqdkmhz2f6dl7hhk"
   },
   {
     "name": "terra"
@@ -50,48 +37,38 @@
     "name": "terra2"
   },
   {
-    "name": "sentinel",
-    "gasPrice": "0.02udvpn"
+    "name": "sentinel"
   },
   {
-    "name": "dig",
-    "gasPrice": "0.01udig",
-    "ownerAddress": "digvaloper136avwnuvvy94dqmtnaue2nfvjes8xr37h9rzay"
+    "name": "dig"
   },
   {
-    "name": "bitcanna",
-    "gasPrice": "0.001ubcna"
+    "name": "bitcanna"
   },
   {
-    "name": "emoney",
-    "gasPrice": "0.08ungm"
+    "name": "emoney"
   },
   {
-    "name": "kava",
-    "gasPrice": "0.001ukava"
+    "name": "kava"
   },
   {
     "name": "desmos",
-    "gasPrice": "0.001udsm",
     "authzSupport": true,
     "authzAminoSupport": true
   },
   {
     "name": "cryptoorgchain",
-    "gasPrice": "0.025basecro",
     "ownerAddress": "crocncl10mfs428fyntu296dgh5fmhvdzrr2stlaekcrp9"
   },
   {
     "name": "evmos",
-    "txTimeout": 120000,
     "ownerAddress": "evmosvaloper1umk407eed7af6anvut6llg2zevnf0dn0feqqny",
+    "txTimeout": 120000,
     "maxPerDay": 1,
     "authzAminoSupport": false
   },
   {
-    "name": "sifchain",
-    "gasPrice": "1500000000000rowan",
-    "ownerAddress": "sifvaloper19t5nk5ceq5ga75epwdqhnupwg0v9339p096ydz"
+    "name": "sifchain"
   },
   {
     "name": "lumnetwork"
@@ -104,12 +81,10 @@
     "ownerAddress": "comdexvaloper17f70yjkvmvld379904jaddx9h0f74n32pjtmp6"
   },
   {
-    "name": "cheqd",
-    "gasPrice": "25ncheq"
+    "name": "cheqd"
   },
   {
-    "name": "umee",
-    "gasPrice": "0.1uumee"
+    "name": "umee"
   },
   {
     "name": "bitsong"
@@ -121,80 +96,45 @@
     "name": "agoric"
   },
   {
-    "name": "impacthub",
-    "gasPrice": "0.1uixo"
+    "name": "impacthub"
   },
   {
-    "name": "kichain",
-    "gasPrice": "0.025uxki"
+    "name": "kichain"
   },
   {
     "name": "sommelier"
   },
   {
-    "name": "konstellation",
-    "image": "https://raw.githubusercontent.com/Konstellation/DARC_token/main/darctoken.svg"
+    "name": "konstellation"
   },
   {
-    "name": "fetchhub",
-    "gasPriceStep": {
-      "low": 0.025,
-      "average": 0.025,
-      "high": 0.035
-    }
+    "name": "fetchhub"
   },
   {
-    "name": "cerberus",
-    "gasPrice": "0.025ucrbrus",
-    "autostake": {
-      "batchTxs": 100
-    },
-    "ownerAddress": "cerberusvaloper1tat2cy3f9djtq9z7ly262sqngcarvaktr0w78f"
+    "name": "cerberus"
   },
   {
     "name": "secretnetwork",
-    "gasPrice": "0.05uscrt",
     "authzAminoSupport": true
   },
   {
-    "name": "bostrom",
-    "gasPrice": "0boot"
+    "name": "bostrom"
   },
   {
-    "name": "starname",
-    "gasPrice": "10uvoi"
+    "name": "starname"
   },
   {
-    "name": "rizon",
-    "gasPrice": "0.0001uatolo"
+    "name": "rizon"
   },
   {
-    "name": "decentr",
-    "gasPrice": "0.025udec",
-    "gasPriceStep": {
-      "low": 0.025,
-      "average": 0.025,
-      "high": 0.04
-    }
+    "name": "decentr"
   },
   {
     "name": "assetmantle",
-    "ownerAddress": "mantlevaloper1fqs7gakxdmujtk0qufdzth5pfyspus3yx394zd",
-    "gasPrice": "0.025umntl",
-    "gasPriceStep": {
-      "low": 0,
-      "average": 0.025,
-      "high": 0.04
-    }
+    "ownerAddress": "mantlevaloper1fqs7gakxdmujtk0qufdzth5pfyspus3yx394zd"
   },
   {
-    "name": "crescent",
-    "gasPrice": "0.025ucre",
-    "gasPriceStep": {
-      "low": 0,
-      "average": 0.025,
-      "high": 0.04
-    }
+    "name": "crescent"
   },
   {
     "name": "meme"
@@ -259,8 +199,7 @@
     "ownerAddress": "jklvaloper1rdyunvvqg2l3723hlyjvvsnkd4vg338uar8q2s"
   },
   {
-    "name": "oraichain",
-    "gasPrice": "0.0000025orai"
+    "name": "oraichain"
   },
   {
     "name": "acrechain"
@@ -277,29 +216,20 @@
     "ownerAddress": "injvaloper1vqz7mgm47xhx25xu5g9qagnz48naks6pk6fmg2"
   },
   {
-    "name": "xpla",
-    "gasPrice": "850000000000axpla"
+    "name": "xpla"
   },
   {
     "name": "kyve",
-    "ownerAddress": "kyvevaloper1egqphd8yjdfv84fl825grwgna0pf2emagdmnz8",
-    "gasPrice": "0.02ukyve"
+    "ownerAddress": "kyvevaloper1egqphd8yjdfv84fl825grwgna0pf2emagdmnz8"
   },
   {
-    "name": "quicksilver",
-    "gasPrice": "0.0001uqck",
-    "gasPriceStep": {
-      "low": 0.0001,
-      "average": 0.0001,
-      "high": 0.00025
-    }
+    "name": "quicksilver"
   },
   {
     "name": "chain4energy"
   },
   {
     "name": "coreum",
-    "ownerAddress": "corevaloper1py9v5f7e4aaka55lwtthk30scxhnqfa6agwxt8",
-    "gasPrice": "0.0625ucore"
+    "ownerAddress": "corevaloper1py9v5f7e4aaka55lwtthk30scxhnqfa6agwxt8"
   }
 ]
