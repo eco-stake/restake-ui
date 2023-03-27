@@ -1,75 +1,77 @@
 export default class SignerProvider {
   suggestChainSupport = true
 
-  constructor(provider){
+  constructor(provider) {
     this.provider = provider
   }
 
-  available(){
+  available() {
     return !!this.provider
   }
 
-  connected(){
+  connected() {
     return this.available()
   }
 
-  async connect(network){
+  async connect(network) {
     try {
       await this.enable(network)
       return await this.getKey(network)
     } catch (e) {
-      if(!this.suggestChainSupport){
+      console.log(e)
+      if (!this.suggestChainSupport) {
         this.handleEnableError(network, e)
       }
       try {
         await this.suggestChain(network)
         return await this.getKey(network)
       } catch (s) {
+        console.log(s)
         this.handleSuggestError(network, e)
       }
     }
   }
 
-  disconnect(){
+  disconnect() {
   }
 
-  enable(network){
+  enable(network) {
     const { chainId } = network
     return this.provider.enable(chainId)
   }
 
-  async getKey(network){
+  async getKey(network) {
     const { chainId } = network
     const key = await this.provider.getKey(chainId)
     return key
   }
 
-  getSigner(network){
+  getSigner(network) {
     const { chainId } = network
     return this.provider.getOfflineSignerAuto(chainId)
   }
 
-  suggestChain(network){
-    if(this.suggestChainSupport){
+  suggestChain(network) {
+    if (this.suggestChainSupport) {
       return this.provider.experimentalSuggestChain(network.suggestChain())
-    }else{
+    } else {
       throw new Error(`${network.prettyName} (${network.chainId}) is not supported`)
     }
   }
 
-  handleEnableError(network, error){
-    throw(error)
+  handleEnableError(network, error) {
+    throw (error)
   }
 
-  handleSuggestError(network, error){
-    throw(error)
+  handleSuggestError(network, error) {
+    throw (error)
   }
 
-  setOptions(options){
+  setOptions(options) {
     return {}
   }
 
-  getOptions(){
+  getOptions() {
     return {}
   }
 }

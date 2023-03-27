@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { multiply, pow, format, bignumber } from 'mathjs'
+import { multiply, pow, format, bignumber, number, larger } from 'mathjs'
 import {
   GasPrice,
 } from "@cosmjs/stargate";
@@ -45,7 +45,7 @@ class Network {
   }
 
   estimateOperatorCount() {
-    if(!this.operatorAddresses) return 0 
+    if(!this.operatorAddresses) return 0
     return Object.keys(this.operatorAddresses).filter(el => this.allowOperator(el)).length
   }
 
@@ -88,25 +88,38 @@ class Network {
     this.ledgerSupport = this.chain.ledgerSupport ?? true
     this.authzSupport = this.chain.authzSupport
     this.authzAminoSupport = this.chain.authzAminoSupport
-    this.defaultGasPrice = this.decimals && format(bignumber(multiply(0.000000025, pow(10, this.decimals))), { notation: 'fixed', precision: 4}) + this.denom
-    this.gasPrice = this.data.gasPrice || this.defaultGasPrice
-    if(this.gasPrice){
-      this.gasPriceAmount = GasPrice.fromString(this.gasPrice).amount.toString()
-      this.gasPriceStep = this.data.gasPriceStep || {
-        "low": multiply(this.gasPriceAmount, 0.5),
-        "average": multiply(this.gasPriceAmount, 1),
-        "high": multiply(this.gasPriceAmount, 2)
-      }
-    }
-    this.gasPricePrefer = this.data.gasPricePrefer
-    this.gasModifier = this.data.gasModifier || 1.5
     this.txTimeout = this.data.txTimeout || 60_000
     this.keywords = this.buildKeywords()
+
+    const feeConfig = this.chain.fees?.fee_tokens?.find(el => el.denom === this.denom)
+    let gasPrice
+    if(this.data.gasPrice){
+      gasPrice = number(GasPrice.fromString(this.data.gasPrice).amount.toString())
+      this.gasPriceStep = this.data.gasPriceStep || {
+        "low": gasPrice,
+        "average": feeConfig?.average_gas_price ?? gasPrice,
+        "high": feeConfig?.high_gas_price ?? multiply(gasPrice, 2),
+      }
+    }else{
+      const minimumGasPrice = feeConfig?.low_gas_price ?? feeConfig?.fixed_min_gas_price
+      let defaultGasPrice = number(format(bignumber(multiply(0.000000025, pow(10, this.decimals || 6))), { precision: 14 }))
+      if(minimumGasPrice != undefined && larger(minimumGasPrice, defaultGasPrice)){
+        defaultGasPrice = minimumGasPrice
+      }
+      gasPrice = feeConfig?.average_gas_price ?? defaultGasPrice
+      this.gasPriceStep = this.data.gasPriceStep || {
+        "low": minimumGasPrice ?? multiply(gasPrice, 0.5),
+        "average": gasPrice,
+        "high": feeConfig?.high_gas_price ?? multiply(gasPrice, 2),
+      }
+    }
+    this.gasPrice = gasPrice + this.denom
+    this.gasModifier = this.data.gasModifier || 1.5
   }
 
   async connect(opts) {
     try {
-      this.queryClient = await QueryClient(this.chain.chainId, this.restUrl, { 
+      this.queryClient = await QueryClient(this.chain.chainId, this.restUrl, {
         connectTimeout: opts?.timeout,
         apiVersions: this.chain.apiVersions
       })
@@ -200,7 +213,7 @@ class Network {
 
   buildKeywords(){
     return _.compact([
-      ...this.chain?.keywords || [], 
+      ...this.chain?.keywords || [],
       this.authzSupport && 'authz',
       this.authzAminoSupport && 'full authz ledger',
     ])
