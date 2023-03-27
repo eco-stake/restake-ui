@@ -3,7 +3,7 @@ version: "2.0"
 
 services:
   node:
-    image: ghcr.io/eco-stake/restake:latest
+    image: ghcr.io/eco-stake/restake-ui:latest
     expose:
       - port: 80
         accept:

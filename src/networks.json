@@ -108,7 +108,8 @@
     "gasPrice": "25ncheq"
   },
   {
-    "name": "umee"
+    "name": "umee",
+    "gasPrice": "0.1uumee"
   },
   {
     "name": "bitsong"
@@ -136,7 +137,11 @@
   },
   {
     "name": "fetchhub",
-    "gasPrice": "5000afet"
+    "gasPriceStep": {
+      "low": 0.025,
+      "average": 0.025,
+      "high": 0.035
+    }
   },
   {
     "name": "cerberus",
@@ -272,6 +277,29 @@
     "ownerAddress": "injvaloper1vqz7mgm47xhx25xu5g9qagnz48naks6pk6fmg2"
   },
   {
-    "name": "panacea"
+    "name": "xpla",
+    "gasPrice": "850000000000axpla"
+  },
+  {
+    "name": "kyve",
+    "ownerAddress": "kyvevaloper1egqphd8yjdfv84fl825grwgna0pf2emagdmnz8",
+    "gasPrice": "0.02ukyve"
+  },
+  {
+    "name": "quicksilver",
+    "gasPrice": "0.0001uqck",
+    "gasPriceStep": {
+      "low": 0.0001,
+      "average": 0.0001,
+      "high": 0.00025
+    }
+  },
+  {
+    "name": "chain4energy"
+  },
+  {
+    "name": "coreum",
+    "ownerAddress": "corevaloper1py9v5f7e4aaka55lwtthk30scxhnqfa6agwxt8",
+    "gasPrice": "0.0625ucore"
   }
 ]
