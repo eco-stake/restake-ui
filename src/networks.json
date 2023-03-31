@@ -224,6 +224,7 @@
   },
   {
     "name": "quicksilver"
+    "maxPerDay": 1
   },
   {
     "name": "chain4energy"
