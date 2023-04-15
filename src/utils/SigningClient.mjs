@@ -28,11 +28,11 @@ import { createAuthzAminoConverters, createAuthzExecAminoConverters } from '../c
 
 function SigningClient(network, signer) {
 
-  const { 
-    restUrl, chainId, 
-    gasPrice: defaultGasPrice, 
-    gasModifier: defaultGasModifier, 
-    slip44: coinType 
+  const {
+    restUrl, chainId,
+    gasPrice: defaultGasPrice,
+    gasModifier: defaultGasModifier,
+    slip44: coinType
   } = network
 
   const registry = new Registry(defaultStargateTypes);
@@ -86,7 +86,7 @@ function SigningClient(network, signer) {
           value = nestedAccount
         }
 
-        return value 
+        return value
       })
       .catch((error) => {
         if(error.response?.status === 404){
@@ -117,7 +117,7 @@ function SigningClient(network, signer) {
 
   async function signAndBroadcastWithoutBalanceCheck(address, msgs, gas, memo, gasPrice) {
     let defaultOptions
-    if(signer.keplr.defaultOptions){
+    if(signer.keplr?.defaultOptions){
       _.merge(signer.keplr.defaultOptions, { sign: { disableBalanceCheck: true } })
     }
     try {
@@ -144,7 +144,7 @@ function SigningClient(network, signer) {
     const txPollTimeout = setTimeout(() => {
       timedOut = true;
     }, timeoutMs);
-    
+
     const pollForTx = async (txId) => {
       if (timedOut) {
         throw new Error(
