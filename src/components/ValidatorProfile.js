@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react';
-import { round } from 'mathjs'
+import { round, add, multiply } from 'mathjs'
 
 import ValidatorLink from './ValidatorLink'
 import Coins from './Coins'
@@ -8,7 +8,6 @@ import TooltipIcon from './TooltipIcon'
 
 import {
   Table,
-  Spinner,
 } from 'react-bootstrap'
 
 import {
@@ -20,6 +19,8 @@ import ValidatorNetworks from './ValidatorNetworks';
 import OperatorLastRestake from './OperatorLastRestake';
 import Address from './Address';
 import ValidatorStatus from './ValidatorStatus'
+import SkipIcon from '../assets/skip.svg'
+import SkipWhiteIcon from '../assets/skip-white.svg'
 
 function ValidatorProfile(props) {
   const { validator, operator, network, networks, registryData, lastExec } = props
@@ -32,11 +33,15 @@ function ValidatorProfile(props) {
   }
 
   function uptime() {
-    if(!validator.uptime) return 
+    if(!validator.uptime) return
 
     const period = validator.uptime_periods.slice(-1)[0]
     const blockPeriod = validator.missed_blocks_periods.slice(-1)[0]
-    return <span>{_.round(period.uptime * 100, 2)}% <small>(missed {blockPeriod.missed.toLocaleString()} of {blockPeriod.blocks.toLocaleString()} blocks)</small></span>
+    const uptime = <span>{_.round(period.uptime * 100, 2)}% <small>(missed {blockPeriod.missed.toLocaleString()} of {blockPeriod.blocks.toLocaleString()} blocks)</small></span>
+    if(!validator.slashes) return uptime
+
+    const slashes = <small>{validator.slashes.length < 1 ? <>Never slashed</> : <>Slashed {validator.slashes.length} times ({_.round(multiply(validator.slashes.reduce((sum, s) => add(sum, s.fraction), 0), 100), 1)}% total stake)</>}</small>
+    return <span>{uptime}<br />{slashes}</span>
   }
 
   return (
@@ -129,10 +134,12 @@ function ValidatorProfile(props) {
         <div className="col-12 col-lg-6 small mb-3">
           <Table>
             <tbody>
-              <tr>
-                <td scope="row">Contact</td>
-                <td><a href={`mailto:${validator.description?.security_contact}`}>{validator.description?.security_contact}</a></td>
-              </tr>
+              {!!validator.description?.security_contact && (
+                <tr>
+                  <td scope="row">Contact</td>
+                  <td><a href={`mailto:${validator.description.security_contact}`}>{validator.description.security_contact}</a></td>
+                </tr>
+              )}
               {!!validator.description?.website && (
                 <tr>
                   <td scope="row">Website</td>
@@ -142,7 +149,7 @@ function ValidatorProfile(props) {
               <tr>
                 <td className="align-middle" scope="row">Profiles</td>
                 <td>
-                  <ValidatorServices validator={validator} network={network} theme={props.theme} exclude={['nodes']} />
+                  <ValidatorServices validator={validator} network={network} theme={props.theme} exclude={['nodes', 'skip']} />
                 </td>
               </tr>
               {validator?.path && (
@@ -155,9 +162,45 @@ function ValidatorProfile(props) {
               )}
             </tbody>
           </Table>
-          <p>
+          <p className="mb-4">
             {validator.description?.details}
           </p>
+          {!!network.chain.services?.skip && !!validator.services.skip && (
+            <>
+              <p className="mb-2 d-flex align-items-center gap-1">
+                <a href="https://skip.money" target="_blank"><img src={props.theme === 'dark' ? SkipWhiteIcon : SkipIcon} height={14} className="d-block" /></a><strong>Skip MEV</strong>
+              </p>
+              <Table className="table-sm">
+                <tbody>
+                  <tr>
+                    <td>Status</td>
+                    <td>
+                      {validator.services.skip.active ? (
+                        <>
+                          <span className="text-success">Active</span>
+                          {validator.services.skip.front_running_protection && <><br />Front-running protected</>}
+                        </>
+                      ) : <span className="text-warning">Inactive</span>}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Network profit</td>
+                    <td>
+                      {100 - validator.services.skip.val_payment_percentage}%<br />
+                      <Coins coins={{ amount: validator.services.skip.network_profit, denom: network.denom }} asset={network.baseAsset} hideValue={true} />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border-bottom-0">Validator profit</td>
+                    <td className={'border-bottom-0'}>
+                      {validator.services.skip.val_payment_percentage}%<br />
+                      <Coins coins={{ amount: validator.services.skip.val_profit, denom: network.denom }} asset={network.baseAsset} hideValue={true} />
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            </>
+          )}
           {Object.entries(validator.public_nodes || {}).length > 0 && (
             <>
               <p className="mb-2 d-flex align-items-center gap-1"><HeartPulse /><strong>Public Nodes</strong></p>
