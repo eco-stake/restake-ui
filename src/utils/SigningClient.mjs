@@ -97,7 +97,7 @@ function SigningClient(network, signer) {
 
   async function signAndBroadcastWithoutBalanceCheck(address, msgs, gas, memo, gasPrice) {
     let defaultOptions
-    if(signer.keplr.defaultOptions){
+    if(signer.keplr?.defaultOptions){
       _.merge(signer.keplr.defaultOptions, { sign: { disableBalanceCheck: true } })
     }
     try {
