@@ -1,52 +1,32 @@
 import _ from 'lodash'
 import axios from 'axios'
 import { multiply, ceil, bignumber } from 'mathjs'
-import Long from "long";
 
 import {
-  defaultRegistryTypes as defaultStargateTypes,
   assertIsDeliverTxSuccess,
   GasPrice,
-  AminoTypes,
-  createBankAminoConverters,
-  createDistributionAminoConverters,
-  createFreegrantAminoConverters,
-  createGovAminoConverters,
-  createIbcAminoConverters,
-  createStakingAminoConverters,
 } from "@cosmjs/stargate";
 import { sleep } from "@cosmjs/utils";
-import { makeSignDoc, Registry } from "@cosmjs/proto-signing";
-import { makeSignDoc as makeAminoSignDoc } from "@cosmjs/amino";
-import { toBase64, fromBase64 } from '@cosmjs/encoding'
-import { PubKey } from "cosmjs-types/cosmos/crypto/secp256k1/keys.js";
-import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing.js";
-import { AuthInfo, Fee, TxBody, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
+import { toBase64 } from '@cosmjs/encoding'
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
 
 import { coin } from './Helpers.mjs'
-import { createAuthzAminoConverters, createAuthzExecAminoConverters } from '../converters/Authz.mjs'
+import DefaultSigningAdapter from '../adapters/DefaultSigningAdapter.mjs';
+import OsmosisSigningAdapter from '../adapters/OsmosisSigningAdapter.mjs';
+import TerraSigningAdapter from '../adapters/TerraSigningAdapter.mjs';
+
+const adapters = {
+  osmosis: OsmosisSigningAdapter,
+  terra: TerraSigningAdapter
+}
 
 function SigningClient(network, signer) {
-
+  const adapter = new (adapters[network.path] || DefaultSigningAdapter)(network, signer)
   const {
-    restUrl, chainId,
+    restUrl,
     gasPrice: defaultGasPrice,
     gasModifier: defaultGasModifier,
-    slip44: coinType
   } = network
-
-  const registry = new Registry(defaultStargateTypes);
-  const defaultConverters = {
-    ...createAuthzAminoConverters(),
-    ...createBankAminoConverters(),
-    ...createDistributionAminoConverters(),
-    ...createGovAminoConverters(),
-    ...createStakingAminoConverters(network.prefix),
-    ...createIbcAminoConverters(),
-    ...createFreegrantAminoConverters(),
-  }
-  let aminoTypes = new AminoTypes(defaultConverters)
-  aminoTypes = new AminoTypes({...defaultConverters, ...createAuthzExecAminoConverters(registry, aminoTypes)})
 
   function getAccount(address) {
     return axios
@@ -137,6 +117,25 @@ function SigningClient(network, signer) {
     return broadcast(txBody)
   }
 
+  async function sign(address, messages, memo, fee){
+    const account = await getAccount(address)
+    return adapter.sign(account, messages, memo, fee)
+  }
+
+  async function simulate(address, messages, memo, modifier) {
+    const account = await getAccount(address)
+    const fee = getFee(100_000)
+    const txBody = await adapter.simulate(account, messages, memo, fee)
+    try {
+      const estimate = await axios.post(restUrl + '/cosmos/tx/v1beta1/simulate', {
+        tx_bytes: toBase64(TxRaw.encode(txBody).finish()),
+      }).then(el => el.data.gas_info.gas_used)
+      return (parseInt(estimate * (modifier || defaultGasModifier)));
+    } catch (error) {
+      throw new Error(error.response?.data?.message || error.message)
+    }
+  }
+
   async function broadcast(txBody){
     const timeoutMs = network.txTimeout || 60_000
     const pollIntervalMs = 3_000
@@ -180,81 +179,6 @@ function SigningClient(network, signer) {
     )
   }
 
-  async function sign(address, messages, memo, fee){
-    const account = await getAccount(address)
-    const { account_number: accountNumber, sequence } = account
-    const txBodyBytes = makeBodyBytes(messages, memo)
-    let aminoMsgs
-    try {
-      aminoMsgs = convertToAmino(messages)
-    } catch (e) { }
-    if(aminoMsgs && signer.signAmino){
-      // Sign as amino if possible for Ledger and Keplr support
-      const signDoc = makeAminoSignDoc(aminoMsgs, fee, chainId, memo, accountNumber, sequence);
-      const { signature, signed } = await signer.signAmino(address, signDoc);
-      const authInfoBytes = await makeAuthInfoBytes(account, {
-        amount: signed.fee.amount,
-        gasLimit: signed.fee.gas,
-      }, SignMode.SIGN_MODE_LEGACY_AMINO_JSON)
-      return {
-        bodyBytes: makeBodyBytes(messages, signed.memo),
-        authInfoBytes: authInfoBytes,
-        signatures: [Buffer.from(signature.signature, "base64")],
-      }
-    }else{
-      // Sign using standard protobuf messages
-      const authInfoBytes = await makeAuthInfoBytes(account, {
-        amount: fee.amount,
-        gasLimit: fee.gas,
-      }, SignMode.SIGN_MODE_DIRECT)
-      const signDoc = makeSignDoc(txBodyBytes, authInfoBytes, chainId, accountNumber);
-      const { signature, signed } = await signer.signDirect(address, signDoc);
-      return {
-        bodyBytes: signed.bodyBytes,
-        authInfoBytes: signed.authInfoBytes,
-        signatures: [fromBase64(signature.signature)],
-      }
-    }
-  }
-
-  async function simulate(address, messages, memo, modifier) {
-    const account = await getAccount(address)
-    const fee = getFee(100_000)
-    const txBody = {
-      bodyBytes: makeBodyBytes(messages, memo),
-      authInfoBytes: await makeAuthInfoBytes(account, {
-        amount: fee.amount,
-        gasLimit: fee.gas,
-      }, SignMode.SIGN_MODE_UNSPECIFIED),
-      signatures: [new Uint8Array()],
-    }
-
-    try {
-      const estimate = await axios.post(restUrl + '/cosmos/tx/v1beta1/simulate', {
-        tx_bytes: toBase64(TxRaw.encode(txBody).finish()),
-      }).then(el => el.data.gas_info.gas_used)
-      return (parseInt(estimate * (modifier || defaultGasModifier)));
-    } catch (error) {
-      throw new Error(error.response?.data?.message || error.message)
-    }
-  }
-
-  function convertToAmino(messages){
-    return messages.map(message => {
-      if(message.typeUrl.startsWith('/cosmos.authz') && !network.authzAminoSupport){
-        throw new Error('This chain does not support amino conversion for Authz messages')
-      }
-      if(message.typeUrl === '/cosmos.authz.v1beta1.MsgExec' && network.path === 'osmosis'){
-        // Osmosis MsgExec gov is broken with Amino currently
-        // See https://github.com/osmosis-labs/cosmos-sdk/pull/342
-        if(message.value.msgs.some(msg => msg.typeUrl.startsWith('/cosmos.gov'))){
-          throw new Error('Osmosis does not support amino conversion for Authz Exec gov messages')
-        }
-      }
-      return aminoTypes.toAmino(message)
-    })
-  }
-
   function parseTxResult(result){
     return {
       code: result.code,
@@ -266,56 +190,9 @@ function SigningClient(network, signer) {
     }
   }
 
-  function makeBodyBytes(messages, memo){
-    const anyMsgs = messages.map((m) => registry.encodeAsAny(m));
-    return TxBody.encode(
-      TxBody.fromPartial({
-        messages: anyMsgs,
-        memo: memo,
-      })
-    ).finish()
-  }
-
-  async function makeAuthInfoBytes(account, fee, mode){
-    const { sequence } = account
-    const accountFromSigner = (await signer.getAccounts())[0]
-    if (!accountFromSigner) {
-      throw new Error("Failed to retrieve account from signer");
-    }
-    const signerPubkey = accountFromSigner.pubkey;
-    return AuthInfo.encode({
-      signerInfos: [
-        {
-          publicKey: {
-            typeUrl: pubkeyTypeUrl(account.pub_key),
-            value: PubKey.encode({
-              key: signerPubkey,
-            }).finish(),
-          },
-          sequence: Long.fromNumber(sequence, true),
-          modeInfo: { single: { mode: mode } },
-        },
-      ],
-      fee: Fee.fromPartial(fee),
-    }).finish()
-  }
-
-  function pubkeyTypeUrl(pub_key){
-    if(pub_key && pub_key['@type']) return pub_key['@type']
-
-    if(network.path === 'injective'){
-      return '/injective.crypto.v1beta1.ethsecp256k1.PubKey'
-    }
-
-    if(coinType === 60){
-      return '/ethermint.crypto.v1.ethsecp256k1.PubKey'
-    }
-    return '/cosmos.crypto.secp256k1.PubKey'
-  }
-
   return {
     signer,
-    registry,
+    registry: adapter.registry,
     getFee,
     simulate,
     signAndBroadcast,
