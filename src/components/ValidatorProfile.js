@@ -165,7 +165,7 @@ function ValidatorProfile(props) {
           <p className="mb-4">
             {validator.description?.details}
           </p>
-          {!!network.chain.services?.skip && !!validator.services.skip && (
+          {!!network.chain.services?.skip && !!validator.services?.skip && (
             <>
               <p className="mb-2 d-flex align-items-center gap-1">
                 <a href="https://skip.money" target="_blank"><img src={props.theme === 'dark' ? SkipWhiteIcon : SkipIcon} height={14} className="d-block" /></a><strong>Skip MEV</strong>
