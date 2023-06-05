@@ -53,8 +53,7 @@
   },
   {
     "name": "desmos",
-    "authzSupport": true,
-    "authzAminoSupport": true
+    "authzAminoGenericOnly": false
   },
   {
     "name": "cryptoorgchain",
@@ -65,7 +64,7 @@
     "ownerAddress": "evmosvaloper1umk407eed7af6anvut6llg2zevnf0dn0feqqny",
     "txTimeout": 120000,
     "maxPerDay": 1,
-    "authzAminoSupport": false
+    "gasPrice": "75000000000aevmos"
   },
   {
     "name": "sifchain"
@@ -115,7 +114,7 @@
   },
   {
     "name": "secretnetwork",
-    "authzAminoSupport": true
+    "authzAminoGenericOnly": false
   },
   {
     "name": "bostrom"

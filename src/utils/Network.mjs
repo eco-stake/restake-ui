@@ -88,6 +88,7 @@ class Network {
     this.ledgerSupport = this.chain.ledgerSupport ?? true
     this.authzSupport = this.chain.authzSupport
     this.authzAminoSupport = this.chain.authzAminoSupport
+    this.authzAminoGenericOnly = this.chain.authzAminoGenericOnly
     this.txTimeout = this.data.txTimeout || 60_000
     this.keywords = this.buildKeywords()
 
