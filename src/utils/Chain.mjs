@@ -6,10 +6,11 @@ const Chain = (data) => {
   const baseAsset = assets[0]
   const { cosmos_sdk_version } = data.versions || {}
   const slip44 = data.slip44 || 118
+  const ledgerSupport = data.ledgerSupport ?? slip44 !== 60 // no ethereum ledger support for now
   const sdk46OrLater = validate(cosmos_sdk_version) && compareVersions(cosmos_sdk_version, '0.46') >= 0
   const sdkAuthzAminoSupport = sdk46OrLater
   const authzSupport = data.authzSupport ?? data.params?.authz
-  const authzAminoSupport = data.authzAminoSupport ?? slip44 !== 60 // no ethereum amino signing support for now
+  const authzAminoSupport = data.authzAminoSupport ?? true
   const authzAminoGenericOnly = authzAminoSupport && (data.authzAminoGenericOnly ?? !sdkAuthzAminoSupport)
   const apiVersions = {
     gov: sdk46OrLater ? 'v1' : 'v1beta1',
@@ -23,6 +24,7 @@ const Chain = (data) => {
     prefix: data.prefix || data.bech32_prefix,
     slip44,
     estimatedApr: data.params?.calculated_apr,
+    ledgerSupport,
     authzSupport,
     authzAminoSupport,
     authzAminoGenericOnly,
