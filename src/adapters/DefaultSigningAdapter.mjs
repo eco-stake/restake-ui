@@ -102,6 +102,8 @@ export default class DefaultSigningAdapter {
           case 'cosmos-sdk/MsgRevoke':
             aminoMessage = aminoMessage.value
             break;
+          case 'cosmos-sdk/MsgExec':
+            throw new Error('This chain does not support amino conversion for MsgExec')
         }
       }
       return aminoMessage
