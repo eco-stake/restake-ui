@@ -92,7 +92,19 @@ export default class DefaultSigningAdapter {
       if(message.typeUrl.startsWith('/cosmos.authz') && !this.network.authzAminoSupport){
         throw new Error('This chain does not support amino conversion for Authz messages')
       }
-      return this.aminoTypes.toAmino(message)
+      let aminoMessage = this.aminoTypes.toAmino(message)
+      if(this.network.authzAminoGenericOnly){
+        switch (aminoMessage.type) {
+          case 'cosmos-sdk/MsgGrant':
+            aminoMessage = aminoMessage.value
+            aminoMessage.grant.authorization = aminoMessage.grant.authorization.value
+            break;
+          case 'cosmos-sdk/MsgRevoke':
+            aminoMessage = aminoMessage.value
+            break;
+        }
+      }
+      return aminoMessage
     })
   }
 
