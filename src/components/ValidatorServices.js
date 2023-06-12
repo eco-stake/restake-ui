@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
-  OverlayTrigger, 
+  OverlayTrigger,
   Tooltip
 } from 'react-bootstrap'
 import {
@@ -20,19 +20,37 @@ function ValidatorServices(props) {
 
   const services = []
 
-  if(Object.entries(validator.public_nodes || {}).length){
+  if(validator.path === 'ecostake'){
+    const publicNodes = Object.entries(validator.public_nodes || {}).length
+    let tooltip = 'Created REStake and Cosmos.directory'
+    if(publicNodes) tooltip = <>{tooltip}, and provides public nodes for {network.prettyName}</>
     services.push({
       key: 'nodes',
-      tooltip: 'Provides public nodes used by REStake and other apps',
+      tooltip,
       render: () => {
         return (
           <Link to={`/${network.path}/${validator.address}`} className="text-reset">
-            <HeartPulse height={props.height || 18} width={props.width || 18} className="d-block" />
+            <HeartPulse height={props.height || 18} width={props.width || 18} className="d-block text-success" />
           </Link>
         )
       }
     })
+  }else{
+    if(Object.entries(validator.public_nodes || {}).length){
+      services.push({
+        key: 'nodes',
+        tooltip: 'Provides public nodes used by REStake and other apps',
+        render: () => {
+          return (
+            <Link to={`/${network.path}/${validator.address}`} className="text-reset">
+              <HeartPulse height={props.height || 18} width={props.width || 18} className="d-block" />
+            </Link>
+          )
+        }
+      })
+    }
   }
+
 
   if(validator.services?.staking_rewards){
     let verified = validator.services.staking_rewards.verified
