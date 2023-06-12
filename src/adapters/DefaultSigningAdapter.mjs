@@ -60,7 +60,7 @@ export default class DefaultSigningAdapter {
         authInfoBytes: authInfoBytes,
         signatures: [Buffer.from(signature.signature, "base64")],
       }
-    }else{
+    }else if(this.signer.signDirect){
       // Sign using standard protobuf messages
       const authInfoBytes = await this.makeAuthInfoBytes(account, {
         amount: fee.amount,
@@ -73,6 +73,8 @@ export default class DefaultSigningAdapter {
         authInfoBytes: signed.authInfoBytes,
         signatures: [fromBase64(signature.signature)],
       }
+    }else{
+      throw new Error('Unable to sign message with this wallet/signer')
     }
   }
 
