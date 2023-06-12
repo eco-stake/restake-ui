@@ -45,7 +45,7 @@ function NetworkChecks(props) {
     operatorCheck.failTitle = operatorCheck.title,
     operatorCheck.failDescription = "Authz is disabled but there are operators ready when support is added."
   }
-  
+
   const testedCheck =  {
     title: 'Tested with REStake',
     failTitle: 'Experimental support',
@@ -81,7 +81,7 @@ function NetworkChecks(props) {
           identifier: 'network'
         }),
         renderCheck({
-          title: network.authzAminoSupport ? <strong>Full Authz support</strong> : 'Authz support',
+          title: !network.authzAminoGenericOnly ? <strong>Full Authz support</strong> : 'Authz support',
           failTitle: 'Authz not supported',
           failDescription: "This network doesn't support Authz just yet. You can stake and compound manually, REStake will update automatically when support is added.",
           state: network.authzSupport,
