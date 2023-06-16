@@ -91,8 +91,13 @@ export default class DefaultSigningAdapter {
 
   convertToAmino(messages){
     return messages.map(message => {
-      if(message.typeUrl.startsWith('/cosmos.authz') && !this.network.authzAminoSupport){
-        throw new Error('This chain does not support amino conversion for Authz messages')
+      if(message.typeUrl.startsWith('/cosmos.authz')){
+        if(!this.network.authzAminoSupport){
+          throw new Error('This chain does not support amino conversion for Authz messages')
+        }
+        if(this.network.authzAminoGenericOnly && this.signer.signDirect){
+          throw new Error('This chain does not fully support amino conversion for Authz messages, using signDirect instead')
+        }
       }
       let aminoMessage = this.aminoTypes.toAmino(message)
       if(this.network.authzAminoGenericOnly){
