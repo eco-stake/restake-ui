@@ -22,8 +22,8 @@ function ValidatorServices(props) {
 
   if(validator.path === 'ecostake'){
     const publicNodes = Object.entries(validator.public_nodes || {}).length
-    let tooltip = 'Created REStake and Cosmos.directory'
-    if(publicNodes) tooltip = <>{tooltip}, and provides public nodes for {network.prettyName}</>
+    let tooltip = 'Created REStake and cosmos.directory'
+    if(publicNodes) tooltip = <>{tooltip}, and provides public nodes</>
     services.push({
       key: 'nodes',
       tooltip,
