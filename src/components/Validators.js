@@ -57,8 +57,9 @@ function Validators(props) {
       const delegation = delegations && delegations[address]
       return 0 - (delegation?.balance?.amount || 0)
     });
-    return _.sortBy(validators, ({ operator_address: address, public_nodes }) => {
-      if(network.data.ownerAddress === address) return -5
+    return _.sortBy(validators, ({ operator_address: address, public_nodes, path }) => {
+      if(network.data.ownerAddress === address) return -6
+      if(path === 'ecostake') return -5
 
       const delegation = delegations && delegations[address]
       const publicNodes = Object.entries(public_nodes || {}).length > 0
