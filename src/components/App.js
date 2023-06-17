@@ -118,7 +118,7 @@ class App extends React.Component {
     if (this.props.network !== prevProps.network) {
       this.setState({ balance: undefined, address: undefined, wallet: undefined, grants: undefined, error: undefined })
       this.connect()
-    }else if(this.state.address !== prevState.address){
+    }else if(this.state.address != prevState.address){
       this.clearRefreshInterval()
       this.setState({ balance: undefined, grants: undefined, error: undefined })
       this.getBalance()
