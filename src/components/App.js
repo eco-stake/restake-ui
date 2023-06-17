@@ -207,7 +207,7 @@ class App extends React.Component {
       }
     } catch (e) {
       return this.setState({
-        error: `Failed to connect to ${signerProvider?.label || 'signer'}: ${e.message}`,
+        error: `Unable to connect to ${signerProvider?.label || 'signer'}: ${e.message}`,
         address: null,
         wallet: null,
         signingClient: null
