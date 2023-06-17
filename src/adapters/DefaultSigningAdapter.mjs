@@ -60,7 +60,7 @@ export default class DefaultSigningAdapter {
         authInfoBytes: authInfoBytes,
         signatures: [Buffer.from(signature.signature, "base64")],
       }
-    }else{
+    }else if(this.signer.signDirect){
       // Sign using standard protobuf messages
       const authInfoBytes = await this.makeAuthInfoBytes(account, {
         amount: fee.amount,
@@ -73,6 +73,8 @@ export default class DefaultSigningAdapter {
         authInfoBytes: signed.authInfoBytes,
         signatures: [fromBase64(signature.signature)],
       }
+    }else{
+      throw new Error('Unable to sign message with this wallet/signer')
     }
   }
 
@@ -89,10 +91,29 @@ export default class DefaultSigningAdapter {
 
   convertToAmino(messages){
     return messages.map(message => {
-      if(message.typeUrl.startsWith('/cosmos.authz') && !this.network.authzAminoSupport){
-        throw new Error('This chain does not support amino conversion for Authz messages')
+      if(message.typeUrl.startsWith('/cosmos.authz')){
+        if(!this.network.authzAminoSupport){
+          throw new Error('This chain does not support amino conversion for Authz messages')
+        }
+        if(this.network.authzAminoGenericOnly && this.signer.signDirect){
+          throw new Error('This chain does not fully support amino conversion for Authz messages, using signDirect instead')
+        }
       }
-      return this.aminoTypes.toAmino(message)
+      let aminoMessage = this.aminoTypes.toAmino(message)
+      if(this.network.authzAminoGenericOnly){
+        switch (aminoMessage.type) {
+          case 'cosmos-sdk/MsgGrant':
+            aminoMessage = aminoMessage.value
+            aminoMessage.grant.authorization = aminoMessage.grant.authorization.value
+            break;
+          case 'cosmos-sdk/MsgRevoke':
+            aminoMessage = aminoMessage.value
+            break;
+          case 'cosmos-sdk/MsgExec':
+            throw new Error('This chain does not support amino conversion for MsgExec')
+        }
+      }
+      return aminoMessage
     })
   }
 

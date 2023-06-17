@@ -4,6 +4,7 @@ import { pow, multiply, divide, larger, bignumber } from 'mathjs'
 
 import { MsgGrant } from "cosmjs-types/cosmos/authz/v1beta1/tx";
 import { StakeAuthorization } from "cosmjs-types/cosmos/staking/v1beta1/authz";
+import { GenericAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
 import { Timestamp } from "cosmjs-types/google/protobuf/timestamp";
 
 import {
@@ -27,12 +28,13 @@ function REStakeGrantForm(props) {
     (state, newState) => ({ ...state, ...newState }),
     { maxTokensValue: '', expiryDateValue: defaultExpiry.format('YYYY-MM-DD') }
   )
+  const genericGrantOnly = wallet.signAminoSupportOnly() && network.authzAminoGenericOnly
 
   const reward = rewardAmount(props.rewards, network.denom)
 
   useEffect(() => {
     setState({
-      validators: validators || (!stakeGrant && [operator.address]),
+      validators: validators || (!stakeGrant && !genericGrantOnly && [operator.address]),
       maxTokens,
       expiryDate: expiryDate(),
     })
@@ -79,16 +81,28 @@ function REStakeGrantForm(props) {
       maxTokens = coin(maxTokensDenom(), network.denom)
     }
 
-    const messages = [
-      buildGrantMsg("/cosmos.staking.v1beta1.StakeAuthorization",
-        StakeAuthorization.encode(StakeAuthorization.fromPartial({
-          allowList: { address: [operator.address] },
-          maxTokens: maxTokens,
-          authorizationType: 1
-        })).finish(),
-        expiry
-      )
-    ]
+    let messages
+    if(genericGrantOnly){
+      messages = [
+        buildGrantMsg("/cosmos.authz.v1beta1.GenericAuthorization",
+          GenericAuthorization.encode(GenericAuthorization.fromPartial({
+            msg: '/cosmos.staking.v1beta1.MsgDelegate'
+          })).finish(),
+          expiry
+        )
+      ]
+    }else{
+      messages = [
+        buildGrantMsg("/cosmos.staking.v1beta1.StakeAuthorization",
+          StakeAuthorization.encode(StakeAuthorization.fromPartial({
+            allowList: { address: [operator.address] },
+            maxTokens: maxTokens,
+            authorizationType: 1
+          })).finish(),
+          expiry
+        )
+      ]
+    }
     console.log(messages)
 
     props.signingClient.signAndBroadcast(wallet.address, messages).then((result) => {
@@ -98,7 +112,10 @@ function REStakeGrantForm(props) {
         grantee: operator.botAddress,
         granter: address,
         expiration: expiry,
-        authorization: {
+        authorization: genericGrantOnly ? {
+          '@type': "/cosmos.authz.v1beta1.GenericAuthorization",
+          msg: '/cosmos.staking.v1beta1.MsgDelegate'
+        } : {
           '@type': "/cosmos.staking.v1beta1.StakeAuthorization",
           max_tokens: maxTokens,
           allow_list: { address: [operator.address] }
@@ -142,11 +159,13 @@ function REStakeGrantForm(props) {
   function grantInformation() {
     return (
       <>
-        <p className="small">{operator.moniker} will be able to carry out the following transactions on your behalf.</p>
+        <p className="small">{operator.moniker} will be able to carry out the following transactions on your behalf:</p>
         <p className="small"><strong>Delegate</strong> - allowed to delegate <em>{maxTokensDenom() ? <Coins coins={{ amount: maxTokensDenom(), denom: network.denom }} asset={network.baseAsset} fullPrecision={true} hideValue={true} /> : 'any amount'}</em> to <em>{!state.validators ? 'any validator' : !state.validators.length || (state.validators.length === 1 && state.validators.includes(operator.address)) ? 'only their own validator' : 'validators ' + state.validators.join(', ')}</em>.</p>
         <p className="small">This grant will expire automatically on <em>{state.expiryDateValue}</em>.</p>
         <p className="small">REStake only re-delegates {operator.moniker}'s accrued rewards and tries not to touch your balance.</p>
-        <p className="small"><em>REStake previously required a Withdraw grant but this is no longer necessary.</em></p>
+        {genericGrantOnly && (
+          <p className="small"><em>{network.prettyName} only supports generic Authz grants with this wallet, full support is coming soon.</em></p>
+        )}
       </>
     )
   }
@@ -163,64 +182,69 @@ function REStakeGrantForm(props) {
           {error}
         </AlertMessage>
       }
-      <div className="row">
-        <div className="col-12 col-md-6 order-md-1 mb-3">
-          <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
+        <div className="row">
+          <div className="col-12 col-md-6 order-md-1 mb-3">
             <fieldset disabled={!props.address || !props.wallet}>
               <Form.Group className="mb-3">
                 <Form.Label>Max amount</Form.Label>
                 <div className="mb-3">
                   <div className="input-group">
-                    <Form.Control type="number" name="maxTokensValue" min={divide(1, pow(10, network.decimals))} className={!maxTokensValid() ? 'is-invalid' : 'is-valid'} step={step()} placeholder={maxTokens ? divide(bignumber(maxTokens), pow(10, network.decimals)) : 'Unlimited'} required={false} value={state.maxTokensValue} onChange={handleInputChange} />
+                    <Form.Control type="number" disabled={genericGrantOnly} name="maxTokensValue" min={divide(1, pow(10, network.decimals))} className={!maxTokensValid() ? 'is-invalid' : 'is-valid'} step={step()} placeholder={maxTokens ? divide(bignumber(maxTokens), pow(10, network.decimals)) : 'Unlimited'} required={false} value={state.maxTokensValue} onChange={handleInputChange} />
                     <span className="input-group-text">{network.symbol}</span>
                   </div>
                   <div className="form-text text-end">
-                    Reduces with every delegation made by the validator<br />Leave empty for unlimited
+                    {genericGrantOnly ? (
+                      <>{network.prettyName} does not support amount with this wallet yet</>
+                    ) : (
+                      <>Reduces with every delegation made by the validator<br />Leave empty for unlimited</>
+                    )}
+
                   </div>
                 </div>
               </Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>Expiry date</Form.Label>
                 <Form.Control type="date" className="text-start" name='expiryDateValue' min={moment().format('YYYY-MM-DD')} required={true} value={state.expiryDateValue} onChange={handleInputChange} />
-                <div className="form-text text-end">Date the grant will expire. After this date you will need to re-grant</div>
+                <div className="form-text text-end">Date the grant expires, after which you will need to re-grant</div>
               </Form.Group>
-              <div className="text-end">
-                {!loading
-                  ? (
-                    <div className="d-flex justify-content-end gap-2">
-                      {props.closeForm && (
-                        <Button variant="secondary" onClick={props.closeForm}>Cancel</Button>
-                      )}
-                      {grants?.grantsExist && (
-                        <RevokeGrant
-                          button={true}
-                          address={address}
-                          wallet={wallet}
-                          operator={operator}
-                          grants={[grants.stakeGrant, grants.claimGrant]}
-                          grantAddress={operator.botAddress}
-                          signingClient={props.signingClient}
-                          onRevoke={props.onRevoke}
-                          setLoading={(loading) => showLoading(loading)}
-                          setError={setError}
-                          buttonText="Disable"
-                        />
-                      )}
-                      <Button type="submit" disabled={!wallet?.hasPermission(address, 'Grant')} className="btn btn-primary">{grants?.grantsExist ? 'Update' : 'Enable REStake'}</Button>
-                    </div>
-                  )
-                  : <Button className="btn btn-primary" type="button" disabled>
-                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;
-                  </Button>
-                }
-              </div>
             </fieldset>
-          </Form>
+          </div>
+          <div className="col-12 col-md-6 mb-3">
+            {grantInformation()}
+          </div>
         </div>
-        <div className="col-12 col-md-6 mb-3">
-          {grantInformation()}
+        <div className="text-end">
+          {!loading
+            ? (
+              <div className="d-flex justify-content-end gap-2">
+                {props.closeForm && (
+                  <Button variant="secondary" onClick={props.closeForm}>Cancel</Button>
+                )}
+                {grants?.grantsExist && (
+                  <RevokeGrant
+                    button={true}
+                    address={address}
+                    wallet={wallet}
+                    operator={operator}
+                    grants={[grants.stakeGrant, grants.claimGrant]}
+                    grantAddress={operator.botAddress}
+                    signingClient={props.signingClient}
+                    onRevoke={props.onRevoke}
+                    setLoading={(loading) => showLoading(loading)}
+                    setError={setError}
+                    buttonText="Disable"
+                  />
+                )}
+                <Button type="submit" disabled={!wallet?.hasPermission(address, 'Grant')} className="btn btn-primary">{grants?.grantsExist ? 'Update' : 'Enable REStake'}</Button>
+              </div>
+            )
+            : <Button className="btn btn-primary" type="button" disabled>
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;
+            </Button>
+          }
         </div>
-      </div>
+      </Form>
     </>
   )
 }
