@@ -86,7 +86,13 @@
   },
   {
     "name": "comdex",
-    "ownerAddress": "comdexvaloper17f70yjkvmvld379904jaddx9h0f74n32pjtmp6"
+    "ownerAddress": "comdexvaloper17f70yjkvmvld379904jaddx9h0f74n32pjtmp6",
+    "apiVersions": {
+      "gov": "v1beta1"
+    },
+    "authzAminoExecPreventTypes": [
+      "/cosmos.gov."
+    ]
   },
   {
     "name": "cheqd"
