@@ -31,7 +31,8 @@
     "ownerAddress": "regenvaloper1c4y3j05qx652rnxm5mg4yesqdkmhz2f6dl7hhk"
   },
   {
-    "name": "terra"
+    "name": "terra",
+    "authzAminoLiftedValues": false
   },
   {
     "name": "terra2"
@@ -77,7 +78,10 @@
   },
   {
     "name": "comdex",
-    "ownerAddress": "comdexvaloper17f70yjkvmvld379904jaddx9h0f74n32pjtmp6"
+    "ownerAddress": "comdexvaloper17f70yjkvmvld379904jaddx9h0f74n32pjtmp6",
+    "apiVersions": {
+      "gov": "v1beta1"
+    }
   },
   {
     "name": "cheqd"

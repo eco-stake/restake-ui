@@ -100,7 +100,7 @@ export default class DefaultSigningAdapter {
         }
       }
       let aminoMessage = this.aminoTypes.toAmino(message)
-      if(this.network.authzAminoGenericOnly){
+      if(this.network.authzAminoLiftedValues){
         switch (aminoMessage.type) {
           case 'cosmos-sdk/MsgGrant':
             aminoMessage = aminoMessage.value
