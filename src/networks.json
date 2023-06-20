@@ -5,7 +5,10 @@
     "maxPerDay": 1,
     "apiVersions": {
       "gov": "v1beta1"
-    }
+    },
+    "authzAminoExecPreventTypes": [
+      "/cosmos.gov."
+    ]
   },
   {
     "name": "juno",
