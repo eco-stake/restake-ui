@@ -12,11 +12,9 @@ import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
 
 import { coin } from './Helpers.mjs'
 import DefaultSigningAdapter from '../adapters/DefaultSigningAdapter.mjs';
-import OsmosisSigningAdapter from '../adapters/OsmosisSigningAdapter.mjs';
 import TerraSigningAdapter from '../adapters/TerraSigningAdapter.mjs';
 
 const adapters = {
-  osmosis: OsmosisSigningAdapter,
   terra: TerraSigningAdapter
 }
 

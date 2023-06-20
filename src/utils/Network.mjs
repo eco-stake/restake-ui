@@ -90,6 +90,7 @@ class Network {
     this.authzAminoSupport = this.chain.authzAminoSupport
     this.authzAminoGenericOnly = this.chain.authzAminoGenericOnly
     this.authzAminoLiftedValues = this.chain.authzAminoLiftedValues
+    this.authzAminoExecPreventTypes = this.chain.authzAminoExecPreventTypes
     this.txTimeout = this.data.txTimeout || 60_000
     this.keywords = this.buildKeywords()
 
