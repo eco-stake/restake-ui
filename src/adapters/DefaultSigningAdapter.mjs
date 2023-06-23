@@ -99,6 +99,13 @@ export default class DefaultSigningAdapter {
           throw new Error('This chain does not fully support amino conversion for Authz messages, using signDirect instead')
         }
       }
+      if(message.typeUrl === '/cosmos.authz.v1beta1.MsgExec'){
+        const execTypes = message.value.msgs.map(msg => msg.typeUrl)
+        const preventedTypes = execTypes.filter(type => this.network.authzAminoExecPreventTypes.some(prevent => type.match(_.escapeRegExp(prevent))))
+        if(preventedTypes.length > 0){
+          throw new Error(`This chain does not support amino conversion for Authz Exec with types: ${preventedTypes.join(', ')}`)
+        }
+      }
       let aminoMessage = this.aminoTypes.toAmino(message)
       if(this.network.authzAminoLiftedValues){
         switch (aminoMessage.type) {
