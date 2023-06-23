@@ -37,7 +37,8 @@
     ]
   },
   {
-    "name": "terra"
+    "name": "terra",
+    "authzAminoLiftedValues": false
   },
   {
     "name": "terra2"
