@@ -175,45 +175,6 @@ class Network {
     )
   }
 
-  suggestChain(){
-    const currency = {
-      coinDenom: this.symbol,
-      coinMinimalDenom: this.denom,
-      coinDecimals: this.decimals
-    }
-    if(this.coinGeckoId){
-      currency.coinGeckoId = this.coinGeckoId
-    }
-    const data = {
-      rpc: this.rpcUrl,
-      rest: this.restUrl,
-      chainId: this.chainId,
-      chainName: this.prettyName,
-      stakeCurrency: currency,
-      bip44: { coinType: this.slip44 },
-      walletUrlForStaking: "https://restake.app/" + this.name,
-      bech32Config: {
-        bech32PrefixAccAddr: this.prefix,
-        bech32PrefixAccPub: this.prefix + "pub",
-        bech32PrefixValAddr: this.prefix + "valoper",
-        bech32PrefixValPub: this.prefix + "valoperpub",
-        bech32PrefixConsAddr: this.prefix + "valcons",
-        bech32PrefixConsPub: this.prefix + "valconspub"
-      },
-      currencies: [currency],
-      feeCurrencies: [{...currency, gasPriceStep: this.gasPriceStep }]
-    }
-    if(this.keplrFeatures()){
-      data.features = this.keplrFeatures()
-    }
-    return data
-  }
-
-  keplrFeatures(){
-    if(this.data.keplrFeatures) return this.data.keplrFeatures
-    if(this.slip44 === 60) return ["ibc-transfer", "ibc-go", "eth-address-gen", "eth-key-sign"]
-  }
-
   buildKeywords(){
     return _.compact([
       ...this.chain?.keywords || [],

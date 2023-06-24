@@ -16,12 +16,17 @@ export const messageTypes = [
 ]
 
 class Wallet {
-  constructor(network, signer, key){
+  constructor(network, signerProvider, key){
     this.network = network
-    this.signer = signer
+    this.signerProvider = signerProvider
     this.key = key
     this.name = key?.name
     this.grants = []
+  }
+
+  async getSigner(){
+    this.signer = await this.signerProvider.getSigner(this.network, this.key)
+    return this.signer
   }
 
   signingClient(){
@@ -44,7 +49,11 @@ class Wallet {
   }
 
   authzSupport(){
-    return this.signDirectSupport() || (this.network.authzAminoSupport && this.signAminoSupport())
+    if(this.signDirectSupport()) return true
+    if(this.network.authzAminoLiftedValues && !this.signerProvider.authzAminoLiftedValueSupport) return false
+
+    return this.network.authzAminoSupport && this.signAminoSupport()
+  }
   }
 
   signAminoSupportOnly(){

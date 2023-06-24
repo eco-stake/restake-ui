@@ -60,6 +60,7 @@ import LeapSignerProvider from '../utils/LeapSignerProvider.mjs';
 import KeplrMobileSignerProvider from '../utils/KeplrMobileSignerProvider.mjs';
 import ConnectWalletModal from './ConnectWalletModal';
 import { truncateAddress } from '../utils/Helpers.mjs';
+import CosmostationSignerProvider from '../utils/CosmostationSignerProvider.mjs';
 
 class App extends React.Component {
   constructor(props) {
@@ -72,6 +73,8 @@ class App extends React.Component {
     }
     this.signerProviders = [
       new KeplrSignerProvider(window.keplr),
+      new LeapSignerProvider(window.leap),
+      new CosmostationSignerProvider(window.cosmostation.providers.keplr, window.cosmostation.cosmos),
       new KeplrMobileSignerProvider({
         connectModal: {
           open: (uri, callback) => {
@@ -86,7 +89,6 @@ class App extends React.Component {
           }
         }
       }),
-      new LeapSignerProvider(window.leap),
       // new FalconSignerProvider(window.falcon)
     ]
     this.signerConnectors = {}
@@ -214,8 +216,8 @@ class App extends React.Component {
       })
     }
     try {
-      const offlineSigner = await signerProvider.getSigner(network)
-      const wallet = new Wallet(network, offlineSigner, key)
+      const wallet = new Wallet(network, signerProvider, key)
+      await wallet.getSigner()
       const signingClient = wallet.signingClient()
       signingClient.registry.register("/cosmos.authz.v1beta1.MsgGrant", MsgGrant)
       signingClient.registry.register("/cosmos.authz.v1beta1.MsgRevoke", MsgRevoke)

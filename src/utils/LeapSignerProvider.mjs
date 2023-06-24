@@ -8,7 +8,6 @@ export default class LeapSignerProvider extends SignerProvider {
   key = 'leap'
   label = 'Leap Wallet'
   keychangeEvent = 'leap_keystorechange'
-  suggestChainSupport = true
 
   async connect(network) {
     if(this.provider){
