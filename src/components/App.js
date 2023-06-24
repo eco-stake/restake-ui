@@ -75,7 +75,7 @@ class App extends React.Component {
     this.signerProviders = [
       new KeplrSignerProvider(window.keplr),
       new LeapSignerProvider(window.leap),
-      new CosmostationSignerProvider(window.cosmostation.providers.keplr, window.cosmostation.cosmos),
+      new CosmostationSignerProvider(window.cosmostation?.providers?.keplr, window.cosmostation?.cosmos),
       new KeplrMobileSignerProvider({
         connectModal: {
           open: (uri, callback) => {
