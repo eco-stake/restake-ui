@@ -12,6 +12,7 @@ function RevokeGrant(props) {
   const buttonText = props.buttonText || 'Revoke'
 
   async function revoke(){
+    props.setError(null)
     if(props.setLoading) props.setLoading(true)
 
     let msgTypes = _.compact(grants).map(grant => {
@@ -26,7 +27,7 @@ function RevokeGrant(props) {
     if(wallet?.address !== address){
       messages = [buildExecMessage(wallet.address, messages)]
     }
-      
+
     console.log(messages)
 
     try {

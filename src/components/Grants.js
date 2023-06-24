@@ -210,13 +210,12 @@ function Grants(props) {
       {!props.grantQuerySupport && (
         <AlertMessage variant="warning">Grants cannot be queried on this network yet. <span role="button" className="text-decoration-underline" onClick={props.showFavouriteAddresses}>Save addresses</span> first to see their grants.</AlertMessage>
       )}
-      {props.grantQuerySupport && !walletAuthzSupport && (
+      {props.grantQuerySupport && !walletAuthzSupport && !!props.wallet && (
         <AlertMessage
           variant="warning"
           dismissible={false}
         >
-          <p>Ledger devices can't send Authz transactions just yet. Full support will be enabled as soon as it is possible.</p>
-          <p className="mb-0"><span onClick={() => setShowModal(true)} role="button" className="text-reset text-decoration-underline">A manual workaround is possible using the CLI.</span></p>
+          <p className="mb-0">{props.wallet.authzSupportMessage()}</p>
         </AlertMessage>
         )}
       <AlertMessage message={error} />

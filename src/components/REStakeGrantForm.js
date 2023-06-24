@@ -74,6 +74,7 @@ function REStakeGrantForm(props) {
 
   function handleSubmit(event) {
     event.preventDefault()
+    setError(null)
     showLoading(true)
     const expiry = moment(state.expiryDateValue)
     let maxTokens

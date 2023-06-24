@@ -18,8 +18,8 @@ const adapters = {
   terra: TerraSigningAdapter
 }
 
-function SigningClient(network, signer) {
-  const adapter = new (adapters[network.path] || DefaultSigningAdapter)(network, signer)
+function SigningClient(network, signerProvider) {
+  const adapter = new (adapters[network.path] || DefaultSigningAdapter)(network, signerProvider)
   const {
     restUrl,
     gasPrice: defaultGasPrice,
@@ -31,6 +31,8 @@ function SigningClient(network, signer) {
       .get(restUrl + "/cosmos/auth/v1beta1/accounts/" + address)
       .then((res) => res.data.account)
       .then((value) => {
+        if(!value) throw new Error('Failed to fetch account, please try again')
+
         // see https://github.com/chainapsis/keplr-wallet/blob/7ca025d32db7873b7a870e69a4a42b525e379132/packages/cosmos/src/account/index.ts#L73
         // If the chain modifies the account type, handle the case where the account type embeds the base account.
         // (Actually, the only existent case is ethermint, and this is the line for handling ethermint)
@@ -94,16 +96,12 @@ function SigningClient(network, signer) {
   }
 
   async function signAndBroadcastWithoutBalanceCheck(address, msgs, gas, memo, gasPrice) {
-    let defaultOptions
-    if(signer.keplr?.defaultOptions){
-      _.merge(signer.keplr.defaultOptions, { sign: { disableBalanceCheck: true } })
-    }
+    const defaultOptions = _.cloneDeep(signerProvider.getOptions())
+    signerProvider.setOptions({ sign: { disableBalanceCheck: true } })
     try {
       return await signAndBroadcast(address, msgs, gas, memo, gasPrice)
     } finally {
-      if(defaultOptions){
-        signer.keplr.defaultOptions = defaultOptions
-      }
+      signerProvider.setOptions(defaultOptions)
     }
   }
 
@@ -189,7 +187,7 @@ function SigningClient(network, signer) {
   }
 
   return {
-    signer,
+    signerProvider,
     registry: adapter.registry,
     getFee,
     simulate,
