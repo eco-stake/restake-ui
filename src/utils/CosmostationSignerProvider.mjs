@@ -2,7 +2,7 @@ import _ from 'lodash'
 import KeplrSignerProvider from './KeplrSignerProvider.mjs'
 
 export default class CosmostationSignerProvider extends KeplrSignerProvider {
-  key = 'cosmostation'
+  name = 'cosmostation'
   label = 'Cosmostation Wallet'
   keychangeEvent = 'cosmostation_keystorechange'
   authzAminoLiftedValueSupport = false
@@ -12,30 +12,23 @@ export default class CosmostationSignerProvider extends KeplrSignerProvider {
     this.cosmostationProvider = cosmostationProvider
   }
 
-  getSigner(network, key) {
-    const { chainId } = network
-
-    if(this.getIsNanoLedger(key)){
-      return this.provider.getOfflineSignerOnlyAmino(chainId)
-    }else{
-      return this.provider.getOfflineSigner(chainId)
+  async getSigner(network) {
+    if(!this.signer){
+      const { chainId } = network
+      if(this.isLedger()){
+        this.signer = await this.provider.getOfflineSignerOnlyAmino(chainId)
+      }else{
+        this.signer = await this.provider.getOfflineSigner(chainId)
+      }
     }
-  }
-
-  getIsNanoLedger(key) {
-    if(!key) return false
-    return key.isNanoLedger || key.isHardware;
+    return this.signer
   }
 
   suggestChain(network) {
-    if (this.suggestChainSupport) {
-      return this.cosmostationProvider.request({
-        method: 'cos_addChain',
-        params: this.suggestChainData(network)
-      })
-    } else {
-      throw new Error(`${network.prettyName} (${network.chainId}) is not supported`)
-    }
+    return this.cosmostationProvider.request({
+      method: 'cos_addChain',
+      params: this.suggestChainData(network)
+    })
   }
 
   suggestChainData(network){

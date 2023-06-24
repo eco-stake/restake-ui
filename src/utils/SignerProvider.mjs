@@ -14,10 +14,19 @@ export default class SignerProvider {
     return this.available()
   }
 
+  isLedger() {
+    return this.key?.isNanoLedger || this.key?.isHardware;
+  }
+
   async connect(network) {
+    this.key = null
+    this.signer = null
     try {
       await this.enable(network)
-      return await this.getKey(network)
+      await this.getKey(network)
+      await this.getSigner(network)
+
+      return this.key
     } catch (e) {
       console.log(e)
       if (!this.suggestChainSupport) {
@@ -25,7 +34,9 @@ export default class SignerProvider {
       }
       try {
         await this.suggestChain(network)
-        return await this.getKey(network)
+        await this.getKey(network)
+        await this.getSigner(network)
+        return this.key
       } catch (s) {
         console.log(s)
         this.handleSuggestError(network, e)
@@ -42,14 +53,40 @@ export default class SignerProvider {
   }
 
   async getKey(network) {
-    const { chainId } = network
-    const key = await this.provider.getKey(chainId)
-    return key
+    if(!this.key){
+      const { chainId } = network
+      this.key = await this.provider.getKey(chainId)
+    }
+    return this.key
   }
 
-  getSigner(network, _key) {
-    const { chainId } = network
-    return this.provider.getOfflineSignerAuto(chainId)
+  async getSigner(network) {
+    if(!this.signer){
+      const { chainId } = network
+      this.signer = await this.provider.getOfflineSignerAuto(chainId)
+    }
+    return this.signer
+  }
+
+  async getAddress(){
+    if(this.signer.getAddress){
+      return this.signer.getAddress()
+    }else{
+      const accounts = await this.getAccounts();
+      return accounts[0].address;
+    }
+  }
+
+  getAccounts(){
+    return this.signer.getAccounts()
+  }
+
+  signDirect(...args){
+    return this.signer.signDirect(...args)
+  }
+
+  signAmino(...args){
+    return this.signer.signAmino(...args)
   }
 
   suggestChain(network) {
