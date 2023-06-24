@@ -165,7 +165,7 @@ export default class DefaultSigningAdapter {
       return '/injective.crypto.v1beta1.ethsecp256k1.PubKey'
     }
 
-    if(this.network.coinType === 60){
+    if(this.network.slip44 === 60){
       return '/ethermint.crypto.v1.ethsecp256k1.PubKey'
     }
     return '/cosmos.crypto.secp256k1.PubKey'
