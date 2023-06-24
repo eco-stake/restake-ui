@@ -728,6 +728,7 @@ class App extends React.Component {
                                 return <Dropdown.Item as="button" key={provider.name} onClick={() => this.connect(provider.name, true)} disabled={!provider.available()}>Connect {provider.label}</Dropdown.Item>
                               })
                             )}
+                            <hr />
                             <Dropdown.Item as="button" onClick={() => this.showWalletModal({ activeTab: 'saved' })}>Saved Addresses</Dropdown.Item>
                             {this.state.address && (
                               <>
