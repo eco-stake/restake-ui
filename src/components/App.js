@@ -119,6 +119,7 @@ class App extends React.Component {
     if (!this.props.network) return
 
     if (this.props.network !== prevProps.network) {
+      this.clearRefreshInterval()
       this.setState({ balance: undefined, address: undefined, wallet: undefined, grants: undefined, error: undefined })
       this.connect()
     }else if(this.state.address != prevState.address){
@@ -348,6 +349,9 @@ class App extends React.Component {
         if (address !== state.address) return {}
         return { grantQuerySupport }
       })
+      if(grantQuerySupport){
+        return this.setState({ error: "Failed to load all grants" })
+      }
     }
 
     let addresses = this.props.operators.map(el => el.botAddress)
@@ -724,11 +728,13 @@ class App extends React.Component {
                                 </Dropdown.Item>
                               </>
                             ) : (
-                              this.signerProviders.map(provider => {
-                                return <Dropdown.Item as="button" key={provider.name} onClick={() => this.connect(provider.name, true)} disabled={!provider.available()}>Connect {provider.label}</Dropdown.Item>
-                              })
+                              <>
+                                {this.signerProviders.map(provider => {
+                                  return <Dropdown.Item as="button" key={provider.name} onClick={() => this.connect(provider.name, true)} disabled={!provider.available()}>Connect {provider.label}</Dropdown.Item>
+                                })}
+                                <Dropdown.Divider />
+                              </>
                             )}
-                            <hr />
                             <Dropdown.Item as="button" onClick={() => this.showWalletModal({ activeTab: 'saved' })}>Saved Addresses</Dropdown.Item>
                             {this.state.address && (
                               <>
