@@ -47,7 +47,7 @@ export default class DefaultSigningAdapter {
     try {
       aminoMsgs = this.convertToAmino(messages)
     } catch (e) { console.log(e) }
-    if(aminoMsgs && this.signerProvider.signAmino){
+    if(aminoMsgs && this.signerProvider.signAminoSupport()){
       // Sign as amino if possible for Ledger and Keplr support
       const signDoc = makeAminoSignDoc(aminoMsgs, fee, chainId, memo, accountNumber, sequence);
       const { signature, signed } = await this.signerProvider.signAmino(address, signDoc);
@@ -60,7 +60,7 @@ export default class DefaultSigningAdapter {
         authInfoBytes: authInfoBytes,
         signatures: [Buffer.from(signature.signature, "base64")],
       }
-    }else if(this.signerProvider.signDirect){
+    }else if(this.signerProvider.signDirectSupport()){
       // Sign using standard protobuf messages
       const authInfoBytes = await this.makeAuthInfoBytes(account, {
         amount: fee.amount,
@@ -95,7 +95,7 @@ export default class DefaultSigningAdapter {
         if(!this.network.authzAminoSupport){
           throw new Error('This chain does not support amino conversion for Authz messages')
         }
-        if(this.network.authzAminoGenericOnly && this.signerProvider.signDirect){
+        if(this.network.authzAminoGenericOnly && this.signerProvider.signDirectSupport()){
           throw new Error('This chain does not fully support amino conversion for Authz messages, using signDirect instead')
         }
       }

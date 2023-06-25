@@ -65,11 +65,11 @@ class Wallet {
   }
 
   signDirectSupport(){
-    return !!this.signerProvider.signDirect
+    return this.signerProvider.signDirectSupport()
   }
 
   signAminoSupport(){
-    return !!this.signerProvider.signAmino
+    return this.signerProvider.signAminoSupport()
   }
 
   async getAddress(){

@@ -18,6 +18,14 @@ export default class SignerProvider {
     return this.key?.isNanoLedger || this.key?.isHardware;
   }
 
+  signDirectSupport(){
+    return !!this.signer?.signDirect
+  }
+
+  signAminoSupport(){
+    return !!this.signer?.signAmino
+  }
+
   async connect(network) {
     this.key = null
     this.signer = null
