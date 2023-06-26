@@ -12,7 +12,6 @@ import { MsgGrant, MsgRevoke } from "cosmjs-types/cosmos/authz/v1beta1/tx.js";
 
 import {
   Container,
-  Button,
   Dropdown,
   ButtonGroup,
   Navbar,
@@ -777,6 +776,7 @@ class App extends React.Component {
                 validator={this.props.validator}
                 grants={this.state.grants}
                 getBalance={this.getBalance}
+                showAbout={() => this.setState({ showAbout: true })}
                 onGrant={this.onGrant}
                 onRevoke={this.onRevoke}
                 queryClient={this.props.queryClient}

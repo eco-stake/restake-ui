@@ -6,11 +6,11 @@ import ClaimRewards from "./ClaimRewards";
 import ValidatorModal from "./ValidatorModal";
 import AboutLedger from "./AboutLedger";
 
-import { 
-  Button, 
-  Dropdown, 
-  Spinner, 
-  Dropdown, 
+import {
+  Button,
+  Dropdown,
+  Spinner,
+  Dropdown,
  } from "react-bootstrap";
 import { Gear } from "react-bootstrap-icons";
 
@@ -61,7 +61,7 @@ class Delegations extends React.Component {
       const walletAuthzSupport = this.props.wallet?.authzSupport();
       this.setState({
         walletAuthzSupport: walletAuthzSupport,
-        delegations: undefined, 
+        delegations: undefined,
         rewards: undefined,
         commission: {},
         validatorApy: {},
@@ -450,7 +450,7 @@ class Delegations extends React.Component {
       <>
         {alerts}
         <div className="mb-2">
-          <Validators 
+          <Validators
             theme={this.props.theme}
             network={this.props.network}
             address={this.props.address}
@@ -608,7 +608,7 @@ class Delegations extends React.Component {
           <strong>The validators will pay the transaction fees for you.</strong>
         </p>
         <p className="text-center mb-5">
-          <Button onClick={() => this.setState({ showAbout: true })} variant="outline-secondary">More info</Button>
+          <Button onClick={this.props.showAbout} variant="outline-secondary">More info</Button>
         </p>
         {this.renderValidatorModal()}
       </>
