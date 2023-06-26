@@ -601,7 +601,7 @@ class Delegations extends React.Component {
           <strong>The validators will pay the transaction fees for you.</strong>
         </p>
         <p className="text-center mb-5">
-          <Button onClick={() => this.setState({ showAbout: true })} variant="outline-secondary">More info</Button>
+          <Button onClick={this.props.showAbout} variant="outline-secondary">More info</Button>
         </p>
         {this.renderValidatorModal()}
       </>
