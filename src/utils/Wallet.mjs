@@ -50,16 +50,6 @@ class Wallet {
     return this.network.authzAminoSupport && this.signAminoSupport()
   }
 
-  authzSupportMessage(){
-    if(this.authzSupport()) return null;
-
-    if (this.signerProvider.isLedger()){
-      return `${this.signerProvider.label} can't send Authz transactions with Ledger on ${this.network.prettyName} just yet.`
-    }else{
-      return `${this.props.wallet.signerProvider.label} can't send Authz transactions on ${this.network.prettyName} just yet.`
-    }
-  }
-
   signAminoSupportOnly(){
     return !this.signDirectSupport() && this.signAminoSupport()
   }

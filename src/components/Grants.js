@@ -17,6 +17,7 @@ import Coins from './Coins';
 import GrantModal from './GrantModal';
 import Favourite from './Favourite';
 import Address from './Address'
+import { authzSupportMessage } from '../utils/Helpers.mjs';
 
 function Grants(props) {
   const { address, wallet, network, operators, validators, grants } = props
@@ -215,7 +216,7 @@ function Grants(props) {
           variant="warning"
           dismissible={false}
         >
-          <p className="mb-0">{props.wallet.authzSupportMessage()}</p>
+          <p className="mb-0">{authzSupportMessage(props.wallet)}</p>
         </AlertMessage>
         )}
       <AlertMessage message={error} />

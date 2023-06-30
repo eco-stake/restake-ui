@@ -71,7 +71,7 @@ export function parseGrants(grants, grantee, granter) {
   // claimGrant is removed but we track for now to allow revoke
   const claimGrant = grants.find((el) => {
     if (
-      (!el.grantee || el.grantee === grantee) && 
+      (!el.grantee || el.grantee === grantee) &&
       (!el.granter || el.granter === granter) &&
       (el.authorization["@type"] ===
       "/cosmos.authz.v1beta1.GenericAuthorization" &&
@@ -85,7 +85,7 @@ export function parseGrants(grants, grantee, granter) {
   });
   const stakeGrant = grants.find((el) => {
     if (
-      (!el.grantee || el.grantee === grantee) && 
+      (!el.grantee || el.grantee === grantee) &&
       (!el.granter || el.granter === granter) &&
       (el.authorization["@type"] ===
       "/cosmos.staking.v1beta1.StakeAuthorization" || (
@@ -142,3 +142,13 @@ export async function executeSync(calls, count) {
     await mapAsync(batchCall, call => call())
   }
 }
+
+export function authzSupportMessage(wallet){
+    if(wallet.authzSupport()) return null;
+
+    if (wallet.signerProvider.isLedger()){
+      return `${wallet.signerProvider.label} can't send Authz transactions with Ledger on ${wallet.network.prettyName} just yet.`
+    }else{
+      return `${wallet.props.wallet.signerProvider.label} can't send Authz transactions on ${wallet.network.prettyName} just yet.`
+    }
+  }

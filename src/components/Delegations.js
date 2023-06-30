@@ -14,7 +14,7 @@ import {
  } from "react-bootstrap";
 import { Gear } from "react-bootstrap-icons";
 
-import { parseGrants, rewardAmount } from "../utils/Helpers.mjs";
+import { authzSupportMessage, parseGrants, rewardAmount } from "../utils/Helpers.mjs";
 import Validators from "./Validators";
 
 class Delegations extends React.Component {
@@ -427,7 +427,7 @@ class Delegations extends React.Component {
                 dismissible={false}
               >
                 <>
-                  <p className="mb-0">{this.props.wallet.authzSupportMessage()}</p>
+                  <p className="mb-0">{authzSupportMessage(this.props.wallet)}</p>
                 </>
               </AlertMessage>
             </>
