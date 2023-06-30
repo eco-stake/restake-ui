@@ -14,7 +14,7 @@ import Coins from './Coins';
 import TooltipIcon from './TooltipIcon'
 
 import DelegateForm from './DelegateForm'
-import { rewardAmount } from '../utils/Helpers.mjs';
+import { authzSupportMessage, rewardAmount } from '../utils/Helpers.mjs';
 import ClaimRewards from './ClaimRewards';
 import Validators from './Validators'
 import AlertMessage from './AlertMessage'
@@ -328,7 +328,7 @@ function ValidatorStake(props) {
                               {!props.isLoading('grants') ? (
                                 grantsValid
                                   ? <span><span className="text-success">Active</span><br /><small className="text-muted">expires {expiryDate().fromNow()}</small></span>
-                                  : grantsExist 
+                                  : grantsExist
                                     ? validatorGrants.validators && !validatorGrants.validators.includes(validator.address)
                                       ? <span className="text-danger">Grant invalid</span>
                                       : maxTokens && smaller(maxTokens, reward)
@@ -490,7 +490,7 @@ function ValidatorStake(props) {
                 tooltip={
                   !network.authzSupport ? `${props.network.prettyName} doesn't support Authz just yet`
                     : !wallet ? `Connect a wallet to enable REStake`
-                      : !wallet.authzSupport() ? `${wallet.getIsNanoLedger() ? 'Ledger devices' : 'This wallet'} can't send Authz transactions on ${network.prettyName} yet`
+                      : !wallet.authzSupport() ? authzSupportMessage(wallet)
                         : !delegation?.balance?.amount ? `You must delegate to ${validator.moniker} before they can REStake for you.`
                           : !wallet?.hasPermission(address, 'Grant') && `You don't have permission to do that.`
                 }

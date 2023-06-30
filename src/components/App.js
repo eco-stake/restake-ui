@@ -60,6 +60,8 @@ import LeapSignerProvider from '../utils/LeapSignerProvider.mjs';
 import KeplrMobileSignerProvider from '../utils/KeplrMobileSignerProvider.mjs';
 import ConnectWalletModal from './ConnectWalletModal';
 import { truncateAddress } from '../utils/Helpers.mjs';
+import CosmostationSignerProvider from '../utils/CosmostationSignerProvider.mjs';
+import SigningClient from '../utils/SigningClient.mjs';
 
 class App extends React.Component {
   constructor(props) {
@@ -72,6 +74,8 @@ class App extends React.Component {
     }
     this.signerProviders = [
       new KeplrSignerProvider(window.keplr),
+      new LeapSignerProvider(window.leap),
+      new CosmostationSignerProvider(window.cosmostation?.providers?.keplr, window.cosmostation?.cosmos),
       new KeplrMobileSignerProvider({
         connectModal: {
           open: (uri, callback) => {
@@ -86,7 +90,6 @@ class App extends React.Component {
           }
         }
       }),
-      new LeapSignerProvider(window.leap),
       // new FalconSignerProvider(window.falcon)
     ]
     this.signerConnectors = {}
@@ -106,8 +109,8 @@ class App extends React.Component {
     this.connect()
     window.addEventListener("load", this.connectAuto)
     this.signerProviders.forEach(provider => {
-      const connector = (event) => this.connectAuto(event, provider.key)
-      this.signerConnectors[provider.key] = connector
+      const connector = (event) => this.connectAuto(event, provider.name)
+      this.signerConnectors[provider.name] = connector
       window.addEventListener(provider.keychangeEvent, connector)
     })
   }
@@ -116,6 +119,7 @@ class App extends React.Component {
     if (!this.props.network) return
 
     if (this.props.network !== prevProps.network) {
+      this.clearRefreshInterval()
       this.setState({ balance: undefined, address: undefined, wallet: undefined, grants: undefined, error: undefined })
       this.connect()
     }else if(this.state.address != prevState.address){
@@ -132,7 +136,7 @@ class App extends React.Component {
     this.clearRefreshInterval()
     window.removeEventListener("load", this.connectAuto)
     this.signerProviders.forEach(provider => {
-      window.removeEventListener(provider.keychangeEvent, this.signerConnectors[provider.key])
+      window.removeEventListener(provider.keychangeEvent, this.signerConnectors[provider.name])
     })
   }
 
@@ -145,7 +149,7 @@ class App extends React.Component {
   }
 
   getSignerProvider(providerKey){
-    return providerKey && this.signerProviders.find(el => el.key === providerKey)
+    return providerKey && this.signerProviders.find(el => el.name === providerKey)
   }
 
   disconnect() {
@@ -182,7 +186,7 @@ class App extends React.Component {
 
     if(!signerProvider) return
 
-    providerKey = signerProvider.key
+    providerKey = signerProvider.name
 
     if (manual && !signerProvider.available()) {
       return this.setState({
@@ -199,9 +203,9 @@ class App extends React.Component {
 
     this.setState({ signerProvider })
 
-    let key
+    const wallet = new Wallet(network, signerProvider)
     try {
-      key = await signerProvider.connect(network);
+      const key = await wallet.connect();
       if (!network.ledgerSupport && (key.isNanoLedger || key.isHardware)) {
         throw new Error('Ledger support is coming soon')
       }
@@ -214,9 +218,7 @@ class App extends React.Component {
       })
     }
     try {
-      const offlineSigner = await signerProvider.getSigner(network)
-      const wallet = new Wallet(network, offlineSigner, key)
-      const signingClient = wallet.signingClient()
+      const signingClient = SigningClient(network, signerProvider)
       signingClient.registry.register("/cosmos.authz.v1beta1.MsgGrant", MsgGrant)
       signingClient.registry.register("/cosmos.authz.v1beta1.MsgRevoke", MsgRevoke)
 
@@ -347,6 +349,9 @@ class App extends React.Component {
         if (address !== state.address) return {}
         return { grantQuerySupport }
       })
+      if(grantQuerySupport){
+        return this.setState({ error: "Failed to load all grants" })
+      }
     }
 
     let addresses = this.props.operators.map(el => el.botAddress)
@@ -723,9 +728,12 @@ class App extends React.Component {
                                 </Dropdown.Item>
                               </>
                             ) : (
-                              this.signerProviders.map(provider => {
-                                return <Dropdown.Item as="button" key={provider.key} onClick={() => this.connect(provider.key, true)} disabled={!provider.available()}>Connect {provider.label}</Dropdown.Item>
-                              })
+                              <>
+                                {this.signerProviders.map(provider => {
+                                  return <Dropdown.Item as="button" key={provider.name} onClick={() => this.connect(provider.name, true)} disabled={!provider.available()}>Connect {provider.label}</Dropdown.Item>
+                                })}
+                                <Dropdown.Divider />
+                              </>
                             )}
                             <Dropdown.Item as="button" onClick={() => this.showWalletModal({ activeTab: 'saved' })}>Saved Addresses</Dropdown.Item>
                             {this.state.address && (

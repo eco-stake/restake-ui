@@ -16,16 +16,16 @@ export const messageTypes = [
 ]
 
 class Wallet {
-  constructor(network, signer, key){
+  constructor(network, signerProvider){
     this.network = network
-    this.signer = signer
-    this.key = key
-    this.name = key?.name
+    this.signerProvider = signerProvider
     this.grants = []
   }
 
-  signingClient(){
-    return SigningClient(this.network, this.signer)
+  async connect(){
+    this.key = await this.signerProvider.connect(this.network)
+    this.name = this.key?.name
+    return this.key
   }
 
   hasPermission(address, action){
@@ -44,7 +44,10 @@ class Wallet {
   }
 
   authzSupport(){
-    return this.signDirectSupport() || (this.network.authzAminoSupport && this.signAminoSupport())
+    if(this.signDirectSupport()) return true
+    if(this.network.authzAminoLiftedValues && !this.signerProvider.authzAminoLiftedValueSupport) return false
+
+    return this.network.authzAminoSupport && this.signAminoSupport()
   }
 
   signAminoSupportOnly(){
@@ -52,35 +55,19 @@ class Wallet {
   }
 
   signDirectSupport(){
-    return !!this.signer.signDirect
+    return this.signerProvider.signDirectSupport()
   }
 
   signAminoSupport(){
-    return !!this.signer.signAmino
+    return this.signerProvider.signAminoSupport()
   }
 
   async getAddress(){
-    this.address = this.address || await this.getAccountAddress()
+    if(!this.address){
+      this.address = await this.signerProvider.getAddress()
+    }
 
     return this.address
-  }
-
-  async getAccountAddress(){
-    if(this.signer.getAddress){
-      return this.signer.getAddress()
-    }else{
-      const accounts = await this.getAccounts();
-      return accounts[0].address;
-    }
-  }
-
-  getAccounts(){
-    return this.signer.getAccounts()
-  }
-
-  getIsNanoLedger() {
-    if(!this.key) return false
-    return this.key.isNanoLedger || this.key.isHardware;
   }
 }
 

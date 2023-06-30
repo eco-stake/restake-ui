@@ -21,9 +21,9 @@ import { AuthInfo, Fee, TxBody } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
 import { createAuthzAminoConverters, createAuthzExecAminoConverters } from '../converters/Authz.mjs'
 
 export default class DefaultSigningAdapter {
-  constructor(network, signer) {
+  constructor(network, signerProvider) {
     this.network = network;
-    this.signer = signer;
+    this.signerProvider = signerProvider;
 
     this.registry = new Registry(defaultStargateTypes);
     const defaultConverters = {
@@ -47,10 +47,10 @@ export default class DefaultSigningAdapter {
     try {
       aminoMsgs = this.convertToAmino(messages)
     } catch (e) { console.log(e) }
-    if(aminoMsgs && this.signer.signAmino){
+    if(aminoMsgs && this.signerProvider.signAminoSupport()){
       // Sign as amino if possible for Ledger and Keplr support
       const signDoc = makeAminoSignDoc(aminoMsgs, fee, chainId, memo, accountNumber, sequence);
-      const { signature, signed } = await this.signer.signAmino(address, signDoc);
+      const { signature, signed } = await this.signerProvider.signAmino(address, signDoc);
       const authInfoBytes = await this.makeAuthInfoBytes(account, {
         amount: signed.fee.amount,
         gasLimit: signed.fee.gas,
@@ -60,14 +60,14 @@ export default class DefaultSigningAdapter {
         authInfoBytes: authInfoBytes,
         signatures: [Buffer.from(signature.signature, "base64")],
       }
-    }else if(this.signer.signDirect){
+    }else if(this.signerProvider.signDirectSupport()){
       // Sign using standard protobuf messages
       const authInfoBytes = await this.makeAuthInfoBytes(account, {
         amount: fee.amount,
         gasLimit: fee.gas,
       }, SignMode.SIGN_MODE_DIRECT)
       const signDoc = makeSignDoc(txBodyBytes, authInfoBytes, chainId, accountNumber);
-      const { signature, signed } = await this.signer.signDirect(address, signDoc);
+      const { signature, signed } = await this.signerProvider.signDirect(address, signDoc);
       return {
         bodyBytes: signed.bodyBytes,
         authInfoBytes: signed.authInfoBytes,
@@ -95,7 +95,7 @@ export default class DefaultSigningAdapter {
         if(!this.network.authzAminoSupport){
           throw new Error('This chain does not support amino conversion for Authz messages')
         }
-        if(this.network.authzAminoGenericOnly && this.signer.signDirect){
+        if(this.network.authzAminoGenericOnly && this.signerProvider.signDirectSupport()){
           throw new Error('This chain does not fully support amino conversion for Authz messages, using signDirect instead')
         }
       }
@@ -136,7 +136,7 @@ export default class DefaultSigningAdapter {
 
   async makeAuthInfoBytes(account, fee, mode){
     const { sequence } = account
-    const accountFromSigner = (await this.signer.getAccounts())[0]
+    const accountFromSigner = (await this.signerProvider.getAccounts())[0]
     if (!accountFromSigner) {
       throw new Error("Failed to retrieve account from signer");
     }
@@ -165,7 +165,7 @@ export default class DefaultSigningAdapter {
       return '/injective.crypto.v1beta1.ethsecp256k1.PubKey'
     }
 
-    if(this.network.coinType === 60){
+    if(this.network.slip44 === 60){
       return '/ethermint.crypto.v1.ethsecp256k1.PubKey'
     }
     return '/cosmos.crypto.secp256k1.PubKey'

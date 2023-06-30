@@ -1,7 +1,7 @@
 import SignerProvider from "./SignerProvider.mjs";
 
 export default class FalconSignerProvider extends SignerProvider {
-  key = 'falcon'
+  name = 'falcon'
   label = 'Falcon Wallet'
   keychangeEvent = 'falcon_keystorechange'
 
@@ -11,6 +11,6 @@ export default class FalconSignerProvider extends SignerProvider {
   }
 
   suggestChain(network){
-    return this.provider.importZone(network.suggestChain())
+    return this.provider.importZone(this.suggestChainData(network))
   }
 }

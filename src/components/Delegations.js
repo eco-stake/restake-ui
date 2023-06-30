@@ -6,15 +6,15 @@ import ClaimRewards from "./ClaimRewards";
 import ValidatorModal from "./ValidatorModal";
 import AboutLedger from "./AboutLedger";
 
-import { 
-  Button, 
-  Dropdown, 
-  Spinner, 
-  Dropdown, 
+import {
+  Button,
+  Dropdown,
+  Spinner,
+  Dropdown,
  } from "react-bootstrap";
 import { Gear } from "react-bootstrap-icons";
 
-import { parseGrants, rewardAmount } from "../utils/Helpers.mjs";
+import { authzSupportMessage, parseGrants, rewardAmount } from "../utils/Helpers.mjs";
 import Validators from "./Validators";
 
 class Delegations extends React.Component {
@@ -61,7 +61,7 @@ class Delegations extends React.Component {
       const walletAuthzSupport = this.props.wallet?.authzSupport();
       this.setState({
         walletAuthzSupport: walletAuthzSupport,
-        delegations: undefined, 
+        delegations: undefined,
         rewards: undefined,
         commission: {},
         validatorApy: {},
@@ -426,16 +426,9 @@ class Delegations extends React.Component {
                 variant="warning"
                 dismissible={false}
               >
-                {this.props.wallet.getIsNanoLedger() ? (
-                  <>
-                    <p>Ledger devices can't send Authz transactions on {this.props.network.prettyName} just yet. All other features are supported and Authz is coming soon.</p>
-                    <p className="mb-0"><span onClick={() => this.setState({ showAboutLedger: true })} role="button" className="text-reset text-decoration-underline">A manual workaround is possible using the CLI.</span></p>
-                  </>
-                ) : (
-                  <>
-                    <p className="mb-0">This wallet can't send Authz transactions on {this.props.network.prettyName} just yet. All other features are supported, and Keplr Extension likely has support if required.</p>
-                  </>
-                )}
+                <>
+                  <p className="mb-0">{authzSupportMessage(this.props.wallet)}</p>
+                </>
               </AlertMessage>
             </>
           )}
@@ -450,7 +443,7 @@ class Delegations extends React.Component {
       <>
         {alerts}
         <div className="mb-2">
-          <Validators 
+          <Validators
             theme={this.props.theme}
             network={this.props.network}
             address={this.props.address}

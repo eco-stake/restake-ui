@@ -4,7 +4,7 @@ import { KeplrWalletConnectV1 } from "@keplr-wallet/wc-client";
 import SignerProvider from "./SignerProvider.mjs"
 
 export default class KeplrMobileSignerProvider extends SignerProvider {
-  key = 'keplr-mobile'
+  name = 'keplr-mobile'
   label = 'Keplr Mobile'
   keychangeEvent = 'keplr_keystorechange'
   suggestChainSupport = false
@@ -62,9 +62,12 @@ export default class KeplrMobileSignerProvider extends SignerProvider {
   }
 
   getSigner(network) {
-    const { chainId } = network
-    // return this.provider.getOfflineSignerAuto(chainId) // no signDirect support currently
-    return this.provider.getOfflineSignerOnlyAmino(chainId)
+    if(!this.signer){
+      const { chainId } = network
+      // this.signer = await this.provider.getOfflineSignerAuto(chainId) // no signDirect support currently
+      this.signer = this.provider.getOfflineSignerOnlyAmino(chainId)
+    }
+    return this.signer
   }
 
   async createSession() {

@@ -2,7 +2,7 @@ import _ from 'lodash'
 import SignerProvider from "./SignerProvider.mjs"
 
 export default class KeplrSignerProvider extends SignerProvider {
-  key = 'keplr'
+  name = 'keplr'
   label = 'Keplr Extension'
   keychangeEvent = 'keplr_keystorechange'
 
