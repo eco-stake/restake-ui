@@ -1,17 +1,34 @@
-# dev env
-FROM node:17-slim
+# build env
+FROM node:18-slim as build
 
-RUN apt-get update && apt-get install -y python3 make g++
+RUN apt-get update && apt-get install -y python3 make g++ curl git &&\
+    npm install -g npm@9.8.0
 
-ENV NODE_ENV=development
-
-WORKDIR /usr/src/app
+WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN yarn install
 COPY . ./
 
-ENV DIRECTORY_PROTOCOL=https
-ENV DIRECTORY_DOMAIN=cosmos.directory
+ARG BUGSNAG_KEY
+ENV BUGSNAG_KEY=${BUGSNAG_KEY}
+ARG DIRECTORY_PROTOCOL=https
+ENV DIRECTORY_PROTOCOL=${DIRECTORY_PROTOCOL}
+ARG DIRECTORY_DOMAIN=cosmos.directory
+ENV DIRECTORY_DOMAIN=${DIRECTORY_DOMAIN}
+ARG DIRECTORY_DOMAIN_TESTNET=testcosmos.directory
+ENV DIRECTORY_DOMAIN_TESTNET=${DIRECTORY_DOMAIN_TESTNET}
+ARG TESTNET_MODE
+ENV TESTNET_MODE=${TESTNET_MODE}
+ARG MAINNET_DOMAIN
+ENV MAINNET_DOMAIN=${MAINNET_DOMAIN}
+ARG TESTNET_DOMAIN
+ENV TESTNET_DOMAIN=${TESTNET_DOMAIN}
 
-EXPOSE 3000
-CMD npm run start
+RUN yarn build
+
+# production env
+FROM nginx:stable-alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
