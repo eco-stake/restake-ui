@@ -252,7 +252,10 @@
   },
   {
     "name": "quicksilver",
-    "maxPerDay": 1
+    "maxPerDay": 1,
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "chain4energy"
