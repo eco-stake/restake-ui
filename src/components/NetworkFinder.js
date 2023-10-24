@@ -60,7 +60,7 @@ function NetworkFinder() {
       const networkData = networksData.find(el => el.name === data.path);
       if (networkData && networkData.enabled === false)
         return;
-      if (!data.image || data.status === 'killed')
+      if (data.status === 'killed')
         return;
 
       if (!networkData)

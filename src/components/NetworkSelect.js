@@ -119,9 +119,7 @@ function NetworkSelect(props) {
       <Button onClick={handleOpen} variant="link" className="d-flex flex-nowrap text-nowrap align-items-center text-reset text-decoration-none border-secondary btn-outline-light" role="button">
         {props.network ? (
           <>
-            <div className="avatar avatar-sm rounded-circle text-white">
-              <img alt={props.network.prettyName} src={props.network.image} height={30} width={30} />
-            </div>
+            <NetworkImage network={props.network} width={30} height={30} alt={props.network.prettyName} className="text-white" />
             <div className="d-none d-md-block mx-2">
               <span className="h6">{props.network.prettyName}</span>
               {!!price?.usd && (
