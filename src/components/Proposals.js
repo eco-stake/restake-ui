@@ -8,10 +8,11 @@ import {
   Button,
   Nav,
 } from 'react-bootstrap'
-import { XCircle } from "react-bootstrap-icons";
+import { XCircle, ExclamationTriangle } from "react-bootstrap-icons";
 
 import ProposalProgress from './ProposalProgress';
 import { PROPOSAL_STATUSES } from '../utils/Proposal.mjs';
+import TooltipIcon from './TooltipIcon';
 
 function Proposals(props) {
   const { proposals, tallies, votes } = props
@@ -77,12 +78,19 @@ function Proposals(props) {
     const proposalId = proposal.proposal_id
     const vote = votes[proposalId]
     return (
-      <tr key={proposalId}>
+      <tr key={proposalId} className={proposal.isSpam ? 'opacity-50' : ''}>
         <td className="d-none d-md-table-cell">{proposalId}</td>
         <td>
-          <span role="button" onClick={() => props.showProposal(proposal)}>
-            {proposal.title}
-          </span>
+          <div className="d-flex align-items-center">
+            <span role="button" onClick={() => props.showProposal(proposal)}>
+              {proposal.title}
+            </span>
+            {proposal.isSpam && (
+              <div className="ms-auto d-flex align-items-center text-danger">
+                <TooltipIcon icon={<ExclamationTriangle />} identifier={proposalId} tooltip="This proposal appears to be spam - do not click any links!" />
+              </div>
+            )}
+          </div>
         </td>
         <td className="d-none d-sm-table-cell text-center text-nowrap">
           {proposal.statusHuman}
@@ -104,7 +112,7 @@ function Proposals(props) {
         </td>
         <td>
           <div className="d-grid gap-2 d-md-flex justify-content-end">
-            <Button size="sm" onClick={() => props.showProposal(proposal)}>
+            <Button size="sm" variant={proposal.isSpam ? 'danger' : 'primary'} onClick={() => props.showProposal(proposal)}>
               View
             </Button>
           </div>
