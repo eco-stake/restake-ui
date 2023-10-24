@@ -14,7 +14,7 @@ function OperatorLastRestakeAlert(props) {
   if (!showWarning()) return null
 
   return (
-    <AlertMessage variant="danger" dismissible={false}>
+    <AlertMessage variant="secondary" dismissible={false}>
       This validator has not REStaked recently.
     </AlertMessage>
   )
