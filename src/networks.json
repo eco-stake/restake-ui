@@ -12,7 +12,10 @@
   },
   {
     "name": "juno",
-    "ownerAddress": "junovaloper19ur8r2l25qhsy9xvej5zgpuc5cpn6syydmwtrt"
+    "ownerAddress": "junovaloper19ur8r2l25qhsy9xvej5zgpuc5cpn6syydmwtrt",
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "cosmoshub",
@@ -253,7 +256,10 @@
   },
   {
     "name": "quicksilver",
-    "maxPerDay": 1
+    "maxPerDay": 1,
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "chain4energy"
@@ -272,7 +278,10 @@
   },
   {
     "name": "empowerchain",
-    "ownerAddress": "empowervaloper1msjwmclw77h5j0t69n7j2p9ur5ra46uxqaedxz"
+    "ownerAddress": "empowervaloper1msjwmclw77h5j0t69n7j2p9ur5ra46uxqaedxz",
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "qwoyn"
