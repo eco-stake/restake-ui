@@ -11,19 +11,25 @@ const Operator = (network, data) => {
 
   function missedRunCount(lastExec){
     if(lastExec === false) return 9999
-    let count = 0
-    let times = runTimes().reverse()
-    let date = times[0]
-    while(date && date.isAfter(lastExec)){
-      times.forEach(time => {
-        if(time.isBefore() && time.isAfter(lastExec)){
-          count++
-        }
-      })
-      times = runTimes(date.subtract(1, 'day').startOf('day')).reverse()
-      date = times[0]
+    if(isInterval()){
+      const interval = parse(runTime[0].replace('every ', ''))
+      const count = Math.floor(moment().diff(lastExec, 'milliseconds') / interval)
+      return count
+    }else{
+      let count = 0
+      let times = runTimes().reverse()
+      let date = times[0]
+      while(date && date.isAfter(lastExec)){
+        times.forEach(time => {
+          if(time.isBefore() && time.isAfter(lastExec)){
+            count++
+          }
+        })
+        times = runTimes(date.subtract(1, 'day').startOf('day')).reverse()
+        date = times[0]
+      }
+      return count
     }
-    return count
   }
 
   function isInterval(){
@@ -49,14 +55,20 @@ const Operator = (network, data) => {
         let date = start.clone()
         let [hours, minutes, seconds] = time.split(':')
         if(parseInt(hours) >= 24) hours = 0
-        date.utc(true).add({hours, minutes, seconds}) 
+        date.utc(true).add({hours, minutes, seconds})
         return date
       }
     }).flat()).sort((a, b) => a.valueOf() - b.valueOf())
   }
 
   function runsPerDay(max) {
-    let runs = runTimes().length
+    let runs
+    if(isInterval()){
+      const interval = parse(runTime[0].replace('every ', ''))
+      runs = parse('1d') / interval
+    }else{
+      runs = runTimes().length
+    }
     return max && runs > max ? max : runs
   }
 
@@ -82,14 +94,14 @@ const Operator = (network, data) => {
     }
   }
 
-  function nextRun() {
-    const today = runTimes()
-    const tomorrow = runTimes(moment().startOf('day').add(1, 'day'))
-    return [
-      ...today,
-      ...tomorrow
-    ].find(el => el.isAfter())
-  }
+  // function nextRun() {
+  //   const today = runTimes()
+  //   const tomorrow = runTimes(moment().startOf('day').add(1, 'day'))
+  //   return [
+  //     ...today,
+  //     ...tomorrow
+  //   ].find(el => el.isAfter())
+  // }
 
   return {
     address,
@@ -99,7 +111,7 @@ const Operator = (network, data) => {
     moniker: data.description?.moniker,
     description: data.description,
     data,
-    nextRun,
+    // nextRun,
     frequency,
     runTimes,
     runTimesString,

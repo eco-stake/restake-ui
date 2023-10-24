@@ -305,7 +305,7 @@ function ValidatorStake(props) {
                               <OperatorLastRestake operator={operator} lastExec={lastExec} />
                             </td>
                           </tr>
-                          <tr>
+                          {/* <tr>
                             <td scope="row">Next REStake</td>
                             <td>
                               <CountdownRestake
@@ -313,7 +313,7 @@ function ValidatorStake(props) {
                                 operator={operator}
                               />
                             </td>
-                          </tr>
+                          </tr> */}
                         </>
                       )}
                       <tr>
