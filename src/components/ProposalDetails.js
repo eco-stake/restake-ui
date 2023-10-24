@@ -162,6 +162,8 @@ function ProposalDetails(props) {
           <ReactMarkdown
             children={fixDescription}
             remarkPlugins={[remarkGfm]}
+            disallowedElements={proposal.isSpam && ['a']}
+            unwrapDisallowed={true}
             components={{
               h1: 'h5',
               h2: 'h6',
