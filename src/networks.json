@@ -97,7 +97,8 @@
     "authzAminoExecPreventTypes": [
       "/cosmos.gov.",
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
-    ]
+    ],
+    "authzAminoGenericOnly": true
   },
   {
     "name": "cheqd"
