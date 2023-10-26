@@ -289,5 +289,9 @@
   {
     "name": "neutron",
     "enabled": false
+  },
+  {
+    "name": "dydx",
+    "ownerAddress": "dydxvaloper15wphegl8esn7r2rgj9j3xf870v78lxg8yfjn95"
   }
 ]
