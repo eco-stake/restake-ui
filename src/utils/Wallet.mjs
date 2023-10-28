@@ -38,6 +38,7 @@ class Wallet {
     message = message || action
     return this.grants.some(grant => {
       return grant.granter === address &&
+        (!grant.expiration || Date.parse(grant.expiration) > Date.now()) &&
         grant.authorization["@type"] === "/cosmos.authz.v1beta1.GenericAuthorization" &&
         grant.authorization.msg === message
     })
