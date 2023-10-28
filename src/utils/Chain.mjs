@@ -37,7 +37,7 @@ const Chain = (data) => {
     display: data.display || baseAsset?.display?.denom,
     symbol: data.symbol || baseAsset?.symbol,
     decimals: data.decimals || baseAsset?.decimals,
-    image: data.image || baseAsset?.image,
+    image: baseAsset?.image || data.image,
     coinGeckoId: baseAsset?.coingecko_id,
     assets,
     baseAsset
