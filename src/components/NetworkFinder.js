@@ -174,7 +174,7 @@ function NetworkFinder() {
 
   useEffect(() => {
     if (Object.keys(state.networks).length && (!state.network || state.network.path !== params.network)) {
-      let networkName = params.network
+      let networkName = params.network?.toLowerCase()
       const network = state.networks[networkName]
       if (!network) {
         navigate("/");
