@@ -144,9 +144,9 @@ function DelegateForm(props) {
 
   return (
     <>
-      {!state.error && !validator.active &&
+      {!state.error && (selectedValidator?.active ?? validator?.active) === false &&
         <AlertMessage variant="info" dismissible={false}>
-          {validator.moniker} is inactive - you will not receive any staking rewards until they are in the active set.
+          {(selectedValidator || validator).moniker} is inactive - you will not receive any staking rewards until they are in the active set.
         </AlertMessage>
       }
       {state.error &&
