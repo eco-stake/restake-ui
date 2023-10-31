@@ -14,6 +14,7 @@ class Network {
     this.data = data
     this.enabled = data.enabled
     this.experimental = data.experimental
+    this.ownerAddress = data.ownerAddress
     this.operatorAddresses = operatorAddresses || {}
     this.operatorCount = data.operators?.length || this.estimateOperatorCount()
     this.name = data.path || data.name
@@ -157,8 +158,8 @@ class Network {
 
   sortOperators() {
     const random = _.shuffle(this.operators)
-    if (this.data.ownerAddress) {
-      return _.sortBy(random, ({ address }) => address === this.data.ownerAddress ? 0 : 1)
+    if (this.ownerAddress) {
+      return _.sortBy(random, ({ address }) => address === this.ownerAddress ? 0 : 1)
     }
     return random
   }
