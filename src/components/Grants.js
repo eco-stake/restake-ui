@@ -138,6 +138,7 @@ function Grants(props) {
     const validator = filter.group === 'granter' && validatorForGrantAddress(grant.grantee)
     const favourite = props.favouriteAddresses && props.favouriteAddresses.find(el => el.address === (filter.group === 'granter' ? grantee : granter))
     const grantId = `${granter}-${grantee}-${authorization['@type']}-${authorization.msg}`
+    const expired = expiration && Date.parse(expiration) < Date.now()
     return (
       <tr key={grantId}>
         <td className="text-break">
@@ -156,7 +157,7 @@ function Grants(props) {
         <td className="d-none d-lg-table-cell">
           {renderGrantData(grant)}
         </td>
-        <td className="d-none d-md-table-cell">
+        <td className={`d-none d-md-table-cell ${expired && 'text-danger'}`}>
           <Moment format="LLL">
             {expiration}
           </Moment>
