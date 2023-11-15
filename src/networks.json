@@ -293,5 +293,9 @@
   {
     "name": "dydx",
     "ownerAddress": "dydxvaloper15wphegl8esn7r2rgj9j3xf870v78lxg8yfjn95"
+  },
+  {
+    "name": "celestia",
+    "ownerAddress": "celestiavaloper1dsyuamue2p3l0z753pyrtegs52ftrg960re06j"
   }
 ]
