@@ -56,6 +56,11 @@ function ProposalDetails(props) {
           {error}
         </AlertMessage>
       }
+      {proposal.isSpam &&
+        <AlertMessage variant="danger" className="text-break small" dismissible={false}>
+          This proposal appears to be spam - do not click any links!
+        </AlertMessage>
+      }
       <div className="row">
         <div className="col-12 col-lg-6">
           <Table>
@@ -155,8 +160,10 @@ function ProposalDetails(props) {
         <div className="col">
           <h5 className="mb-3">{title}</h5>
           <ReactMarkdown
-            children={fixDescription} 
+            children={fixDescription}
             remarkPlugins={[remarkGfm]}
+            disallowedElements={proposal.isSpam && ['a']}
+            unwrapDisallowed={true}
             components={{
               h1: 'h5',
               h2: 'h6',
