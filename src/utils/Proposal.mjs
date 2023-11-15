@@ -7,6 +7,12 @@ export const PROPOSAL_STATUSES = {
   'PROPOSAL_STATUS_FAILED': 'Failed'
 }
 
+export const PROPOSAL_SCAM_URLS = [
+  'v2terra.d',
+  'terrapro.a',
+  'cosmos-network.io'
+]
+
 const Proposal = (data) => {
   let { proposal_id, content, messages, metadata } = data
   if(!proposal_id && data.id) proposal_id = data.id
@@ -27,7 +33,7 @@ const Proposal = (data) => {
     messages = messages.filter(el => el['@type'] !== '/cosmos.gov.v1.MsgExecLegacyContent')
     typeHuman = messages.map(el => el['@type'].split('.').reverse()[0]).join(', ')
   }
-  
+
   if(content){
     title = title || content.title
     description = description || content.description
@@ -37,10 +43,12 @@ const Proposal = (data) => {
   title = title || typeHuman
   description = description || metadata
 
+
   const statusHuman = PROPOSAL_STATUSES[data.status]
 
   const isDeposit = data.status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD'
   const isVoting = data.status === 'PROPOSAL_STATUS_VOTING_PERIOD'
+  const isSpam = PROPOSAL_SCAM_URLS.some(url => description && description.toLowerCase().includes(url))
 
   return {
     ...data,
@@ -53,7 +61,8 @@ const Proposal = (data) => {
     metadata,
     messages,
     isDeposit,
-    isVoting
+    isVoting,
+    isSpam
   }
 }
 
