@@ -22,7 +22,7 @@ function Networks(props) {
     let filtered = filteredNetworks(networks, filter)
     let group = filter.group
     while(filtered.length < 1 && group !== 'all'){
-      group = 'all'
+      group = group == 'featured' ? 'all' : 'featured'
       filtered = filteredNetworks(networks, {...filter, group})
       if(filtered.length > 0 || group === 'all'){
         return setFilter({ ...filter, group })
@@ -43,6 +43,9 @@ function Networks(props) {
       case 'favourites':
         searchResults = searchResults.filter((network) => favourites.includes(network.path))
         break;
+      case 'featured':
+        searchResults = searchResults.filter((network) => network.ownerAddress)
+        break;
     }
 
     if (!keywords || keywords === '') return searchResults
@@ -56,7 +59,7 @@ function Networks(props) {
   }
 
   async function changeNetwork(network){
-    if(!network.online) return 
+    if(!network.online) return
 
     await network.load()
     await network.connect()
@@ -126,6 +129,9 @@ function Networks(props) {
               <Nav.Link eventKey="favourites" disabled={filteredNetworks(networks, {...filter, group: 'favourites'}).length < 1}>Favourites</Nav.Link>
             </Nav.Item>
             <Nav.Item>
+              <Nav.Link eventKey="featured" disabled={filteredNetworks(networks, {...filter, group: 'featured'}).length < 1}>Featured</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
               <Nav.Link eventKey="all">All Networks</Nav.Link>
             </Nav.Item>
           </Nav>
@@ -133,6 +139,7 @@ function Networks(props) {
         <div className="d-flex d-lg-none justify-content-end">
           <select className="form-select w-auto h-auto d-lg-none" aria-label="Network group" value={filter.group} onChange={(e) => setFilter({...filter, group: e.target.value})}>
             <option value="favourites" disabled={filteredNetworks(networks, {...filter, group: 'favourites'}).length < 1}>Favourites</option>
+            <option value="featured" disabled={filteredNetworks(networks, {...filter, group: 'featured'}).length < 1}>Featured</option>
             <option value="all">All</option>
           </select>
         </div>

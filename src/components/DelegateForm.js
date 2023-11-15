@@ -4,11 +4,11 @@ import { MsgDelegate, MsgUndelegate, MsgBeginRedelegate } from "cosmjs-types/cos
 import {
   Button,
   Form,
-  Alert
 } from 'react-bootstrap'
 
 import { pow, multiply, divide, subtract, bignumber } from 'mathjs'
 
+import AlertMessage from './AlertMessage'
 import Coins from './Coins'
 import { buildExecMessage, coin } from '../utils/Helpers.mjs'
 
@@ -144,10 +144,15 @@ function DelegateForm(props) {
 
   return (
     <>
+      {!state.error && (selectedValidator?.active ?? validator?.active) === false &&
+        <AlertMessage variant="info" dismissible={false}>
+          {(selectedValidator || validator).moniker} is inactive - you will not receive any staking rewards until they are in the active set.
+        </AlertMessage>
+      }
       {state.error &&
-        <Alert variant="danger">
+        <AlertMessage variant="danger">
           {state.error}
-        </Alert>
+        </AlertMessage>
       }
         <Form onSubmit={handleSubmit}>
           <fieldset disabled={!address || !wallet}>

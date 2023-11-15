@@ -21,6 +21,7 @@ import { XCircle } from "react-bootstrap-icons";
 import ValidatorName from "./ValidatorName";
 import ValidatorServices from './ValidatorServices';
 import REStakeStatus from './REStakeStatus';
+import AlertMessage from './AlertMessage';
 
 function Validators(props) {
   const { address, wallet, network, validators, operators, delegations, operatorGrants } = props
@@ -58,7 +59,7 @@ function Validators(props) {
       return 0 - (delegation?.balance?.amount || 0)
     });
     return _.sortBy(validators, ({ operator_address: address, public_nodes, path }) => {
-      if(network.data.ownerAddress === address) return -6
+      if(network.ownerAddress === address) return -6
       if(path === 'ecostake') return -5
 
       const delegation = delegations && delegations[address]
@@ -126,6 +127,10 @@ function Validators(props) {
 
   function operatorForValidator(validatorAddress) {
     return operators.find((el) => el.address === validatorAddress);
+  }
+
+  function ownerValidator(){
+    return Object.values(validators).find(validator => validator.address === network.ownerAddress)
   }
 
   function renderValidator(validator) {
@@ -289,6 +294,13 @@ function Validators(props) {
 
   return (
     <>
+      {ownerValidator() && !ownerValidator().active && (
+        <AlertMessage variant="info" dismissible={false}>
+          <div role="button" onClick={() => props.showValidator(ownerValidator(), { activeTab: 'profile' })}>
+            {ownerValidator().moniker} is currently inactive on {network.prettyName}. Help support our projects by <u>staking with us</u>.
+          </div>
+        </AlertMessage>
+      )}
       <div className="d-flex flex-wrap justify-content-between align-items-start mb-3 position-relative">
         <div className="d-none d-sm-flex">
           <div className="input-group">
