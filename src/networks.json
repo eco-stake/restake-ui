@@ -285,5 +285,9 @@
   },
   {
     "name": "qwoyn"
+  },
+  {
+    "name": "neutron",
+    "enabled": false
   }
 ]
