@@ -8,7 +8,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import AlertMessage from './AlertMessage';
 import Proposals from './Proposals';
-import { executeSync } from '../utils/Helpers.mjs';
+import { executeSync, mapSync } from '../utils/Helpers.mjs';
 import ProposalModal from './ProposalModal';
 import Proposal from '../utils/Proposal.mjs';
 import Vote from '../utils/Vote.mjs';
@@ -31,7 +31,7 @@ function Voting(props) {
   const params = useParams();
 
   const voteGrants = (wallet?.grants || []).filter(grant => {
-    return grant.authorization['@type'] === '/cosmos.authz.v1beta1.GenericAuthorization' && 
+    return grant.authorization['@type'] === '/cosmos.authz.v1beta1.GenericAuthorization' &&
       grant.authorization.msg === '/cosmos.gov.v1beta1.MsgVote'
   })
 
@@ -84,7 +84,12 @@ function Voting(props) {
 
     try {
       let newProposals = await props.queryClient.getProposals()
-      newProposals = newProposals.map(el => Proposal(el))
+      newProposals = await mapSync(newProposals.map(el => {
+        return async () => {
+          return await Proposal(el)
+        }
+      }))
+
       setError()
       setProposals(sortProposals(newProposals))
       setTallies(newProposals.reduce((sum, proposal) => {
@@ -94,7 +99,7 @@ function Voting(props) {
         return sum
       }, {}))
     } catch (error) {
-      if (!proposals || clearExisting) setProposals([])
+      if (clearExisting) setProposals([])
       setError(`Failed to load proposals: ${error.message}`);
     }
   }
