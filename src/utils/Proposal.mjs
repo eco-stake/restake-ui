@@ -10,7 +10,8 @@ export const PROPOSAL_STATUSES = {
 export const PROPOSAL_SCAM_URLS = [
   'v2terra.d',
   'terrapro.a',
-  'cosmos-network.io'
+  'cosmos-network.io',
+  'terraweb.at'
 ]
 
 const Proposal = (data) => {
