@@ -35,7 +35,7 @@ const Proposal = async (data) => {
         }else{
           ipfsUrl = `https://ipfs.io/ipfs/${metadata}`
         }
-        metadata = await axios.get(ipfsUrl).then(res => res.data)
+        metadata = await axios.get(ipfsUrl, { timeout: 5000 }).then(res => res.data)
         title = metadata.title
         description = metadata.summary || metadata.description
       } catch (e) {
