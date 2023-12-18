@@ -38,6 +38,7 @@ class Network {
       }
     })
     this.online = !this.usingDirectory || this.connectedDirectory()
+    this.disabledWallets = data.disabledWallets || []
   }
 
   connectedDirectory() {

@@ -107,7 +107,10 @@ class App extends React.Component {
   async componentDidMount() {
     this.connect()
     window.addEventListener("load", this.connectAuto)
+    const disabledWallets = this.props.network?.disabledWallets || []
     this.signerProviders.forEach(provider => {
+      if(disabledWallets.includes(provider.name)) return
+
       const connector = (event) => this.connectAuto(event, provider.name)
       this.signerConnectors[provider.name] = connector
       window.addEventListener(provider.keychangeEvent, connector)
@@ -134,7 +137,10 @@ class App extends React.Component {
   componentWillUnmount() {
     this.clearRefreshInterval()
     window.removeEventListener("load", this.connectAuto)
+    const disabledWallets = this.props.network?.disabledWallets || []
     this.signerProviders.forEach(provider => {
+      if(disabledWallets.includes(provider.name)) return
+
       window.removeEventListener(provider.keychangeEvent, this.signerConnectors[provider.name])
     })
   }
@@ -148,6 +154,8 @@ class App extends React.Component {
   }
 
   getSignerProvider(providerKey){
+    if(this.props.network?.disabledWallets?.includes(providerKey)) return
+
     return providerKey && this.signerProviders.find(el => el.name === providerKey)
   }
 
@@ -729,7 +737,8 @@ class App extends React.Component {
                             ) : (
                               <>
                                 {this.signerProviders.map(provider => {
-                                  return <Dropdown.Item as="button" key={provider.name} onClick={() => this.connect(provider.name, true)} disabled={!provider.available()}>Connect {provider.label}</Dropdown.Item>
+                                  const disabledWallets = this.props.network?.disabledWallets || []
+                                  return <Dropdown.Item as="button" key={provider.name} onClick={() => this.connect(provider.name, true)} disabled={!provider.available() || disabledWallets.includes(provider.name)}>Connect {provider.label}</Dropdown.Item>
                                 })}
                                 <Dropdown.Divider />
                               </>
