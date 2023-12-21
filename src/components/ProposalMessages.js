@@ -29,7 +29,10 @@ function ProposalMessages(props) {
   function messageData(message){
     const data = _.omit(message, 'title', 'name', '@type', 'description')
     switch (message['@type']) {
-      case '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal', '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade':
+      case [
+        '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal',
+        '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade'
+      ].find(type => type === message['@type']):
         return {
           name: message.plan.name,
           height: message.plan.height,
