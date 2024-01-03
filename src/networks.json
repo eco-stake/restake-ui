@@ -7,7 +7,8 @@
       "gov": "v1beta1"
     },
     "authzAminoExecPreventTypes": [
-      "/cosmos.gov."
+      "/cosmos.gov.",
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
   {
@@ -272,7 +273,10 @@
   },
   {
     "name": "coreum",
-    "ownerAddress": "corevaloper1py9v5f7e4aaka55lwtthk30scxhnqfa6agwxt8"
+    "ownerAddress": "corevaloper1py9v5f7e4aaka55lwtthk30scxhnqfa6agwxt8",
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "nois",
