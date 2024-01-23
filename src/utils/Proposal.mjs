@@ -37,7 +37,7 @@ const Proposal = async (data) => {
         }
         metadata = await axios.get(ipfsUrl, { timeout: 5000 }).then(res => res.data)
         title = metadata.title
-        description = metadata.summary || metadata.description
+        description = metadata.summary || metadata.description || metadata.details
       } catch (e) {
         console.log(e)
       }
