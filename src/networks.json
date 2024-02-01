@@ -295,7 +295,8 @@
   },
   {
     "name": "dydx",
-    "ownerAddress": "dydxvaloper15wphegl8esn7r2rgj9j3xf870v78lxg8yfjn95"
+    "ownerAddress": "dydxvaloper15wphegl8esn7r2rgj9j3xf870v78lxg8yfjn95",
+    "authzSupport": true
   },
   {
     "name": "celestia",
