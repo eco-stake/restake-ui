@@ -61,18 +61,23 @@ const QueryClient = async (chainId, restUrls, opts) => {
   }
 
   function getBalance(address, denom, opts) {
-    return axios
-      .get(apiUrl('bank', `balances/${address}`), opts)
-      .then((res) => res.data)
-      .then((result) => {
-        if (!denom)
-          return result.balances;
+    return getAllPages((nextKey) => {
+      const searchParams = new URLSearchParams();
+      if (nextKey)
+        searchParams.append("pagination.key", nextKey);
+      return axios
+        .get(apiUrl('bank', `balances/${address}?${searchParams.toString()}`), opts)
+        .then((res) => res.data)
+    }).then((pages) => {
+      const result = pages.map((el) => el.balances).flat()
+      if (!denom)
+        return result
 
-        const balance = result.balances?.find(
-          (element) => element.denom === denom
-        ) || { denom: denom, amount: 0 };
-        return balance;
-      });
+      const balance = result.find(
+        (element) => element?.denom === denom
+      ) || { denom: denom, amount: 0 };
+      return balance;
+    });
   }
 
   function getDelegations(address) {
