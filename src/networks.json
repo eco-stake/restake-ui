@@ -3,11 +3,9 @@
     "name": "osmosis",
     "ownerAddress": "osmovaloper1u5v0m74mql5nzfx2yh43s2tke4mvzghr6m2n5t",
     "maxPerDay": 1,
-    "apiVersions": {
-      "gov": "v1beta1"
-    },
     "authzAminoExecPreventTypes": [
-      "/cosmos.gov."
+      "/cosmos.gov.",
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
   {
@@ -179,6 +177,9 @@
     "ownerAddress": "kujiravaloper1vue5lawr3s0au9zj0aqeft5aknx6cjq6w5ghca",
     "disabledWallets": [
       "cosmostation"
+    ],
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
   {
@@ -272,7 +273,10 @@
   },
   {
     "name": "coreum",
-    "ownerAddress": "corevaloper1py9v5f7e4aaka55lwtthk30scxhnqfa6agwxt8"
+    "ownerAddress": "corevaloper1py9v5f7e4aaka55lwtthk30scxhnqfa6agwxt8",
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "nois",
