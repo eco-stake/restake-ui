@@ -1,5 +1,3 @@
-import SigningClient from "./SigningClient.mjs"
-
 export const messageTypes = [
   '/cosmos.gov.v1beta1.MsgVote',
   '/cosmos.gov.v1beta1.MsgDeposit',

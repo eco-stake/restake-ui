@@ -175,6 +175,9 @@
   {
     "name": "kujira",
     "ownerAddress": "kujiravaloper1vue5lawr3s0au9zj0aqeft5aknx6cjq6w5ghca",
+    "disabledWallets": [
+      "cosmostation"
+    ],
     "authzAminoExecPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
