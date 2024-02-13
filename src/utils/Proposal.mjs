@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 export const PROPOSAL_STATUSES = {
   '': 'All',
   'PROPOSAL_STATUS_DEPOSIT_PERIOD': 'Deposit Period',
@@ -13,18 +15,32 @@ export const PROPOSAL_SCAM_URLS = [
   'cosmos-network.io'
 ]
 
-const Proposal = (data) => {
-  let { proposal_id, content, messages, metadata } = data
+const Proposal = async (data) => {
+  let { proposal_id, content, messages, metadata, title, summary: description } = data
   if(!proposal_id && data.id) proposal_id = data.id
 
-  let title, description, typeHuman
+  let typeHuman
   if(metadata){
     try {
       metadata = JSON.parse(metadata)
-      title = metadata.title
-      description = metadata.summary
-    } catch (e) {
-      console.log(e)
+      title = title || metadata.title
+      description = description || metadata.summary
+    } catch {
+      try {
+        let ipfsUrl
+        if(metadata.startsWith('ipfs://')){
+          ipfsUrl = metadata.replace("ipfs://", "https://ipfs.io/ipfs/")
+        }else if(metadata.startsWith('https://')){
+          ipfsUrl = metadata
+        }else{
+          ipfsUrl = `https://ipfs.io/ipfs/${metadata}`
+        }
+        metadata = await axios.get(ipfsUrl, { timeout: 5000 }).then(res => res.data)
+        title = metadata.title
+        description = metadata.summary || metadata.description || metadata.details
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 
@@ -43,7 +59,6 @@ const Proposal = (data) => {
   title = title || typeHuman
   description = description || metadata
 
-
   const statusHuman = PROPOSAL_STATUSES[data.status]
 
   const isDeposit = data.status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD'
@@ -59,7 +74,6 @@ const Proposal = (data) => {
     description,
     content,
     metadata,
-    messages,
     isDeposit,
     isVoting,
     isSpam

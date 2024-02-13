@@ -5,10 +5,13 @@ import remarkGfm from 'remark-gfm'
 
 import {
   Table,
+  Tab,
+  Nav
 } from 'react-bootstrap'
 
 import Coins from './Coins';
 import ProposalProgress from './ProposalProgress';
+import ProposalMessages from './ProposalMessages';
 import VoteForm from './VoteForm';
 import AlertMessage from './AlertMessage';
 import Vote from '../utils/Vote.mjs';
@@ -21,7 +24,7 @@ function ProposalDetails(props) {
 
   const { proposal_id, title, description } = proposal
 
-  const fixDescription = description.replace(/\\n/g, '  \n')
+  const fixDescription = description?.replace(/\\n/g, '  \n')
 
   useEffect(() => {
     if(props.address !== props.wallet?.address && props.granters.includes(props.address)){
@@ -156,26 +159,47 @@ function ProposalDetails(props) {
           tally={tally}
           height={25} />
       </div>
-      <div className="row mt-3">
-        <div className="col">
-          <h5 className="mb-3">{title}</h5>
-          <ReactMarkdown
-            children={fixDescription}
-            remarkPlugins={[remarkGfm]}
-            disallowedElements={proposal.isSpam && ['a']}
-            unwrapDisallowed={true}
-            components={{
-              h1: 'h5',
-              h2: 'h6',
-              h3: 'h6',
-              h4: 'h6',
-              h5: 'h6',
-              h6: 'h6',
-              table: ({node, ...props}) => <table className="table" {...props} />
-            }}
-           />
-        </div>
-      </div>
+      <Tab.Container id="proposal-tabs" defaultActiveKey="description">
+        <Nav variant="tabs" className="small mb-3 d-flex">
+          <Nav.Item>
+            <Nav.Link role="button" eventKey="description">Description</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link role="button" eventKey="messages">Messages</Nav.Link>
+          </Nav.Item>
+        </Nav>
+        <Tab.Content>
+          <Tab.Pane eventKey="description">
+            <div className="row mt-3">
+              <div className="col">
+                <h5 className="mb-3">{title}</h5>
+                <ReactMarkdown
+                  children={fixDescription}
+                  remarkPlugins={[remarkGfm]}
+                  disallowedElements={proposal.isSpam ? ['a'] : []}
+                  unwrapDisallowed={true}
+                  components={{
+                    h1: 'h5',
+                    h2: 'h6',
+                    h3: 'h6',
+                    h4: 'h6',
+                    h5: 'h6',
+                    h6: 'h6',
+                    table: ({node, ...props}) => <table className="table" {...props} />
+                  }}
+                />
+              </div>
+            </div>
+          </Tab.Pane>
+          <Tab.Pane eventKey="messages">
+            <div className="row mt-3">
+              <div className="col">
+                <ProposalMessages proposal={proposal} network={network} />
+              </div>
+            </div>
+          </Tab.Pane>
+        </Tab.Content>
+      </Tab.Container>
     </>
   )
 }
