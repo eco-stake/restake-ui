@@ -46,7 +46,7 @@ function CosmosDirectory(testnet){
   }
 
   function getOperatorAddresses(){
-    return axios.get(validatorsUrl)
+    return axios.get(validatorsUrl + '/registry')
       .then(res => res.data)
       .then(data => Array.isArray(data) ? data : data.validators) // deprecate
       .then(data => data.reduce((sum, validator) => {
