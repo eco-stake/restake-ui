@@ -75,20 +75,20 @@ class App extends React.Component {
       new KeplrSignerProvider(window.keplr),
       new LeapSignerProvider(window.leap),
       new CosmostationSignerProvider(window.cosmostation?.providers?.keplr, window.cosmostation?.cosmos),
-      new KeplrMobileSignerProvider({
-        connectModal: {
-          open: (uri, callback) => {
-            this.setState({
-              connectWallet: true,
-              qrCodeUri: uri || this.state.qrCodeUri,
-              qrCodeCallback: callback || this.state.qrCodeCallback
-            })
-          },
-          close: () => {
-            this.setState({ connectWallet: false })
-          }
-        }
-      }),
+      // new KeplrMobileSignerProvider({
+      //   connectModal: {
+      //     open: (uri, callback) => {
+      //       this.setState({
+      //         connectWallet: true,
+      //         qrCodeUri: uri || this.state.qrCodeUri,
+      //         qrCodeCallback: callback || this.state.qrCodeCallback
+      //       })
+      //     },
+      //     close: () => {
+      //       this.setState({ connectWallet: false })
+      //     }
+      //   }
+      // }),
       // new FalconSignerProvider(window.falcon)
     ]
     this.signerConnectors = {}
