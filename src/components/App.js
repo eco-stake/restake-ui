@@ -61,6 +61,7 @@ import ConnectWalletModal from './ConnectWalletModal';
 import { truncateAddress } from '../utils/Helpers.mjs';
 import CosmostationSignerProvider from '../utils/CosmostationSignerProvider.mjs';
 import SigningClient from '../utils/SigningClient.mjs';
+import LeapElements from './LeapElements';
 
 class App extends React.Component {
   constructor(props) {
@@ -584,6 +585,9 @@ class App extends React.Component {
                 favourites={this.state.favourites || []}
                 validators={this.props.validators}
                 changeNetwork={this.props.changeNetwork} />
+            </div>
+            <div className="d-flex align-items-center text-reset text-decoration-none">
+              <LeapElements address={this.state.address} networks={this.props.networks} signerProvider={this.state.signerProvider} testnet={this.props.directory.testnet} />
             </div>
           </div>
           <div className="d-flex justify-content-between border-bottom">
