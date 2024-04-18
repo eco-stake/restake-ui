@@ -219,7 +219,10 @@
   },
   {
     "name": "teritori",
-    "ownerAddress": "torivaloper1d5u07lhelk6lal44a0myvufurvsqk5d499h9hz"
+    "ownerAddress": "torivaloper1d5u07lhelk6lal44a0myvufurvsqk5d499h9hz",
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "rebus"
@@ -284,7 +287,10 @@
   },
   {
     "name": "omniflixhub",
-    "ownerAddress": "omniflixvaloper19d782trtcj4yq9lm7nxy3xs3xjg8vjktn3sjsd"
+    "ownerAddress": "omniflixvaloper19d782trtcj4yq9lm7nxy3xs3xjg8vjktn3sjsd",
+    "authzAminoExecPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "empowerchain",
