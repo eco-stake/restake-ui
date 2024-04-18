@@ -326,6 +326,9 @@
     "ownerAddress": "dymvaloper1z2uv28s9ewxg0ch45m2v27ke76tf7hvw398ggu"
   },
   {
-    "name": "humans"
+    "name": "humans",
+    "aminoPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   }
 ]
