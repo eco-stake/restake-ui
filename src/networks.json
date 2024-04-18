@@ -330,5 +330,8 @@
     "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
+  },
+  {
+    "name": "saga"
   }
 ]
