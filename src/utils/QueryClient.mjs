@@ -204,8 +204,10 @@ const QueryClient = async (chainId, restUrls, opts) => {
     params.forEach(({ key, value }) => {
       searchParams.append(key, value);
     });
-    if (pageSize)
+    if (pageSize) {
       searchParams.append('pagination.limit', pageSize);
+      searchParams.append('limit', pageSize);
+    }
     if (order)
       searchParams.append('order_by', order);
     const client = axios.create({ baseURL: restUrl });
