@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Moment from 'react-moment';
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import {micromark} from 'micromark'
+import {gfm, gfmHtml} from 'micromark-extension-gfm'
+import parse from 'html-react-parser';
+
 
 import {
   Table,
@@ -25,6 +27,27 @@ function ProposalDetails(props) {
   const { proposal_id, title, description } = proposal
 
   const fixDescription = description?.replace(/\\n/g, '  \n')
+
+  const transformElement = (node) => {
+    if (proposal.isSpam && node.name === 'a') {
+      return <span>{node.children[0].data}</span>;
+    }
+
+    switch (node.name) {
+      case 'h1':
+        return <h5>{node.children[0].data}</h5>;
+      case 'h2':
+      case 'h3':
+      case 'h4':
+      case 'h5':
+      case 'h6':
+        return <h6>{node.children[0].data}</h6>;
+      case 'table':
+        return <table className="table">{node.children.map((child) => transformElement(child))}</table>;
+      default:
+        return node;
+    }
+  };
 
   useEffect(() => {
     if(props.address !== props.wallet?.address && props.granters.includes(props.address)){
@@ -173,21 +196,7 @@ function ProposalDetails(props) {
             <div className="row mt-3">
               <div className="col">
                 <h5 className="mb-3">{title}</h5>
-                <ReactMarkdown
-                  children={fixDescription}
-                  remarkPlugins={[remarkGfm]}
-                  disallowedElements={proposal.isSpam ? ['a'] : []}
-                  unwrapDisallowed={true}
-                  components={{
-                    h1: 'h5',
-                    h2: 'h6',
-                    h3: 'h6',
-                    h4: 'h6',
-                    h5: 'h6',
-                    h6: 'h6',
-                    table: ({node, ...props}) => <table className="table" {...props} />
-                  }}
-                />
+                {parse(micromark(fixDescription, {extensions: [gfm()], htmlExtensions: [gfmHtml()]}), { replace: transformElement})}
               </div>
             </div>
           </Tab.Pane>
