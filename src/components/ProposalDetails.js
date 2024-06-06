@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Moment from 'react-moment';
-import {micromark} from 'micromark'
-import {gfm, gfmHtml} from 'micromark-extension-gfm'
-import parse from 'html-react-parser';
+import {micromark} from 'micromark';
+import {gfm, gfmHtml} from 'micromark-extension-gfm';
+import DOMPurify from 'dompurify';
 
 
 import {
@@ -28,26 +28,27 @@ function ProposalDetails(props) {
 
   const fixDescription = description?.replace(/\\n/g, '  \n')
 
-  const transformElement = (node) => {
-    if (proposal.isSpam && node.name === 'a') {
-      return <span>{node.children[0].data}</span>;
+  const transformHTMLString = (htmlString, isSpam) => {
+    let transformedString = htmlString;
+  
+    // Transform headings
+    transformedString = transformedString.replace(/<h[2-6]>(.*?)<\/h[2-6]>/g, '<h6>$1</h6>');
+    transformedString = transformedString.replace(/<h1>(.*?)<\/h1>/g, '<h5>$1</h5>');
+  
+    // Remove all <a> tags if proposal is spam
+    if (isSpam) {
+      transformedString = transformedString.replace(/<a[^>]*>(.*?)<\/a>/g, '<span>$1</span>');
     }
-
-    switch (node.name) {
-      case 'h1':
-        return <h5>{node.children[0].data}</h5>;
-      case 'h2':
-      case 'h3':
-      case 'h4':
-      case 'h5':
-      case 'h6':
-        return <h6>{node.children[0].data}</h6>;
-      case 'table':
-        return <table className="table">{node.children.map((child) => transformElement(child))}</table>;
-      default:
-        return node;
-    }
+  
+    // Apply table class
+    transformedString = transformedString.replace(/<table>/g, '<table class="table">');
+  
+    return transformedString;
   };
+
+  const htmlDescription = micromark(fixDescription, { extensions: [gfm()], htmlExtensions: [gfmHtml()] })
+  const sanitizedHtml = DOMPurify.sanitize(htmlDescription);
+  const transformedDescription = transformHTMLString(sanitizedHtml, proposal.isSpam);
 
   useEffect(() => {
     if(props.address !== props.wallet?.address && props.granters.includes(props.address)){
@@ -196,7 +197,7 @@ function ProposalDetails(props) {
             <div className="row mt-3">
               <div className="col">
                 <h5 className="mb-3">{title}</h5>
-                {parse(micromark(fixDescription, {extensions: [gfm()], htmlExtensions: [gfmHtml()]}), { replace: transformElement})}
+                <div dangerouslySetInnerHTML={{ __html: transformedDescription }}></div>
               </div>
             </div>
           </Tab.Pane>
