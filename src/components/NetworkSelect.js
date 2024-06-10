@@ -168,7 +168,7 @@ function NetworkSelect(props) {
                           <span className="ms-1">{network.label} {!network.online && <small>(Offline)</small>}</span>
                         </div>
                         <div className="text-end pt-1 d-none d-sm-block">
-                          {network.operatorCount > 0 &&
+                          {network.restakeSupport && network.operatorCount > 0 &&
                             <small>{network.operatorCount} Operator{network.operatorCount > 1 ? 's' : ''}</small>
                           }
                         </div>
