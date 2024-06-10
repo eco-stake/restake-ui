@@ -41,9 +41,9 @@ function NetworkChecks(props) {
     failTitle: "No REStake operators",
     failDescription: "There are no operators for this network yet. You can stake and compound manually in the meantime."
   }
-  if(!network.authzSupport && network.operatorCount > 0){
+  if(!network.restakeSupport && network.operatorCount > 0){
     operatorCheck.failTitle = operatorCheck.title,
-    operatorCheck.failDescription = "Authz is disabled but there are operators ready when support is added."
+    operatorCheck.failDescription = `${network.authzSupport ? 'REStake' : 'Authz'} is disabled but there are operators ready when support is added.`
   }
 
   const testedCheck =  {
@@ -89,7 +89,7 @@ function NetworkChecks(props) {
         }),
         renderCheck({
           ...operatorCheck,
-          state: network.authzSupport && network.operatorCount > 0,
+          state: network.restakeSupport && network.operatorCount > 0,
           identifier: 'operators'
         }),
         renderCheck({

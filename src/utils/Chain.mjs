@@ -19,6 +19,7 @@ const Chain = (data) => {
     gov: sdk46OrLater ? 'v1' : 'v1beta1',
     ...data.apiVersions || {}
   }
+  const restakeSupport = authzSupport && (data.restakeEnabled ?? true)
 
   return {
     ...data,
@@ -35,6 +36,7 @@ const Chain = (data) => {
     authzAminoLiftedValues,
     authzAminoExecPreventTypes,
     apiVersions,
+    restakeSupport,
     denom: data.denom || baseAsset?.base?.denom,
     display: data.display || baseAsset?.display?.denom,
     symbol: data.symbol || baseAsset?.symbol,

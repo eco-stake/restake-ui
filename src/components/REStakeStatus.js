@@ -78,7 +78,7 @@ function REStakeStatus(props) {
     )
   }else{
     content = <XCircle className={joinString(`opacity-50`, className)} />
-    tooltip = 'This validator is not a REStake operator'
+    tooltip = !network.restakeSupport ? "REStake is not supported at this time" : "This validator is not a REStake operator"
   }
 
   return (

@@ -315,7 +315,12 @@
   },
   {
     "name": "dydx",
-    "ownerAddress": "dydxvaloper15wphegl8esn7r2rgj9j3xf870v78lxg8yfjn95"
+    "ownerAddress": "dydxvaloper15wphegl8esn7r2rgj9j3xf870v78lxg8yfjn95",
+    "aminoPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ],
+    "restakeEnabled": false,
+    "restakeAlert": "dYdX rewards are paid in USDC which cannot be automatically swapped to DYDX at this time. Auto-compounding is disabled for now."
   },
   {
     "name": "celestia",
