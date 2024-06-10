@@ -2,7 +2,7 @@ import Bugsnag from '@bugsnag/js'
 import BugsnagPluginReact from '@bugsnag/plugin-react'
 import React from 'react';
 
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
   BrowserRouter,
   Routes,
@@ -30,6 +30,9 @@ const app = (
   </React.StrictMode>
 )
 
+const container = document.getElementById('root')
+const root = createRoot(container);
+
 if (process.env.BUGSNAG_KEY) {
   Bugsnag.start({
     apiKey: process.env.BUGSNAG_KEY,
@@ -41,16 +44,14 @@ if (process.env.BUGSNAG_KEY) {
   const ErrorBoundary = Bugsnag.getPlugin('react')
     .createErrorBoundary(React)
   
-  ReactDOM.render(
+  root.render(
     <ErrorBoundary>
       {app}
     </ErrorBoundary>,
-    document.getElementById('root')
   );
 }else{
-  ReactDOM.render(
-    app,
-    document.getElementById('root')
+  root.render(
+    app
   );
 }
 
