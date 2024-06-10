@@ -103,8 +103,10 @@ export default class DefaultSigningAdapter {
         const execTypes = message.value.msgs.map(msg => msg.typeUrl)
         const preventedTypes = execTypes.filter(type => this.network.authzAminoExecPreventTypes.some(prevent => type.match(_.escapeRegExp(prevent))))
         if(preventedTypes.length > 0){
-          throw new Error(`This chain does not support amino conversion for Authz Exec with types: ${preventedTypes.join(', ')}`)
+          throw new Error(`This chain does not support amino conversion for Authz Exec with message types: ${preventedTypes.join(', ')}`)
         }
+      }else if(this.network.aminoPreventTypes.some(prevent => message.typeUrl.match(_.escapeRegExp(prevent)))){
+        throw new Error(`This chain does not support amino conversion for message type: ${message.typeUrl}`)
       }
       let aminoMessage = this.aminoTypes.toAmino(message)
       if(this.network.authzAminoLiftedValues){

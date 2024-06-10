@@ -3,21 +3,26 @@
     "name": "osmosis",
     "ownerAddress": "osmovaloper1u5v0m74mql5nzfx2yh43s2tke4mvzghr6m2n5t",
     "maxPerDay": 1,
-    "authzAminoExecPreventTypes": [
-      "/cosmos.gov.",
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ],
+    "authzAminoExecPreventTypes": [
+      "/cosmos.gov."
     ]
   },
   {
     "name": "juno",
     "ownerAddress": "junovaloper19ur8r2l25qhsy9xvej5zgpuc5cpn6syydmwtrt",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
   {
     "name": "cosmoshub",
-    "ownerAddress": "cosmosvaloper1a37ze3yrr2y9nn98l6frhjskmufvd40cpyd0gq"
+    "ownerAddress": "cosmosvaloper1a37ze3yrr2y9nn98l6frhjskmufvd40cpyd0gq",
+    "aminoPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "akash",
@@ -26,7 +31,7 @@
   {
     "name": "chihuahua",
     "ownerAddress": "chihuahuavaloper19vwcee000fhazmpt4ultvnnkhfh23ppwxll8zz",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -36,7 +41,7 @@
   {
     "name": "regen",
     "ownerAddress": "regenvaloper1c4y3j05qx652rnxm5mg4yesqdkmhz2f6dl7hhk",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -69,7 +74,7 @@
   {
     "name": "cryptoorgchain",
     "ownerAddress": "crocncl10mfs428fyntu296dgh5fmhvdzrr2stlaekcrp9",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -79,7 +84,7 @@
     "txTimeout": 120000,
     "maxPerDay": 1,
     "gasPrice": "75000000000aevmos",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -98,9 +103,11 @@
     "apiVersions": {
       "gov": "v1beta1"
     },
-    "authzAminoExecPreventTypes": [
-      "/cosmos.gov.",
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ],
+    "authzAminoExecPreventTypes": [
+      "/cosmos.gov."
     ],
     "authzAminoGenericOnly": true
   },
@@ -178,7 +185,7 @@
     "disabledWallets": [
       "cosmostation"
     ],
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -220,7 +227,7 @@
   {
     "name": "teritori",
     "ownerAddress": "torivaloper1d5u07lhelk6lal44a0myvufurvsqk5d499h9hz",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -240,7 +247,7 @@
   {
     "name": "mars",
     "ownerAddress": "marsvaloper1hvtaqw9mlwc0a4cdx6g3klk8acfc6z3yazzk8a",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -250,7 +257,7 @@
   {
     "name": "injective",
     "ownerAddress": "injvaloper1vqz7mgm47xhx25xu5g9qagnz48naks6pk6fmg2",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -260,14 +267,14 @@
   {
     "name": "kyve",
     "ownerAddress": "kyvevaloper1egqphd8yjdfv84fl825grwgna0pf2emagdmnz8",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
   {
     "name": "quicksilver",
     "maxPerDay": 1,
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -277,7 +284,7 @@
   {
     "name": "coreum",
     "ownerAddress": "corevaloper1py9v5f7e4aaka55lwtthk30scxhnqfa6agwxt8",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -288,14 +295,14 @@
   {
     "name": "omniflixhub",
     "ownerAddress": "omniflixvaloper19d782trtcj4yq9lm7nxy3xs3xjg8vjktn3sjsd",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
   {
     "name": "empowerchain",
     "ownerAddress": "empowervaloper1msjwmclw77h5j0t69n7j2p9ur5ra46uxqaedxz",
-    "authzAminoExecPreventTypes": [
+    "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
   },
@@ -319,7 +326,10 @@
     "ownerAddress": "dymvaloper1z2uv28s9ewxg0ch45m2v27ke76tf7hvw398ggu"
   },
   {
-    "name": "humans"
+    "name": "humans",
+    "aminoPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ]
   },
   {
     "name": "saga"
