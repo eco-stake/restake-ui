@@ -73,6 +73,15 @@ code p{
   }
 }
 
+.table {
+  --bs-table-color-type: unset;
+  --bs-table-bg-type: unset;
+  --bs-table-color-state: unset;
+  --bs-table-bg-state: unset;
+  --bs-table-color: unset;
+  --bs-table-border-color: unset;
+}
+
 pre.pre-wrap {
   white-space: pre-wrap;       /* css-3 */
   white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
