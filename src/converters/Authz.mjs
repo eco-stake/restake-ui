@@ -37,7 +37,7 @@ function createAuthzAuthorizationAminoConverter(){
 
 const dateConverter = {
   toAmino(date){
-    return moment(date.seconds.toNumber() * 1000).utc().format()
+    return moment(Number(date.seconds) * 1000).utc().format()
   },
   fromAmino(date){
     return {

@@ -149,6 +149,6 @@ export function authzSupportMessage(wallet){
     if (wallet.signerProvider.isLedger()){
       return `${wallet.signerProvider.label} can't send Authz transactions with Ledger on ${wallet.network.prettyName} just yet.`
     }else{
-      return `${wallet.props.wallet.signerProvider.label} can't send Authz transactions on ${wallet.network.prettyName} just yet.`
+      return `${wallet.signerProvider.label} can't send Authz transactions on ${wallet.network.prettyName} just yet.`
     }
   }

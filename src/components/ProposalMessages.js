@@ -48,8 +48,8 @@ function ProposalMessages(props) {
         return {
           ...data,
           amount: () => {
-            return data.amount.map(coin => {
-              return <Coins coins={coin} asset={network.assetForDenom(coin.denom)} fullPrecision={true} />
+            return data.amount.map((coin, index) => {
+              return <Coins key={index} coins={coin} asset={network.assetForDenom(coin.denom)} fullPrecision={true} />
             })
           }
         }
