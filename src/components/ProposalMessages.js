@@ -48,6 +48,7 @@ function ProposalMessages(props) {
         return {
           ...data,
           amount: () => {
+            if(!data.amount) console.log(data)
             return data.amount?.map((coin, index) => {
               return <Coins key={index} coins={coin} asset={network.assetForDenom(coin.denom)} fullPrecision={true} />
             })
