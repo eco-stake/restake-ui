@@ -1,5 +1,5 @@
 # build env
-FROM node:17-slim as build
+FROM node:18-slim as build
 
 RUN apt-get update && apt-get install -y python3 make g++
 
