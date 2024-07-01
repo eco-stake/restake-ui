@@ -144,11 +144,15 @@ export async function executeSync(calls, count) {
 }
 
 export function authzSupportMessage(wallet){
-    if(wallet.authzSupport()) return null;
+  if(wallet.authzSupport()) return null;
 
-    if (wallet.signerProvider.isLedger()){
-      return `${wallet.signerProvider.label} can't send Authz transactions with Ledger on ${wallet.network.prettyName} just yet.`
-    }else{
-      return `${wallet.signerProvider.label} can't send Authz transactions on ${wallet.network.prettyName} just yet.`
-    }
+  if (wallet.signerProvider.isLedger()){
+    return `${wallet.signerProvider.label} can't send Authz transactions with Ledger on ${wallet.network.prettyName} just yet.`
+  }else{
+    return `${wallet.signerProvider.label} can't send Authz transactions on ${wallet.network.prettyName} just yet.`
   }
+}
+
+export function omit(o, ...paths){
+  return Object.fromEntries(Object.entries(o).filter(([k]) => !paths.includes(k)))
+}

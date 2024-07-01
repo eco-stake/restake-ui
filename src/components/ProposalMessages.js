@@ -6,6 +6,8 @@ import moment from 'moment'
 import _ from 'lodash'
 import Moment from 'react-moment';
 import Coins from './Coins';
+import { omit } from '../utils/Helpers.mjs';
+import truncateMiddle from 'truncate-middle';
 
 function ProposalMessages(props) {
   const { proposal, network } = props
@@ -27,7 +29,7 @@ function ProposalMessages(props) {
   }
 
   function messageData(message){
-    const data = _.omit(message, 'title', 'name', '@type', 'description')
+    const data = omit(message, 'title', 'name', '@type', 'description')
     switch (message['@type']) {
       case [
         '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal',
@@ -59,6 +61,8 @@ function ProposalMessages(props) {
             return <pre className="pre-wrap">{JSON.stringify(value, undefined, 2)}</pre>
           }else if(typeof value == "boolean"){
             return value ? 'true' : 'false'
+          }else if(typeof value == "string"){
+            return truncateMiddle(value, 100, 100, '…')
           }else{
             return value
           }
