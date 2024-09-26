@@ -78,7 +78,7 @@ function ValidatorModal(props) {
       setTab('profile')
     }
   }, [props.show])
-  
+
   function setTab(tab){
     setActiveTab(tab || 'profile')
   }
@@ -103,9 +103,11 @@ function ValidatorModal(props) {
       return
     }
 
+    const key = network.chain.sdk50OrLater ? 'query' : 'events'
+
     network.queryClient.getTransactions([
-      { key: 'events', value: `message.action='/cosmos.authz.v1beta1.MsgExec'` },
-      { key: 'events', value: `message.sender='${operator.botAddress}'` }
+      { key: key, value: `message.action='/cosmos.authz.v1beta1.MsgExec'` },
+      { key: key, value: `message.sender='${operator.botAddress}'` }
     ], {
       pageSize: 1,
       order: 2,
