@@ -8,6 +8,7 @@ const Chain = (data) => {
   const slip44 = data.slip44 || 118
   const ledgerSupport = data.ledgerSupport ?? slip44 !== 60 // no ethereum ledger support for now
   const sdk46OrLater = validate(cosmos_sdk_version) && compareVersions(cosmos_sdk_version, '0.46') >= 0
+  const sdk50OrLater = validate(cosmos_sdk_version) && compareVersions(cosmos_sdk_version, '0.50') >= 0
   const sdkAuthzAminoSupport = sdk46OrLater
   const aminoPreventTypes = data.aminoPreventTypes || []
   const authzSupport = data.authzSupport ?? data.params?.authz
@@ -37,6 +38,8 @@ const Chain = (data) => {
     authzAminoExecPreventTypes,
     apiVersions,
     restakeSupport,
+    sdk46OrLater,
+    sdk50OrLater,
     denom: data.denom || baseAsset?.base?.denom,
     display: data.display || baseAsset?.display?.denom,
     symbol: data.symbol || baseAsset?.symbol,
