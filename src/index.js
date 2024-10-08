@@ -40,10 +40,10 @@ if (process.env.BUGSNAG_KEY) {
     enabledReleaseStages: ['production', 'staging'],
     releaseStage: process.env.NODE_ENV
   })
-  
+
   const ErrorBoundary = Bugsnag.getPlugin('react')
     .createErrorBoundary(React)
-  
+
   root.render(
     <ErrorBoundary>
       {app}
