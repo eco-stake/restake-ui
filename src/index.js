@@ -27,6 +27,12 @@ const app = (
         <Route path="/:network/:validator/:section" element={<NetworkFinder />} />
       </Routes>
     </BrowserRouter>
+    {process.env.EMBED_ANALYTICS === '1' && (
+      <>
+        <script async defer src="https://sa.restake.app/latest.js"></script>
+        <noscript><img src="https://sa.restake.app/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade" /></noscript>
+      </>
+    )}
   </React.StrictMode>
 )
 
@@ -40,10 +46,10 @@ if (process.env.BUGSNAG_KEY) {
     enabledReleaseStages: ['production', 'staging'],
     releaseStage: process.env.NODE_ENV
   })
-  
+
   const ErrorBoundary = Bugsnag.getPlugin('react')
     .createErrorBoundary(React)
-  
+
   root.render(
     <ErrorBoundary>
       {app}
