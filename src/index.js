@@ -27,12 +27,6 @@ const app = (
         <Route path="/:network/:validator/:section" element={<NetworkFinder />} />
       </Routes>
     </BrowserRouter>
-    {process.env.EMBED_ANALYTICS === '1' && (
-      <>
-        <script async defer src="https://sa.restake.app/latest.js"></script>
-        <noscript><img src="https://sa.restake.app/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade" /></noscript>
-      </>
-    )}
   </React.StrictMode>
 )
 
