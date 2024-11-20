@@ -80,7 +80,6 @@
   },
   {
     "name": "evmos",
-    "ownerAddress": "evmosvaloper1umk407eed7af6anvut6llg2zevnf0dn0feqqny",
     "txTimeout": 120000,
     "maxPerDay": 1,
     "gasPrice": "75000000000aevmos",
@@ -99,7 +98,6 @@
   },
   {
     "name": "comdex",
-    "ownerAddress": "comdexvaloper17f70yjkvmvld379904jaddx9h0f74n32pjtmp6",
     "apiVersions": {
       "gov": "v1beta1"
     },
@@ -161,8 +159,7 @@
     "name": "decentr"
   },
   {
-    "name": "assetmantle",
-    "ownerAddress": "mantlevaloper1fqs7gakxdmujtk0qufdzth5pfyspus3yx394zd"
+    "name": "assetmantle"
   },
   {
     "name": "crescent"
@@ -176,12 +173,10 @@
   },
   {
     "name": "harpoon",
-    "ownerAddress": "kujiravaloper1vue5lawr3s0au9zj0aqeft5aknx6cjq6w5ghca",
     "testnet": true
   },
   {
     "name": "kujira",
-    "ownerAddress": "kujiravaloper1vue5lawr3s0au9zj0aqeft5aknx6cjq6w5ghca",
     "disabledWallets": [
       "cosmostation"
     ],
@@ -246,7 +241,6 @@
   },
   {
     "name": "mars",
-    "ownerAddress": "marsvaloper1hvtaqw9mlwc0a4cdx6g3klk8acfc6z3yazzk8a",
     "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ]
@@ -289,8 +283,7 @@
     ]
   },
   {
-    "name": "nois",
-    "ownerAddress": "noisvaloper198un95fs7wxqkv53zhc8hjcyga8qgswtv82x9w"
+    "name": "nois"
   },
   {
     "name": "omniflixhub",
@@ -323,12 +316,10 @@
     "restakeAlert": "dYdX rewards are paid in USDC which cannot be automatically swapped to DYDX at this time. Auto-compounding is disabled for now."
   },
   {
-    "name": "celestia",
-    "ownerAddress": "celestiavaloper1dsyuamue2p3l0z753pyrtegs52ftrg960re06j"
+    "name": "celestia"
   },
   {
-    "name": "dymension",
-    "ownerAddress": "dymvaloper1z2uv28s9ewxg0ch45m2v27ke76tf7hvw398ggu"
+    "name": "dymension"
   },
   {
     "name": "humans",
