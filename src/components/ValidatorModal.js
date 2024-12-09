@@ -106,16 +106,21 @@ function ValidatorModal(props) {
     const key = network.chain.sdk50OrLater ? 'query' : 'events'
 
     network.queryClient.getTransactions([
-      { key: key, value: `message.action='/cosmos.authz.v1beta1.MsgExec'` },
+      // { key: key, value: `message.action='/cosmos.authz.v1beta1.MsgExec'` },
       { key: key, value: `message.sender='${operator.botAddress}'` }
     ], {
-      pageSize: 1,
+      pageSize: 3,
       order: 2,
       retries: 3,
       timeout: 15_000
     }).then(data => {
       if (data.tx_responses?.length > 0) {
-        setLastExec(moment(data.tx_responses[0].timestamp))
+        const lastExecResponse = data.tx_responses.find(tx => tx.tx.body.messages[0]['@type'] === '/cosmos.authz.v1beta1.MsgExec')
+        if(lastExecResponse){
+          setLastExec(moment(lastExecResponse.timestamp))
+        }else{
+          setLastExec(false)
+        }
       } else if(emptyResponseRetries && lastExec == null) {
         getLastExec(emptyResponseRetries - 1)
       } else if(lastExec == null) {
