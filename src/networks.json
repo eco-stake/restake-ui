@@ -329,5 +329,11 @@
   },
   {
     "name": "saga"
+  },
+  {
+    "name": "elys",
+    "ownerAddress": "elysvaloper1wnv3j92za5cnsfuhlw4c9jl3ttdl36smk9yujm",
+    "restakeEnabled": false,
+    "restakeAlert": "Elys Network uses a novel rewards mechanism which isn't fully supported just yet..."
   }
 ]
