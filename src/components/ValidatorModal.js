@@ -105,7 +105,7 @@ function ValidatorModal(props) {
 
     const key = network.chain.sdk50OrLater ? 'query' : 'events'
 
-    network.queryClient.getTransactions([
+    network.restClient.getTransactions([
       // { key: key, value: `message.action='/cosmos.authz.v1beta1.MsgExec'` },
       { key: key, value: `message.sender='${operator.botAddress}'` }
     ], {

@@ -134,6 +134,10 @@ class App extends React.Component {
     return this.props.network?.connected
   }
 
+  restClient() {
+    return this.props.network?.restClient
+  }
+
   getSignerProvider(providerKey){
     if(this.props.network?.disabledWallets?.includes(providerKey)) return
 
@@ -302,7 +306,7 @@ class App extends React.Component {
   async getBalance() {
     if (!this.state.address) return
 
-    this.props.queryClient.getBalance(this.state.address)
+    this.restClient().getBalance(this.state.address)
       .then(
         (balances) => {
           const balance = balances?.find(
@@ -324,9 +328,9 @@ class App extends React.Component {
     let granterGrants, granteeGrants, grantQuerySupport
 
     try {
-      granterGrants = await this.props.queryClient.getGranterGrants(address)
+      granterGrants = await this.restClient().getGranterGrants(address)
       this.setGrants(address, granterGrants, 'granter', true)
-      granteeGrants = await this.props.queryClient.getGranteeGrants(address)
+      granteeGrants = await this.restClient().getGranteeGrants(address)
       return this.setGrants(address, granteeGrants, 'grantee')
     } catch (error) {
       console.log('Failed to get all grants in batch', error.message)
@@ -360,7 +364,7 @@ class App extends React.Component {
       return () => {
         if (address !== this.state.address) return
 
-        return this.props.queryClient.getGrants(grantee, granter).then(
+        return this.restClient().getGrants(grantee, granter).then(
           (result) => {
             return result.map(grant => {
               return {
@@ -775,7 +779,6 @@ class App extends React.Component {
                 showAbout={() => this.setState({ showAbout: true })}
                 onGrant={this.onGrant}
                 onRevoke={this.onRevoke}
-                queryClient={this.props.queryClient}
                 signingClient={this.state.signingClient} />
             </>
           }
@@ -785,7 +788,6 @@ class App extends React.Component {
               address={this.state.address}
               wallet={this.state.wallet}
               favouriteAddresses={this.favouriteAddresses()}
-              queryClient={this.props.queryClient}
               signingClient={this.state.signingClient} />
           )}
           {this.props.active === 'grants' && this.state.address && this.props.network.authzSupport && (
@@ -801,7 +803,6 @@ class App extends React.Component {
               toggleFavouriteAddress={this.toggleFavouriteAddress}
               onGrant={this.onGrant}
               onRevoke={this.onRevoke}
-              queryClient={this.props.queryClient}
               grantQuerySupport={this.state.grantQuerySupport}
               signingClient={this.state.signingClient} />
           )}

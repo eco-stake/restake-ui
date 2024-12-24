@@ -30,19 +30,19 @@ function ProposalDetails(props) {
 
   const transformHTMLString = (htmlString, isSpam) => {
     let transformedString = htmlString;
-  
+
     // Transform headings
     transformedString = transformedString.replace(/<h[2-6]>(.*?)<\/h[2-6]>/g, '<h6>$1</h6>');
     transformedString = transformedString.replace(/<h1>(.*?)<\/h1>/g, '<h5>$1</h5>');
-  
+
     // Remove all <a> tags if proposal is spam
     if (isSpam) {
       transformedString = transformedString.replace(/<a[^>]*>(.*?)<\/a>/g, '<span>$1</span>');
     }
-  
+
     // Apply table class
     transformedString = transformedString.replace(/<table>/g, '<table class="table">');
-  
+
     return transformedString;
   };
 
@@ -58,7 +58,7 @@ function ProposalDetails(props) {
 
   useEffect(() => {
     if(granter){
-      props.queryClient.getProposalVote(proposal_id, granter).then(result => {
+      network.restClient.getProposalVote(proposal_id, granter).then(result => {
         return setGranterVote(Vote(result.vote))
       }).catch(error => {
         setGranterVote(null)

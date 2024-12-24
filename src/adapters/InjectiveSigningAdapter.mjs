@@ -34,7 +34,7 @@ export default class InjectiveSigningAdapter extends DefaultSigningAdapter {
     const ethereumChainId = 1
     const { account_number: accountNumber, sequence, address } = account
 
-    const latestBlock = await this.network.queryClient.getLatestBlock()
+    const latestBlock = await this.network.restClient.getLatestBlock()
     const latestHeight = latestBlock.block.header.height
     const timeoutHeight = new BigNumberInBase(latestHeight).plus(
       DEFAULT_BLOCK_TIMEOUT_HEIGHT,

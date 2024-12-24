@@ -2,7 +2,7 @@ import axios from "axios";
 import axiosRetry from 'axios-retry';
 import _ from "lodash";
 
-const QueryClient = async (chainId, restUrls, opts) => {
+const RestClient = async (chainId, restUrls, opts) => {
   const config = _.merge({
     connectTimeout: 10000,
   }, opts)
@@ -298,4 +298,4 @@ const QueryClient = async (chainId, restUrls, opts) => {
   };
 };
 
-export default QueryClient;
+export default RestClient;

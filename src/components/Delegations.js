@@ -80,6 +80,10 @@ class Delegations extends React.Component {
     this.clearRefreshInterval()
   }
 
+  restClient() {
+    return this.props.network.restClient
+  }
+
   async refresh(getGrants) {
     this.calculateApy();
     await this.getDelegations()
@@ -111,7 +115,7 @@ class Delegations extends React.Component {
     if(!this.props.address) return
     const address = this.props.address
 
-    return this.props.queryClient.getDelegations(address)
+    return this.restClient().getDelegations(address)
       .then(
         (delegations) => {
           const orderedAddresses = Object.keys(this.props.validators)
@@ -149,7 +153,7 @@ class Delegations extends React.Component {
     if(!this.props.address) return
     const address = this.props.address
 
-    return this.props.queryClient.getWithdrawAddress(address).then(withdraw => {
+    return this.restClient().getWithdrawAddress(address).then(withdraw => {
       if (withdraw !== address) {
         this.setState({ error: 'You have a different withdraw address set. REStake WILL NOT WORK!' })
       }
@@ -161,7 +165,7 @@ class Delegations extends React.Component {
   getRewards(hideError) {
     if(!this.props.address) return
 
-    this.props.queryClient
+    this.restClient()
       .getRewards(this.props.address, this.props.network.denom)
       .then(
         (rewards) => {
@@ -179,7 +183,7 @@ class Delegations extends React.Component {
 
     Object.values(this.props.validators).forEach(validator => {
       if(validator.isValidatorOperator(this.props.address)){
-        this.props.queryClient.getCommission(validator.address).then((commission) => {
+        this.restClient().getCommission(validator.address).then((commission) => {
           this.setState((state, props) => ({
             commission: _.set(
               state.commission,

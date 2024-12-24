@@ -3,7 +3,7 @@ import { multiply, pow, format, bignumber, number, larger } from 'mathjs'
 import {
   GasPrice,
 } from "@cosmjs/stargate";
-import QueryClient from './QueryClient.mjs'
+import RestClient from './RestClient.mjs'
 import Validator from './Validator.mjs'
 import Operator from './Operator.mjs'
 import Chain from './Chain.mjs'
@@ -132,12 +132,12 @@ class Network {
 
   async connect(opts) {
     try {
-      this.queryClient = await QueryClient(this.chain.chainId, this.restUrl, {
+      this.restClient = await RestClient(this.chain.chainId, this.restUrl, {
         connectTimeout: opts?.timeout,
         apiVersions: this.chain.apiVersions
       })
-      this.restUrl = this.queryClient.restUrl
-      this.connected = this.queryClient.connected && (!this.usingDirectory || this.connectedDirectory())
+      this.restUrl = this.restClient.restUrl
+      this.connected = this.restClient.connected && (!this.usingDirectory || this.connectedDirectory())
     } catch (error) {
       console.log(error)
       this.connected = false
