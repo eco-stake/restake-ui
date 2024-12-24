@@ -173,7 +173,6 @@ function Grants(props) {
                   button={true}
                   size="sm"
                   grants={[grant]}
-                  signingClient={props.signingClient}
                   onRevoke={onRevoke}
                   setLoading={(loading) =>
                     setGrantLoading({ [grantId]: loading })
@@ -299,7 +298,6 @@ function Grants(props) {
         address={props.address}
         wallet={props.wallet}
         favouriteAddresses={props.favouriteAddresses}
-        signingClient={props.signingClient}
         onHide={closeModal}
         onGrant={onGrant}
       />

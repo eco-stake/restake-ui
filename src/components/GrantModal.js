@@ -72,7 +72,7 @@ function GrantModal(props) {
     ]
     console.log(messages)
 
-    props.signingClient.signAndBroadcast(wallet.address, messages).then((result) => {
+    wallet.signAndBroadcast(messages).then((result) => {
       console.log("Successfully broadcasted:", result);
       showLoading(false)
       props.onGrant(grantee(), {
@@ -241,7 +241,7 @@ function GrantModal(props) {
                   --expiration <kbd>{moment(state.expiryDateValue).unix()}</kbd> \<br />
                   --chain-id {chain_id} \<br />
                   --node https://rpc.cosmos.directory:443/{network.name} \<br />
-                  --gas auto --gas-prices {network.gasPrice} \<br /> 
+                  --gas auto --gas-prices {network.gasPrice} \<br />
                   --gas-adjustment 1.5 \<br />
                   --from <kbd>my-key</kbd></p>
               </code></pre>

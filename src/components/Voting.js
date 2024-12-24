@@ -191,7 +191,6 @@ function Voting(props) {
           proposals={proposals}
           tallies={tallies}
           votes={votes}
-          signingClient={props.signingClient}
           showProposal={showProposal}
           setError={setError}
           onVote={onVote} />
@@ -206,7 +205,6 @@ function Voting(props) {
         vote={proposal && votes[proposal.proposal_id]}
         granters={voteGrants.map(el => el.granter)}
         favouriteAddresses={props.favouriteAddresses}
-        signingClient={props.signingClient}
         closeProposal={closeProposal}
         onVote={onVote}
         setError={setError}

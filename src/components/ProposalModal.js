@@ -33,7 +33,6 @@ function ProposalModal(props) {
             wallet={props.wallet}
             granters={props.granters}
             favouriteAddresses={props.favouriteAddresses}
-            signingClient={props.signingClient}
             onVote={props.onVote} />
         </Modal.Body>
       </Modal>

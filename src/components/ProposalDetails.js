@@ -171,7 +171,6 @@ function ProposalDetails(props) {
               address={props.address}
               wallet={props.wallet}
               granter={granter}
-              signingClient={props.signingClient}
               onVote={onVote}
               setError={setError} />
           </div>

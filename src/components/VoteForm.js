@@ -83,7 +83,7 @@ function VoteForm(props) {
     const newMessage = new NewVote(value)
     console.log(newMessage)
 
-    props.signingClient.signAndBroadcast(wallet.address, [newMessage]).then((result) => {
+    wallet.signAndBroadcast([newMessage]).then((result) => {
       console.log("Successfully broadcasted:", result);
       setLoading(false)
       setError(null)

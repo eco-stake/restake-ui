@@ -7,7 +7,7 @@ import { MsgRevoke } from "cosmjs-types/cosmos/authz/v1beta1/tx";
 import { buildExecableMessage, buildExecMessage } from '../utils/Helpers.mjs'
 
 function RevokeGrant(props) {
-  const { address, wallet, grantAddress, grants, signingClient } = props
+  const { address, wallet, grantAddress, grants } = props
 
   const buttonText = props.buttonText || 'Revoke'
 
@@ -31,8 +31,8 @@ function RevokeGrant(props) {
     console.log(messages)
 
     try {
-      const gas = await signingClient.simulate(wallet.address, messages)
-      const result = await signingClient.signAndBroadcast(wallet.address, messages, gas)
+      const gas = await wallet.simulate(messages)
+      const result = await wallet.signAndBroadcast(messages, gas)
       console.log("Successfully broadcasted:", result);
       if(props.setLoading) props.setLoading(false)
       props.onRevoke(grantAddress, msgTypes)

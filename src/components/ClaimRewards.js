@@ -10,7 +10,7 @@ import {
 import { add, subtract, multiply, divide, bignumber } from 'mathjs'
 
 function ClaimRewards(props) {
-  const { network, address, wallet, signingClient, rewards } = props
+  const { network, address, wallet, rewards } = props
 
   async function claim(){
     props.setError()
@@ -21,14 +21,14 @@ function ClaimRewards(props) {
 
     let gas
     try {
-      gas = await signingClient.simulate(wallet.address, gasSimMessages)
+      gas = await wallet.simulate(gasSimMessages)
     } catch (error) {
       props.setLoading(false)
       props.setError('Failed to broadcast: ' + error.message)
       return
     }
 
-    const fee = signingClient.getFee(gas)
+    const fee = wallet.getFee(gas)
     const feeAmount = fee.amount[0].amount
 
     const totalReward = validatorRewards.reduce((sum, validatorReward) => add(sum, bignumber(validatorReward.reward)), 0);
@@ -48,7 +48,7 @@ function ClaimRewards(props) {
 
     let messages = buildMessages(adjustedValidatorRewards)
     try {
-      gas = gas || await signingClient.simulate(wallet.address, messages)
+      gas = gas || await wallet.simulate(messages)
     } catch (error) {
       props.setLoading(false)
       props.setError('Failed to broadcast: ' + error.message)
@@ -56,8 +56,7 @@ function ClaimRewards(props) {
     }
     console.log(messages, gas)
 
-    const signAndBroadcast = signingClient.signAndBroadcastWithoutBalanceCheck
-    signAndBroadcast(wallet.address, messages, gas).then((result) => {
+    wallet.signAndBroadcastWithoutBalanceCheck(messages, gas).then((result) => {
       console.log("Successfully broadcasted:", result);
       props.setLoading(false)
       props.onClaimRewards(result)
@@ -100,7 +99,7 @@ function ClaimRewards(props) {
           validatorAddress: validatorReward.validatorAddress
         }, wallet?.address !== address))
       }
-      
+
       if (props.commission) {
         valMessages.push(buildExecableMessage(MsgWithdrawValidatorCommission, "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", {
           validatorAddress: validatorReward.validatorAddress

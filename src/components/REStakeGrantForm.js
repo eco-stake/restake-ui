@@ -106,7 +106,7 @@ function REStakeGrantForm(props) {
     }
     console.log(messages)
 
-    props.signingClient.signAndBroadcast(wallet.address, messages).then((result) => {
+    wallet.signAndBroadcast(messages).then((result) => {
       console.log("Successfully broadcasted:", result);
       showLoading(false)
       props.onGrant(operator.botAddress, {
@@ -230,7 +230,6 @@ function REStakeGrantForm(props) {
                     operator={operator}
                     grants={[grants.stakeGrant, grants.claimGrant]}
                     grantAddress={operator.botAddress}
-                    signingClient={props.signingClient}
                     onRevoke={props.onRevoke}
                     setLoading={(loading) => showLoading(loading)}
                     setError={setError}

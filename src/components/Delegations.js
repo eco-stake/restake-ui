@@ -395,7 +395,6 @@ class Delegations extends React.Component {
         grants={this.operatorGrants()}
         authzSupport={this.authzSupport()}
         restakePossible={this.restakePossible()}
-        signingClient={this.props.signingClient}
         isLoading={this.isLoading}
         hideModal={this.hideValidatorModal}
         onDelegate={this.onClaimRewards}
@@ -467,7 +466,6 @@ class Delegations extends React.Component {
             delegations={this.state.delegations}
             rewards={this.state.rewards}
             commission={this.state.commission}
-            signingClient={this.props.signingClient}
             operatorGrants={this.operatorGrants()}
             authzSupport={this.authzSupport()}
             restakePossible={this.restakePossible()}
@@ -500,7 +498,6 @@ class Delegations extends React.Component {
                           address={address}
                           wallet={wallet}
                           rewards={[rewards]}
-                          signingClient={this.props.signingClient}
                           onClaimRewards={this.onClaimRewards}
                           setLoading={(loading) => this.setValidatorLoading(validatorAddress, loading)}
                           setError={this.setError}
@@ -511,7 +508,6 @@ class Delegations extends React.Component {
                           address={address}
                           wallet={wallet}
                           rewards={[rewards]}
-                          signingClient={this.props.signingClient}
                           onClaimRewards={this.onClaimRewards}
                           setLoading={(loading) => this.setValidatorLoading(validatorAddress, loading)}
                           setError={this.setError}
@@ -525,7 +521,6 @@ class Delegations extends React.Component {
                               address={address}
                               wallet={wallet}
                               rewards={[rewards]}
-                              signingClient={this.props.signingClient}
                               onClaimRewards={this.onClaimRewards}
                               setLoading={(loading) => this.setValidatorLoading(validatorAddress, loading)}
                               setError={this.setError}
@@ -574,7 +569,6 @@ class Delegations extends React.Component {
                         address={this.props.address}
                         wallet={this.props.wallet}
                         rewards={Object.values(this.state.rewards || {})}
-                        signingClient={this.props.signingClient}
                         onClaimRewards={this.onClaimRewards}
                         setLoading={this.setClaimLoading}
                         setError={this.setError}
@@ -585,7 +579,6 @@ class Delegations extends React.Component {
                         address={this.props.address}
                         wallet={this.props.wallet}
                         rewards={Object.values(this.state.rewards || {})}
-                        signingClient={this.props.signingClient}
                         onClaimRewards={this.onClaimRewards}
                         setLoading={this.setClaimLoading}
                         setError={this.setError}

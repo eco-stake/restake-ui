@@ -53,10 +53,8 @@ import Wallet from '../utils/Wallet.mjs';
 import SendModal from './SendModal';
 import KeplrSignerProvider from '../utils/KeplrSignerProvider.mjs';
 import LeapSignerProvider from '../utils/LeapSignerProvider.mjs';
-import ConnectWalletModal from './ConnectWalletModal';
 import { truncateAddress } from '../utils/Helpers.mjs';
 import CosmostationSignerProvider from '../utils/CosmostationSignerProvider.mjs';
-import SigningClient from '../utils/SigningClient.mjs';
 
 class App extends React.Component {
   constructor(props) {
@@ -146,14 +144,12 @@ class App extends React.Component {
 
   disconnect() {
     localStorage.removeItem('connected')
-    this.state.signerProvider?.disconnect()
+    this.state.wallet?.disconnect()
     this.setState({
       error: null,
       address: null,
       balance: null,
-      wallet: null,
-      signingClient: null,
-      signerProvider: null
+      wallet: null
     })
   }
 
@@ -193,8 +189,6 @@ class App extends React.Component {
       return
     }
 
-    this.setState({ signerProvider })
-
     const wallet = new Wallet(network, signerProvider)
     try {
       const key = await wallet.connect();
@@ -206,29 +200,17 @@ class App extends React.Component {
         error: `Unable to connect to ${signerProvider?.label || 'signer'}: ${e.message}`,
         address: null,
         wallet: null,
-        signingClient: null
       })
     }
-    try {
-      const signingClient = SigningClient(network, signerProvider)
-
-      const address = await wallet.getAddress();
-
-      localStorage.setItem('connected', providerKey)
-      this.setState({
-        address,
-        wallet,
-        signingClient,
-        error: false,
-        qrCodeUri: null,
-        qrCodeCallback: null
-      })
-    } catch (e) {
-      console.log(e)
-      return this.setState({
-        error: `Failed to connect to ${signerProvider?.label || 'signer'}: ${e.message}`
-      })
-    }
+    const address = wallet.address;
+    localStorage.setItem('connected', providerKey)
+    this.setState({
+      address,
+      wallet,
+      error: false,
+      qrCodeUri: null,
+      qrCodeCallback: null
+    })
   }
 
   refreshInterval() {
@@ -640,7 +622,7 @@ class App extends React.Component {
                           ) : (
                             <select className="form-select form-select-sm d-none d-lg-block ms-2" aria-label="Address" value={this.state.address || ''} onChange={(e) => this.setState({ address: e.target.value })} style={{maxWidth: 200}}>
                               {this.state.wallet ? (
-                                <optgroup label={this.state.signerProvider.label}>
+                                <optgroup label={this.state.wallet.signerProvider.label}>
                                   <option value={this.state.wallet.address}>{this.state.wallet.name || truncateAddress(this.state.wallet.address)}</option>
                                 </optgroup>
                               ) : (
@@ -730,7 +712,7 @@ class App extends React.Component {
                             {this.state.address && (
                               <>
                                 <Dropdown.Divider />
-                                <Dropdown.Item as="button" onClick={this.disconnect}>{this.state.wallet ? `Disconnect ${this.state.signerProvider?.label}` : 'Close'}</Dropdown.Item>
+                                <Dropdown.Item as="button" onClick={this.disconnect}>{this.state.wallet ? `Disconnect ${this.state.wallet.signerProvider?.label}` : 'Close'}</Dropdown.Item>
                               </>
                             )}
                           </Dropdown.Menu>
@@ -779,7 +761,7 @@ class App extends React.Component {
                 showAbout={() => this.setState({ showAbout: true })}
                 onGrant={this.onGrant}
                 onRevoke={this.onRevoke}
-                signingClient={this.state.signingClient} />
+              />
             </>
           }
           {this.props.active === 'voting' && (
@@ -788,7 +770,7 @@ class App extends React.Component {
               address={this.state.address}
               wallet={this.state.wallet}
               favouriteAddresses={this.favouriteAddresses()}
-              signingClient={this.state.signingClient} />
+            />
           )}
           {this.props.active === 'grants' && this.state.address && this.props.network.authzSupport && (
             <Grants
@@ -804,7 +786,7 @@ class App extends React.Component {
               onGrant={this.onGrant}
               onRevoke={this.onRevoke}
               grantQuerySupport={this.state.grantQuerySupport}
-              signingClient={this.state.signingClient} />
+            />
           )}
         </div>
         <footer className="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
@@ -843,7 +825,6 @@ class App extends React.Component {
           networks={Object.values(this.props.networks)}
           address={this.state.address}
           wallet={this.state.wallet}
-          signerProvider={this.state.signerProvider}
           balances={this.state.balances}
           favouriteAddresses={this.state.favouriteAddresses}
           updateFavouriteAddresses={this.updateFavouriteAddresses}
@@ -853,13 +834,6 @@ class App extends React.Component {
             this.hideWalletModal()
           }}
         />
-        <ConnectWalletModal
-          show={this.state.connectWallet}
-          signerProvider={this.state.signerProvider}
-          uri={this.state.qrCodeUri}
-          callback={this.state.qrCodeCallback}
-          onClose={() => this.setState({connectWallet: false})}
-        />
         {this.props.network && (
           <SendModal
             show={this.state.showSendModal}
@@ -868,7 +842,6 @@ class App extends React.Component {
             wallet={this.state.wallet}
             balance={this.state.balance}
             favouriteAddresses={this.favouriteAddresses()}
-            signingClient={this.state.signingClient}
             onHide={() => this.setState({ showSendModal: false })}
             onSend={this.onSend}
           />

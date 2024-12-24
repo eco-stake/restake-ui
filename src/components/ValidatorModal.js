@@ -186,7 +186,6 @@ function ValidatorModal(props) {
                     validatorApy={props.validatorApy}
                     authzSupport={props.authzSupport}
                     restakePossible={props.restakePossible}
-                    signingClient={props.signingClient}
                     isLoading={props.isLoading}
                     onDelegate={props.onDelegate}
                     onClaimRewards={props.onClaimRewards}

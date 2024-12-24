@@ -1,3 +1,5 @@
+import SigningClient from '../utils/SigningClient.mjs';
+
 export const messageTypes = [
   '/cosmos.gov.v1beta1.MsgVote',
   '/cosmos.gov.v1beta1.MsgDeposit',
@@ -17,13 +19,35 @@ class Wallet {
   constructor(network, signerProvider){
     this.network = network
     this.signerProvider = signerProvider
+    this.signingClient = new SigningClient(network, signerProvider)
     this.grants = []
   }
 
   async connect(){
     this.key = await this.signerProvider.connect(this.network)
+    this.address = await this.signerProvider.getAddress()
     this.name = this.key?.name
     return this.key
+  }
+
+  disconnect(){
+    this.signerProvider.disconnect()
+  }
+
+  signAndBroadcast(messages, gas, memo, gasPrice){
+    return this.signingClient.signAndBroadcast(this.address, messages, gas, memo, gasPrice)
+  }
+
+  signAndBroadcastWithoutBalanceCheck(msgs, gas, memo, gasPrice){
+    return this.signingClient.signAndBroadcastWithoutBalanceCheck(this.address, msgs, gas, memo, gasPrice)
+  }
+
+  simulate(messages, memo, modifier){
+    return this.signingClient.simulate(this.address, messages, memo, modifier)
+  }
+
+  getFee(gas, gasPrice){
+    return this.signingClient.getFee(gas, gasPrice)
   }
 
   hasPermission(address, action){
@@ -59,14 +83,6 @@ class Wallet {
 
   signAminoSupport(){
     return this.signerProvider.signAminoSupport()
-  }
-
-  async getAddress(){
-    if(!this.address){
-      this.address = await this.signerProvider.getAddress()
-    }
-
-    return this.address
   }
 }
 

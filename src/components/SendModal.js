@@ -57,7 +57,7 @@ function SendModal(props) {
     ]
     console.log(messages)
 
-    props.signingClient.signAndBroadcast(wallet.address, messages, null, state.memoValue).then((result) => {
+    wallet.signAndBroadcast(messages, null, state.memoValue).then((result) => {
       console.log("Successfully broadcasted:", result);
       showLoading(false)
       setState({
@@ -96,8 +96,8 @@ function SendModal(props) {
     const decimals = pow(10, network.decimals)
     const coinValue = coin(multiply(props.balance.amount, 0.95), network.denom)
     const message = buildSendMsg(address, recipient(), [coinValue])
-    props.signingClient.simulate(wallet.address, [message]).then(gas => {
-      const gasPrice = props.signingClient.getFee(gas).amount[0].amount
+    wallet.simulate([message]).then(gas => {
+      const gasPrice = wallet.getFee(gas).amount[0].amount
       const amount = divide(subtract(bignumber(props.balance.amount), gasPrice), decimals)
 
       setState({...state, amountValue: amount > 0 ? amount : 0})

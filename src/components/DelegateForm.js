@@ -37,7 +37,6 @@ function DelegateForm(props) {
 
     const amount = state.amount
     const memo = state.memo
-    const client = props.signingClient
 
     const decimals = pow(10, network.decimals)
     const denomAmount = bignumber(multiply(amount, decimals))
@@ -45,14 +44,14 @@ function DelegateForm(props) {
     let messages = buildMessages(denomAmount)
     let gas
     try {
-      gas = await client.simulate(wallet.address, messages)
+      gas = await wallet.simulate(messages)
     } catch (error) {
       console.log(error)
       setState({ loading: false, error: error.message })
       return
     }
 
-    client.signAndBroadcast(wallet.address, messages, gas, memo).then((result) => {
+    wallet.signAndBroadcast(messages, gas, memo).then((result) => {
       console.log("Successfully broadcasted:", result);
       setState({ loading: false, error: null })
       props.onDelegate()
@@ -113,8 +112,8 @@ function DelegateForm(props) {
     if (['redelegate', 'undelegate'].includes(action)) {
       return setState({ amount: divide(balance, decimals) })
     }
-    props.signingClient.simulate(wallet.address, messages).then(gas => {
-      const gasPrice = props.signingClient.getFee(gas).amount[0].amount
+    wallet.simulate(messages).then(gas => {
+      const gasPrice = wallet.getFee(gas).amount[0].amount
       const saveTxFeeNum = 10
       const amount = divide(subtract(balance, multiply(gasPrice, saveTxFeeNum)), decimals)
 
