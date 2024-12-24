@@ -1,6 +1,10 @@
 import axios from "axios";
 import axiosRetry from 'axios-retry';
 import _ from "lodash";
+import {
+  assertIsDeliverTxSuccess
+} from "@cosmjs/stargate";
+import { sleep } from "@cosmjs/utils";
 
 const RestClient = async (chainId, restUrls, opts) => {
   const config = _.merge({
@@ -215,6 +219,121 @@ const RestClient = async (chainId, restUrls, opts) => {
     return client.get(apiPath('tx', `txs?${searchParams.toString()}`), opts).then((res) => res.data);
   }
 
+  function getTransaction(txHash) {
+    return axios.get(apiUrl('tx', `txs/${txHash}`)).then((res) => res.data);
+  }
+
+  function getAccount(address) {
+    return axios
+      .get(apiUrl('auth', `accounts/${address}`))
+      .then((res) => res.data.account)
+      .then((value) => {
+        if(!value) throw new Error('Failed to fetch account, please try again')
+
+        // see https://github.com/chainapsis/keplr-wallet/blob/7ca025d32db7873b7a870e69a4a42b525e379132/packages/cosmos/src/account/index.ts#L73
+        // If the chain modifies the account type, handle the case where the account type embeds the base account.
+        // (Actually, the only existent case is ethermint, and this is the line for handling ethermint)
+        const baseAccount =
+          value.BaseAccount || value.baseAccount || value.base_account;
+        if (baseAccount) {
+          value = baseAccount;
+        }
+
+        // If the account is the vesting account that embeds the base vesting account,
+        // the actual base account exists under the base vesting account.
+        // But, this can be different according to the version of cosmos-sdk.
+        // So, anyway, try to parse it by some ways...
+        const baseVestingAccount =
+          value.BaseVestingAccount ||
+          value.baseVestingAccount ||
+          value.base_vesting_account;
+        if (baseVestingAccount) {
+          value = baseVestingAccount;
+
+          const baseAccount =
+            value.BaseAccount || value.baseAccount || value.base_account;
+          if (baseAccount) {
+            value = baseAccount;
+          }
+        }
+
+        // Handle nested account like Desmos
+        const nestedAccount = value.account
+        if(nestedAccount){
+          value = nestedAccount
+        }
+
+        return value
+      })
+      .catch((error) => {
+        if(error.response?.status === 404){
+          throw new Error('Account does not exist on chain')
+        }else{
+          throw error
+        }
+      })
+  };
+
+  function simulate(params){
+    return axios.post(apiUrl('tx', `simulate`), params)
+      .then((res) => res.data)
+  }
+
+  function broadcast(params){
+    return axios.post(apiUrl('tx', `txs`), params)
+      .then((res) => parseTxResult(res.data.tx_response))
+  }
+
+  async function broadcastAndWait(params, timeout, pollInterval){
+    const timeoutMs = timeout || 60_000
+    const pollIntervalMs = pollInterval || 3_000
+    let timedOut = false
+    const txPollTimeout = setTimeout(() => {
+      timedOut = true;
+    }, timeoutMs);
+
+    const pollForTx = async (txId) => {
+      if (timedOut) {
+        throw new Error(
+          `Transaction with ID ${txId} was submitted but was not yet found on the chain. You might want to check later. There was a wait of ${timeoutMs / 1000} seconds.`
+        );
+      }
+      await sleep(pollIntervalMs);
+      try {
+        const response = await getTransaction(txId);
+        const result = parseTxResult(response.tx_response)
+        return result
+      } catch {
+        return pollForTx(txId);
+      }
+    };
+
+    const result = await broadcast(params)
+    assertIsDeliverTxSuccess(result)
+    return pollForTx(result.transactionHash).then(
+      (value) => {
+        clearTimeout(txPollTimeout);
+        assertIsDeliverTxSuccess(value)
+        return value
+      },
+      (error) => {
+        clearTimeout(txPollTimeout);
+        return error
+      },
+    )
+  }
+
+  function parseTxResult(result){
+    return {
+      code: result.code,
+      height: result.height,
+      rawLog: result.raw_log,
+      transactionHash: result.txhash,
+      gasUsed: result.gas_used,
+      gasWanted: result.gas_wanted,
+    }
+  }
+
   async function getAllPages(getPage, pageCallback) {
     let pages = [];
     let nextKey, error;
@@ -294,7 +413,12 @@ const RestClient = async (chainId, restUrls, opts) => {
     getGranterGrants,
     getWithdrawAddress,
     getTransactions,
-    getLatestBlock
+    getTransaction,
+    getLatestBlock,
+    getAccount,
+    simulate,
+    broadcast,
+    broadcastAndWait
   };
 };
 
