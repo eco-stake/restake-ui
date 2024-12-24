@@ -732,11 +732,6 @@ class App extends React.Component {
             </AlertMessage>
           )}
           <AlertMessage message={this.state.error} variant="danger" dismissible={false} />
-          {!this.state.providerError === 'keplr' && (
-            <AlertMessage variant="warning" dismissible={true} onClose={() => this.setState({ providerError: false })}>
-              Please install the <a href="https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?hl=en" target="_blank" rel="noreferrer">Keplr browser extension</a> using desktop Google Chrome.
-            </AlertMessage>
-          )}
           {this.props.active === 'networks' && (
             <Networks
               networks={Object.values(this.props.networks)}
