@@ -11,6 +11,7 @@ import { pow, multiply, divide, subtract, bignumber } from 'mathjs'
 import AlertMessage from './AlertMessage'
 import Coins from './Coins'
 import { buildExecMessage, coin } from '../utils/Helpers.mjs'
+import Delegate from '../messages/delegate.mjs';
 
 function DelegateForm(props) {
   const { network, wallet, address, validator, selectedValidator, action } = props
@@ -46,6 +47,7 @@ function DelegateForm(props) {
     try {
       gas = await client.simulate(wallet.address, messages)
     } catch (error) {
+      console.log(error)
       setState({ loading: false, error: error.message })
       return
     }
@@ -91,7 +93,9 @@ function DelegateForm(props) {
         value: value
       }
     }
-    return [message]
+    // pass network to messages and allow customisation inside message classes per network
+    const newMessage = new Delegate(value)
+    return [newMessage]
   }
 
   function hasPermission() {

@@ -253,7 +253,8 @@
     "ownerAddress": "injvaloper1vqz7mgm47xhx25xu5g9qagnz48naks6pk6fmg2",
     "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
-    ]
+    ],
+    "ledgerSupport": true
   },
   {
     "name": "xpla"

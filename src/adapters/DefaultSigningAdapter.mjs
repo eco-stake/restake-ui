@@ -1,51 +1,25 @@
 import _ from 'lodash'
 import Long from "long";
 
-import {
-  defaultRegistryTypes as defaultStargateTypes,
-  AminoTypes,
-  createBankAminoConverters,
-  createDistributionAminoConverters,
-  createFreegrantAminoConverters,
-  createGovAminoConverters,
-  createIbcAminoConverters,
-  createStakingAminoConverters,
-} from "@cosmjs/stargate";
-import { makeSignDoc, Registry } from "@cosmjs/proto-signing";
+import { makeSignDoc } from "@cosmjs/proto-signing";
 import { makeSignDoc as makeAminoSignDoc } from "@cosmjs/amino";
 import { fromBase64 } from '@cosmjs/encoding'
 import { PubKey } from "cosmjs-types/cosmos/crypto/secp256k1/keys.js";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing.js";
 import { AuthInfo, Fee, TxBody } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
 
-import { createAuthzAminoConverters, createAuthzExecAminoConverters } from '../converters/Authz.mjs'
-
 export default class DefaultSigningAdapter {
   constructor(network, signerProvider) {
     this.network = network;
     this.signerProvider = signerProvider;
-
-    this.registry = new Registry(defaultStargateTypes);
-    const defaultConverters = {
-      ...createAuthzAminoConverters(),
-      ...createBankAminoConverters(),
-      ...createDistributionAminoConverters(),
-      ...createGovAminoConverters(),
-      ...createStakingAminoConverters(this.network.prefix),
-      ...createIbcAminoConverters(),
-      ...createFreegrantAminoConverters(),
-    }
-    let aminoTypes = new AminoTypes(defaultConverters)
-    this.aminoTypes = new AminoTypes({...defaultConverters, ...createAuthzExecAminoConverters(this.registry, aminoTypes)})
   }
 
   async sign(account, messages, memo, fee){
     const { chainId } = this.network
     const { account_number: accountNumber, sequence, address } = account
-    const txBodyBytes = this.makeBodyBytes(messages, memo)
     let aminoMsgs
     try {
-      aminoMsgs = this.convertToAmino(messages)
+      aminoMsgs = this.toAmino(messages)
     } catch (e) { console.log(e) }
     if(aminoMsgs && this.signerProvider.signAminoSupport()){
       // Sign as amino if possible for Ledger and Keplr support
@@ -66,6 +40,7 @@ export default class DefaultSigningAdapter {
         amount: fee.amount,
         gasLimit: fee.gas,
       }, SignMode.SIGN_MODE_DIRECT)
+      const txBodyBytes = this.makeBodyBytes(messages, memo)
       const signDoc = makeSignDoc(txBodyBytes, authInfoBytes, chainId, accountNumber);
       const { signature, signed } = await this.signerProvider.signDirect(address, signDoc);
       return {
@@ -89,8 +64,9 @@ export default class DefaultSigningAdapter {
     }
   }
 
-  convertToAmino(messages){
+  toAmino(messages){
     return messages.map(message => {
+      // move this logic to message classes, reacting to network param
       if(message.typeUrl.startsWith('/cosmos.authz')){
         if(!this.network.authzAminoSupport){
           throw new Error('This chain does not support amino conversion for Authz messages')
@@ -108,7 +84,7 @@ export default class DefaultSigningAdapter {
       }else if(this.network.aminoPreventTypes.some(prevent => message.typeUrl.match(_.escapeRegExp(prevent)))){
         throw new Error(`This chain does not support amino conversion for message type: ${message.typeUrl}`)
       }
-      let aminoMessage = this.aminoTypes.toAmino(message)
+      let aminoMessage = message.toAmino()
       if(this.network.authzAminoLiftedValues){
         switch (aminoMessage.type) {
           case 'cosmos-sdk/MsgGrant':
@@ -126,13 +102,24 @@ export default class DefaultSigningAdapter {
     })
   }
 
-  makeBodyBytes(messages, memo){
-    const anyMsgs = messages.map((m) => this.registry.encodeAsAny(m));
+  toProtoEncoded(messages){
+    return messages.map((m) => m.toProtoEncoded())
+  }
+
+  makeBodyBytes(messages, memo, timeoutHeight){
+    const protoEncodedMsgs = this.toProtoEncoded(messages);
+
+    const txBody = {
+      messages: protoEncodedMsgs,
+      memo: memo,
+    }
+
+    if (timeoutHeight) {
+      txBody.timeoutHeight = timeoutHeight.toString()
+    }
+
     return TxBody.encode(
-      TxBody.fromPartial({
-        messages: anyMsgs,
-        memo: memo,
-      })
+      TxBody.fromPartial(txBody)
     ).finish()
   }
 

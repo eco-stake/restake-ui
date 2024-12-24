@@ -8,8 +8,6 @@ import Delegations from './Delegations';
 import Coins from './Coins'
 import About from './About'
 
-import { MsgGrant, MsgRevoke } from "cosmjs-types/cosmos/authz/v1beta1/tx.js";
-
 import {
   Container,
   Dropdown,
@@ -209,8 +207,6 @@ class App extends React.Component {
     }
     try {
       const signingClient = SigningClient(network, signerProvider)
-      signingClient.registry.register("/cosmos.authz.v1beta1.MsgGrant", MsgGrant)
-      signingClient.registry.register("/cosmos.authz.v1beta1.MsgRevoke", MsgRevoke)
 
       const address = await wallet.getAddress();
 

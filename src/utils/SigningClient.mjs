@@ -13,9 +13,11 @@ import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx.js";
 import { coin } from './Helpers.mjs'
 import DefaultSigningAdapter from '../adapters/DefaultSigningAdapter.mjs';
 import TerraSigningAdapter from '../adapters/TerraSigningAdapter.mjs';
+import InjectiveSigningAdapter from '../adapters/InjectiveSigningAdapter.mjs';
 
 const adapters = {
-  terra: TerraSigningAdapter
+  terra: TerraSigningAdapter,
+  injective: InjectiveSigningAdapter
 }
 
 function SigningClient(network, signerProvider) {

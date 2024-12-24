@@ -9,7 +9,7 @@ import { MsgVote } from "cosmjs-types/cosmos/gov/v1beta1/tx.js";
 
 import Vote from '../utils/Vote.mjs';
 import { buildExecMessage } from '../utils/Helpers.mjs';
-
+import NewVote from '../messages/vote.mjs';
 
 function VoteForm(props) {
   const { proposal, vote, address, wallet, granter, setError } = props
@@ -79,10 +79,11 @@ function VoteForm(props) {
         value: value
       }
     }
+    console.log(value)
+    const newMessage = new NewVote(value)
+    console.log(newMessage)
 
-    console.log(message)
-
-    props.signingClient.signAndBroadcast(wallet.address, [message]).then((result) => {
+    props.signingClient.signAndBroadcast(wallet.address, [newMessage]).then((result) => {
       console.log("Successfully broadcasted:", result);
       setLoading(false)
       setError(null)

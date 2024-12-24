@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import { format, floor, bignumber } from 'mathjs'
-import { coin as _coin } from  '@cosmjs/stargate'
 import truncateMiddle from 'truncate-middle'
 
 export function timeStamp(...args) {
@@ -8,7 +7,10 @@ export function timeStamp(...args) {
 }
 
 export function coin(amount, denom){
-  return _coin(format(floor(amount), {notation: 'fixed'}), denom)
+  return {
+    denom,
+    amount: format(floor(amount), {notation: 'fixed'})
+  }
 }
 
 export function joinString(...args){

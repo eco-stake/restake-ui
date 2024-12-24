@@ -6,7 +6,7 @@ const QueryClient = async (chainId, restUrls, opts) => {
   const config = _.merge({
     connectTimeout: 10000,
   }, opts)
-  const restUrl = await findAvailableUrl(restUrls, "rest", { timeout: config.connectTimeout })
+  const restUrl = await findAvailableUrl(restUrls, { timeout: config.connectTimeout })
 
   function getAllValidators(pageSize, opts, pageCallback) {
     return getAllPages((nextKey) => {
@@ -228,7 +228,7 @@ const QueryClient = async (chainId, restUrls, opts) => {
     return pages;
   }
 
-  async function findAvailableUrl(urls, type, opts) {
+  async function findAvailableUrl(urls, opts) {
     if(!urls) return
 
     if (!Array.isArray(urls)) {
@@ -238,12 +238,10 @@ const QueryClient = async (chainId, restUrls, opts) => {
         urls = [urls]
       }
     }
-    const path = type === "rest" ? apiPath('/base/tendermint', 'blocks/latest') : "/block";
     return Promise.any(urls.map(async (url) => {
       url = url.replace(/\/$/, '')
       try {
-        let data = await getLatestBlock(url, type, path, opts)
-        if (type === "rpc") data = data.result;
+        let data = await getLatestBlock({ ...opts, url: url })
         if (data.block?.header?.chain_id === chainId) {
           return url;
         }
@@ -251,15 +249,17 @@ const QueryClient = async (chainId, restUrls, opts) => {
     }));
   }
 
-  async function getLatestBlock(url, type, path, opts){
+  async function getLatestBlock(opts){
     const { timeout } = opts || {}
+    const url = opts?.url || restUrl
+    const path = opts?.path || apiPath('/base/tendermint', 'blocks/latest')
     try {
       return await axios.get(url + path, { timeout })
         .then((res) => res.data)
     } catch (error) {
-      const fallback = type === 'rest' && '/blocks/latest'
-      if (fallback && fallback !== path && error.response?.status === 501) {
-        return getLatestBlock(url, type, fallback, opts)
+      const fallback = '/blocks/latest'
+      if (fallback !== path && error.response?.status === 501) {
+        return getLatestBlock({ ...opts, path: fallback })
       }
       throw(error)
     }
@@ -293,7 +293,8 @@ const QueryClient = async (chainId, restUrls, opts) => {
     getGranteeGrants,
     getGranterGrants,
     getWithdrawAddress,
-    getTransactions
+    getTransactions,
+    getLatestBlock
   };
 };
 
