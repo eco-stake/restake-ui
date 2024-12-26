@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import _ from 'lodash'
 import { pow, multiply, divide, subtract, bignumber } from 'mathjs'
 
-import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { MsgSend } from "../messages/MsgSend.mjs";
 
 import {
   Modal,
@@ -11,7 +11,7 @@ import {
 } from 'react-bootstrap'
 
 import AlertMessage from './AlertMessage';
-import { buildExecableMessage, buildExecMessage, coin, truncateAddress } from '../utils/Helpers.mjs';
+import { coin, execableMessage, truncateAddress } from '../utils/Helpers.mjs';
 import Coins from './Coins';
 
 function SendModal(props) {
@@ -55,9 +55,8 @@ function SendModal(props) {
     const messages = [
       buildSendMsg(address, recipient(), [coinValue])
     ]
-    console.log(messages)
 
-    props.signingClient.signAndBroadcast(wallet.address, messages, null, state.memoValue).then((result) => {
+    wallet.signAndBroadcast(messages, null, state.memoValue).then((result) => {
       console.log("Successfully broadcasted:", result);
       showLoading(false)
       setState({
@@ -80,15 +79,12 @@ function SendModal(props) {
   }
 
   function buildSendMsg(address, recipient, amount) {
-    let message = buildExecableMessage(MsgSend, "/cosmos.bank.v1beta1.MsgSend", {
+    let message = new MsgSend({
       fromAddress: address,
       toAddress: recipient,
       amount: amount
-    }, wallet?.address !== address)
-    if(wallet?.address !== address){
-      return buildExecMessage(wallet.address, [message])
-    }
-    return message
+    })
+    return execableMessage(message, wallet.address, address)
   }
 
   async function setAvailableAmount(){
@@ -96,8 +92,8 @@ function SendModal(props) {
     const decimals = pow(10, network.decimals)
     const coinValue = coin(multiply(props.balance.amount, 0.95), network.denom)
     const message = buildSendMsg(address, recipient(), [coinValue])
-    props.signingClient.simulate(wallet.address, [message]).then(gas => {
-      const gasPrice = props.signingClient.getFee(gas).amount[0].amount
+    wallet.simulate([message]).then(gas => {
+      const gasPrice = wallet.getFee(gas).amount[0].amount
       const amount = divide(subtract(bignumber(props.balance.amount), gasPrice), decimals)
 
       setState({...state, amountValue: amount > 0 ? amount : 0})

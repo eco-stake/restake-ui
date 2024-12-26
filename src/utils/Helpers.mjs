@@ -1,14 +1,17 @@
 import _ from 'lodash'
 import { format, floor, bignumber } from 'mathjs'
-import { coin as _coin } from  '@cosmjs/stargate'
 import truncateMiddle from 'truncate-middle'
+import { MsgExec } from '../messages/MsgExec.mjs';
 
 export function timeStamp(...args) {
   console.log('[' + new Date().toISOString().substring(11, 23) + ']', ...args);
 }
 
 export function coin(amount, denom){
-  return _coin(format(floor(amount), {notation: 'fixed'}), denom)
+  return {
+    amount: format(floor(amount), {notation: 'fixed'}),
+    denom
+  }
 }
 
 export function joinString(...args){
@@ -43,27 +46,14 @@ export function overrideNetworks(networks, overrides){
   })
 }
 
-export function buildExecMessage(grantee, messages) {
-  return {
-    typeUrl: "/cosmos.authz.v1beta1.MsgExec",
-    value: {
-      grantee: grantee,
-      msgs: messages
-    }
-  }
-}
-
-export function buildExecableMessage(type, typeUrl, value, shouldExec){
-  if (shouldExec) {
-    return {
-      typeUrl: typeUrl,
-      value: type.encode(type.fromPartial(value)).finish()
-    }
-  } else {
-    return {
-      typeUrl: typeUrl,
-      value: value
-    }
+export function execableMessage(messages, walletAddress, granterAddress){
+  if (granterAddress && walletAddress !== granterAddress) {
+    return new MsgExec({
+      grantee: walletAddress,
+      msgs: Array.isArray() ? messages : [messages]
+    })
+  }else{
+    return messages
   }
 }
 

@@ -71,7 +71,7 @@ function WalletModal(props) {
                         <td scope="row">Wallet Provider</td>
                         <td className="text-break">
                           <div className="d-flex gap-2">
-                            {props.signerProvider?.label || 'None'}
+                            {wallet.signerProvider?.label || 'None'}
                           </div>
                         </td>
                       </tr>

@@ -79,11 +79,11 @@ function Voting(props) {
   }, [address]);
 
   async function getProposals(opts) {
-    if(!props.queryClient) return
+    if(!network.restClient) return
     const { clearExisting } = opts || {}
 
     try {
-      let newProposals = await props.queryClient.getProposals()
+      let newProposals = await network.restClient.getProposals()
       newProposals = await mapSync(newProposals.map(el => {
         return async () => {
           return await Proposal(el)
@@ -112,7 +112,7 @@ function Voting(props) {
 
         const talliesInvalid = _.every(Object.values(result), el => el === '0')
         if (proposal.isVoting && talliesInvalid) {
-          return props.queryClient.getProposalTally(proposal_id).then(result => {
+          return network.restClient.getProposalTally(proposal_id).then(result => {
             return setTallies({ [proposal_id]: result.tally })
           })
         }
@@ -129,7 +129,7 @@ function Voting(props) {
         const { proposal_id } = proposal
         if (votes[proposal_id] && !clearExisting) return
 
-        return props.queryClient.getProposalVote(proposal_id, address).then(result => {
+        return network.restClient.getProposalVote(proposal_id, address).then(result => {
           return setVotes({ [proposal_id]: Vote(result.vote) })
         }).catch(error => { })
       }
@@ -191,7 +191,6 @@ function Voting(props) {
           proposals={proposals}
           tallies={tallies}
           votes={votes}
-          signingClient={props.signingClient}
           showProposal={showProposal}
           setError={setError}
           onVote={onVote} />
@@ -206,8 +205,6 @@ function Voting(props) {
         vote={proposal && votes[proposal.proposal_id]}
         granters={voteGrants.map(el => el.granter)}
         favouriteAddresses={props.favouriteAddresses}
-        queryClient={props.queryClient}
-        signingClient={props.signingClient}
         closeProposal={closeProposal}
         onVote={onVote}
         setError={setError}

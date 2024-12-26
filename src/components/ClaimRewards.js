@@ -1,6 +1,4 @@
-import { MsgWithdrawDelegatorReward, MsgWithdrawValidatorCommission } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
-import { MsgDelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
-import { buildExecableMessage, buildExecMessage, coin, rewardAmount } from "../utils/Helpers.mjs";
+import { coin, execableMessage, rewardAmount } from "../utils/Helpers.mjs";
 
 import {
   Dropdown,
@@ -8,9 +6,12 @@ import {
 } from 'react-bootstrap'
 
 import { add, subtract, multiply, divide, bignumber } from 'mathjs'
+import { MsgDelegate } from "../messages/MsgDelegate.mjs";
+import { MsgWithdrawDelegatorReward } from "../messages/MsgWithdrawDelegatorReward.mjs";
+import { MsgWithdrawValidatorCommission } from "../messages/MsgWithdrawValidatorCommission.mjs";
 
 function ClaimRewards(props) {
-  const { network, address, wallet, signingClient, rewards } = props
+  const { network, address, wallet, rewards } = props
 
   async function claim(){
     props.setError()
@@ -21,14 +22,14 @@ function ClaimRewards(props) {
 
     let gas
     try {
-      gas = await signingClient.simulate(wallet.address, gasSimMessages)
+      gas = await wallet.simulate(gasSimMessages)
     } catch (error) {
       props.setLoading(false)
       props.setError('Failed to broadcast: ' + error.message)
       return
     }
 
-    const fee = signingClient.getFee(gas)
+    const fee = wallet.getFee(gas)
     const feeAmount = fee.amount[0].amount
 
     const totalReward = validatorRewards.reduce((sum, validatorReward) => add(sum, bignumber(validatorReward.reward)), 0);
@@ -48,7 +49,7 @@ function ClaimRewards(props) {
 
     let messages = buildMessages(adjustedValidatorRewards)
     try {
-      gas = gas || await signingClient.simulate(wallet.address, messages)
+      gas = gas || await wallet.simulate(messages)
     } catch (error) {
       props.setLoading(false)
       props.setError('Failed to broadcast: ' + error.message)
@@ -56,8 +57,7 @@ function ClaimRewards(props) {
     }
     console.log(messages, gas)
 
-    const signAndBroadcast = signingClient.signAndBroadcastWithoutBalanceCheck
-    signAndBroadcast(wallet.address, messages, gas).then((result) => {
+    wallet.signAndBroadcastWithoutBalanceCheck(messages, gas).then((result) => {
       console.log("Successfully broadcasted:", result);
       props.setLoading(false)
       props.onClaimRewards(result)
@@ -89,29 +89,25 @@ function ClaimRewards(props) {
       let valMessages = []
 
       if(props.restake){
-        valMessages.push(buildExecableMessage(MsgDelegate, "/cosmos.staking.v1beta1.MsgDelegate", {
+        valMessages.push(new MsgDelegate({
           delegatorAddress: address,
           validatorAddress: validatorReward.validatorAddress,
           amount: coin(validatorReward.reward, network.denom)
-        }, wallet?.address !== address))
+        }))
       }else{
-        valMessages.push(buildExecableMessage(MsgWithdrawDelegatorReward, "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", {
+        valMessages.push(new MsgWithdrawDelegatorReward({
           delegatorAddress: address,
           validatorAddress: validatorReward.validatorAddress
-        }, wallet?.address !== address))
-      }
-      
-      if (props.commission) {
-        valMessages.push(buildExecableMessage(MsgWithdrawValidatorCommission, "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", {
-          validatorAddress: validatorReward.validatorAddress
-        }, wallet?.address !== address))
+        }))
       }
 
-      if (wallet?.address !== address) {
-        return [buildExecMessage(wallet.address, valMessages)]
-      }else{
-        return valMessages
+      if (props.commission) {
+        valMessages.push(new MsgWithdrawValidatorCommission({
+          validatorAddress: validatorReward.validatorAddress
+        }))
       }
+
+      return execableMessage(valMessages, wallet.address, address)
     }).flat()
   }
 

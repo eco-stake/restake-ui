@@ -18,6 +18,10 @@ export default class KeplrSignerProvider extends SignerProvider {
     }
   }
 
+  signEIP712(...args){
+    return this.provider.experimentalSignEIP712CosmosTx_v0(...args)
+  }
+
   available() {
     return !!this.provider || isMobile()
   }
