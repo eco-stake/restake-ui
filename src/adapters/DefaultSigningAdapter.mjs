@@ -19,7 +19,7 @@ export default class DefaultSigningAdapter {
     const { account_number: accountNumber, sequence, address } = account
     let aminoMsgs
     try {
-      aminoMsgs = this.toAmino(messages)
+      aminoMsgs = messages.map(message => this.toAmino(message))
     } catch (e) { console.log(e) }
     if(aminoMsgs && this.signerProvider.signAminoSupport()){
       // Sign as amino if possible for Ledger and Keplr support
@@ -64,53 +64,59 @@ export default class DefaultSigningAdapter {
     }
   }
 
-  toAmino(messages){
-    return messages.map(message => {
-      // move this logic to message classes, reacting to network param
-      if(message.typeUrl.startsWith('/cosmos.authz')){
-        if(!this.network.authzAminoSupport){
-          throw new Error('This chain does not support amino conversion for Authz messages')
-        }
-        if(this.network.authzAminoGenericOnly && this.signerProvider.signDirectSupport()){
-          throw new Error('This chain does not fully support amino conversion for Authz messages, using signDirect instead')
-        }
-      }
-      if(message.typeUrl === '/cosmos.authz.v1beta1.MsgExec'){
-        const execTypes = message.value.msgs.map(msg => msg.typeUrl)
-        const preventedTypes = execTypes.filter(type => this.network.authzAminoExecPreventTypes.some(prevent => type.match(_.escapeRegExp(prevent))))
-        if(preventedTypes.length > 0){
-          throw new Error(`This chain does not support amino conversion for Authz Exec with message types: ${preventedTypes.join(', ')}`)
-        }
-      }else if(this.network.aminoPreventTypes.some(prevent => message.typeUrl.match(_.escapeRegExp(prevent)))){
-        throw new Error(`This chain does not support amino conversion for message type: ${message.typeUrl}`)
-      }
-      let aminoMessage = message.toAmino()
-      if(this.network.authzAminoLiftedValues){
-        switch (aminoMessage.type) {
-          case 'cosmos-sdk/MsgGrant':
-            aminoMessage = aminoMessage.value
-            aminoMessage.grant.authorization = aminoMessage.grant.authorization.value
-            break;
-          case 'cosmos-sdk/MsgRevoke':
-            aminoMessage = aminoMessage.value
-            break;
-          case 'cosmos-sdk/MsgExec':
-            throw new Error('This chain does not support amino conversion for MsgExec')
-        }
-      }
-      return aminoMessage
-    })
+  toProto(message){
+    return message.toProto()
   }
 
-  toProtoEncoded(messages){
-    return messages.map((m) => m.toProtoEncoded())
+  toAmino(message){
+    this.checkAminoSupport(message)
+    let aminoMessage = message.toAmino()
+    if(this.network.authzAminoLiftedValues){
+      aminoMessage = this.liftAuthzAmino(aminoMessage)
+    }
+    return aminoMessage
+  }
+
+  checkAminoSupport(message){
+    if(message.typeUrl.startsWith('/cosmos.authz')){
+      if(!this.network.authzAminoSupport){
+        throw new Error('This chain does not support amino conversion for Authz messages')
+      }
+      if(this.network.authzAminoGenericOnly && this.signerProvider.signDirectSupport()){
+        throw new Error('This chain does not fully support amino conversion for Authz messages, using signDirect instead')
+      }
+    }
+    if(message.typeUrl === '/cosmos.authz.v1beta1.MsgExec'){
+      const execTypes = message.params.msgs.map(msg => msg.typeUrl)
+      const preventedTypes = execTypes.filter(type => this.network.authzAminoExecPreventTypes.some(prevent => type.match(_.escapeRegExp(prevent))))
+      if(preventedTypes.length > 0){
+        throw new Error(`This chain does not support amino conversion for Authz Exec with message types: ${preventedTypes.join(', ')}`)
+      }
+    }else if(this.network.aminoPreventTypes.some(prevent => message.typeUrl.match(_.escapeRegExp(prevent)))){
+      throw new Error(`This chain does not support amino conversion for message type: ${message.typeUrl}`)
+    }
+  }
+
+  liftAuthzAmino(aminoMessage){
+    switch (aminoMessage.type) {
+      case 'cosmos-sdk/MsgGrant':
+        aminoMessage = aminoMessage.value
+        aminoMessage.grant.authorization = aminoMessage.grant.authorization.value
+        break;
+      case 'cosmos-sdk/MsgRevoke':
+        aminoMessage = aminoMessage.value
+        break;
+      case 'cosmos-sdk/MsgExec':
+        throw new Error('This chain does not support amino conversion for MsgExec')
+    }
+    return aminoMessage;
   }
 
   makeBodyBytes(messages, memo, timeoutHeight){
-    const protoEncodedMsgs = this.toProtoEncoded(messages);
+    const protoMsgs = messages.map(message => this.toProto(message));
 
     const txBody = {
-      messages: protoEncodedMsgs,
+      messages: protoMsgs,
       memo: memo,
     }
 
@@ -149,10 +155,6 @@ export default class DefaultSigningAdapter {
 
   pubkeyTypeUrl(pub_key){
     if(pub_key && pub_key['@type']) return pub_key['@type']
-
-    if(this.network.path === 'injective'){
-      return '/injective.crypto.v1beta1.ethsecp256k1.PubKey'
-    }
 
     if(this.network.slip44 === 60){
       return '/ethermint.crypto.v1.ethsecp256k1.PubKey'

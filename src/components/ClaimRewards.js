@@ -1,6 +1,4 @@
-import { MsgWithdrawDelegatorReward, MsgWithdrawValidatorCommission } from "cosmjs-types/cosmos/distribution/v1beta1/tx";
-import { MsgDelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
-import { buildExecableMessage, buildExecMessage, coin, rewardAmount } from "../utils/Helpers.mjs";
+import { coin, execableMessage, rewardAmount } from "../utils/Helpers.mjs";
 
 import {
   Dropdown,
@@ -8,6 +6,9 @@ import {
 } from 'react-bootstrap'
 
 import { add, subtract, multiply, divide, bignumber } from 'mathjs'
+import { MsgDelegate } from "../messages/MsgDelegate.mjs";
+import { MsgWithdrawDelegatorReward } from "../messages/MsgWithdrawDelegatorReward.mjs";
+import { MsgWithdrawValidatorCommission } from "../messages/MsgWithdrawValidatorCommission.mjs";
 
 function ClaimRewards(props) {
   const { network, address, wallet, rewards } = props
@@ -88,29 +89,25 @@ function ClaimRewards(props) {
       let valMessages = []
 
       if(props.restake){
-        valMessages.push(buildExecableMessage(MsgDelegate, "/cosmos.staking.v1beta1.MsgDelegate", {
+        valMessages.push(new MsgDelegate({
           delegatorAddress: address,
           validatorAddress: validatorReward.validatorAddress,
           amount: coin(validatorReward.reward, network.denom)
-        }, wallet?.address !== address))
+        }))
       }else{
-        valMessages.push(buildExecableMessage(MsgWithdrawDelegatorReward, "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", {
+        valMessages.push(new MsgWithdrawDelegatorReward({
           delegatorAddress: address,
           validatorAddress: validatorReward.validatorAddress
-        }, wallet?.address !== address))
+        }))
       }
 
       if (props.commission) {
-        valMessages.push(buildExecableMessage(MsgWithdrawValidatorCommission, "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", {
+        valMessages.push(new MsgWithdrawValidatorCommission({
           validatorAddress: validatorReward.validatorAddress
-        }, wallet?.address !== address))
+        }))
       }
 
-      if (wallet?.address !== address) {
-        return [buildExecMessage(wallet.address, valMessages)]
-      }else{
-        return valMessages
-      }
+      return execableMessage(valMessages, wallet.address, address)
     }).flat()
   }
 

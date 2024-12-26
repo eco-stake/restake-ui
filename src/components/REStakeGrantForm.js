@@ -2,21 +2,19 @@ import React, { useState, useEffect, useReducer } from 'react';
 import moment from 'moment'
 import { pow, multiply, divide, larger, bignumber } from 'mathjs'
 
-import { MsgGrant } from "cosmjs-types/cosmos/authz/v1beta1/tx";
-import { StakeAuthorization } from "cosmjs-types/cosmos/staking/v1beta1/authz";
-import { GenericAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
-import { Timestamp } from "cosmjs-types/google/protobuf/timestamp";
-
 import {
   Button,
   Form,
 } from 'react-bootstrap'
 
 import Coins from './Coins';
-import { buildExecMessage, coin, rewardAmount } from '../utils/Helpers.mjs';
+import { coin, execableMessage, rewardAmount } from '../utils/Helpers.mjs';
 import RevokeGrant from './RevokeGrant';
 import AlertMessage from './AlertMessage';
 import OperatorLastRestakeAlert from './OperatorLastRestakeAlert';
+import { GenericAuthorization } from '../messages/authorizations/GenericAuthorization.mjs';
+import { StakeAuthorization } from '../messages/authorizations/StakeAuthorization.mjs';
+import { MsgGrant } from '../messages/MsgGrant.mjs';
 
 function REStakeGrantForm(props) {
   const { grants, wallet, operator, address, network, lastExec } = props
@@ -82,31 +80,29 @@ function REStakeGrantForm(props) {
       maxTokens = coin(maxTokensDenom(), network.denom)
     }
 
-    let messages
+    let authorization
     if(genericGrantOnly){
-      messages = [
-        buildGrantMsg("/cosmos.authz.v1beta1.GenericAuthorization",
-          GenericAuthorization.encode(GenericAuthorization.fromPartial({
-            msg: '/cosmos.staking.v1beta1.MsgDelegate'
-          })).finish(),
-          expiry
-        )
-      ]
+      authorization = new GenericAuthorization({
+        msg: '/cosmos.staking.v1beta1.MsgDelegate'
+      })
     }else{
-      messages = [
-        buildGrantMsg("/cosmos.staking.v1beta1.StakeAuthorization",
-          StakeAuthorization.encode(StakeAuthorization.fromPartial({
-            allowList: { address: [operator.address] },
-            maxTokens: maxTokens,
-            authorizationType: 1
-          })).finish(),
-          expiry
-        )
-      ]
+      authorization = new StakeAuthorization({
+        allowList: { address: [operator.address] },
+        maxTokens: maxTokens,
+        authorizationType: 1
+      })
     }
-    console.log(messages)
 
-    wallet.signAndBroadcast(messages).then((result) => {
+    const message = new MsgGrant({
+      granter: address,
+      grantee: operator.botAddress,
+      grant: {
+        authorization: authorization,
+        expiration: expiry.unix()
+      }
+    })
+
+    wallet.signAndBroadcast(execableMessage(message, wallet.address, address)).then((result) => {
       console.log("Successfully broadcasted:", result);
       showLoading(false)
       props.onGrant(operator.botAddress, {
@@ -127,34 +123,6 @@ function REStakeGrantForm(props) {
       showLoading(false)
       setError('Failed to broadcast: ' + error.message)
     })
-  }
-
-  function buildGrantMsg(type, authValue, expiryDate) {
-    const value = {
-      granter: address,
-      grantee: operator.botAddress,
-      grant: {
-        authorization: {
-          typeUrl: type,
-          value: authValue
-        },
-        expiration: Timestamp.fromPartial({
-          seconds: expiryDate.unix(),
-          nanos: 0
-        })
-      }
-    }
-    if (wallet?.address !== address) {
-      return buildExecMessage(wallet.address, [{
-        typeUrl: "/cosmos.authz.v1beta1.MsgGrant",
-        value: MsgGrant.encode(MsgGrant.fromPartial(value)).finish()
-      }])
-    } else {
-      return {
-        typeUrl: "/cosmos.authz.v1beta1.MsgGrant",
-        value: value
-      }
-    }
   }
 
   function grantInformation() {

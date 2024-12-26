@@ -46,8 +46,7 @@
     ]
   },
   {
-    "name": "terra",
-    "authzAminoLiftedValues": false
+    "name": "terra"
   },
   {
     "name": "terra2"
@@ -254,7 +253,8 @@
     "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ],
-    "ledgerSupport": true
+    "ledgerSupport": true,
+    "authzAminoGenericOnly": true
   },
   {
     "name": "xpla"

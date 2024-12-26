@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import _ from 'lodash'
 import { pow, multiply, divide, subtract, bignumber } from 'mathjs'
 
-import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
+import { MsgSend } from "../messages/MsgSend.mjs";
 
 import {
   Modal,
@@ -11,7 +11,7 @@ import {
 } from 'react-bootstrap'
 
 import AlertMessage from './AlertMessage';
-import { buildExecableMessage, buildExecMessage, coin, truncateAddress } from '../utils/Helpers.mjs';
+import { coin, execableMessage, truncateAddress } from '../utils/Helpers.mjs';
 import Coins from './Coins';
 
 function SendModal(props) {
@@ -55,7 +55,6 @@ function SendModal(props) {
     const messages = [
       buildSendMsg(address, recipient(), [coinValue])
     ]
-    console.log(messages)
 
     wallet.signAndBroadcast(messages, null, state.memoValue).then((result) => {
       console.log("Successfully broadcasted:", result);
@@ -80,15 +79,12 @@ function SendModal(props) {
   }
 
   function buildSendMsg(address, recipient, amount) {
-    let message = buildExecableMessage(MsgSend, "/cosmos.bank.v1beta1.MsgSend", {
+    let message = new MsgSend({
       fromAddress: address,
       toAddress: recipient,
       amount: amount
-    }, wallet?.address !== address)
-    if(wallet?.address !== address){
-      return buildExecMessage(wallet.address, [message])
-    }
-    return message
+    })
+    return execableMessage(message, wallet.address, address)
   }
 
   async function setAvailableAmount(){

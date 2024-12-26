@@ -3,8 +3,8 @@ import {
   Dropdown,
   Button
 } from 'react-bootstrap'
-import { MsgRevoke } from "cosmjs-types/cosmos/authz/v1beta1/tx";
-import { buildExecableMessage, buildExecMessage } from '../utils/Helpers.mjs'
+import { execableMessage } from '../utils/Helpers.mjs'
+import { MsgRevoke } from '../messages/MsgRevoke.mjs'
 
 function RevokeGrant(props) {
   const { address, wallet, grantAddress, grants } = props
@@ -24,11 +24,7 @@ function RevokeGrant(props) {
       }
     })
     let messages = msgTypes.map(type => buildRevokeMsg(type))
-    if(wallet?.address !== address){
-      messages = [buildExecMessage(wallet.address, messages)]
-    }
-
-    console.log(messages)
+    messages = execableMessage(messages, wallet.address, address)
 
     try {
       const gas = await wallet.simulate(messages)
@@ -44,11 +40,11 @@ function RevokeGrant(props) {
   }
 
   function buildRevokeMsg(type){
-    return buildExecableMessage(MsgRevoke, "/cosmos.authz.v1beta1.MsgRevoke", {
+    return new MsgRevoke({
       granter: address,
       grantee: grantAddress,
       msgTypeUrl: type
-    }, wallet?.address !== address)
+    })
   }
 
   function disabled(){

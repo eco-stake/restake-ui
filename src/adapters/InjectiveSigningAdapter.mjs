@@ -1,21 +1,13 @@
 import _ from 'lodash'
 import {
-  getEip712TypedData,
-  mapValuesToProperValueType,
-  objectKeysToEip712Types,
   createWeb3Extension,
   createTxRawEIP712,
-  getGenericAuthorizationFromMessageType,
-  MsgGrant,
-  MsgAuthzExec,
-  MsgDelegate,
-  MsgVote
+  getEip712TypedData
 } from '@injectivelabs/sdk-ts'
 import {
   BigNumberInBase,
   DEFAULT_BLOCK_TIMEOUT_HEIGHT
 } from '@injectivelabs/utils'
-import { GenericAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing.js";
 
 import DefaultSigningAdapter from "./DefaultSigningAdapter.mjs";
@@ -40,8 +32,10 @@ export default class InjectiveSigningAdapter extends DefaultSigningAdapter {
       DEFAULT_BLOCK_TIMEOUT_HEIGHT,
     )
 
+    const injMessages = messages.map((m) => m.toInjective())
+
     const eip712TypedData = getEip712TypedData({
-      msgs: messages,
+      msgs: injMessages,
       fee,
       tx: {
         memo: memo,
@@ -63,7 +57,7 @@ export default class InjectiveSigningAdapter extends DefaultSigningAdapter {
         account_number: accountNumber.toString(),
         sequence: sequence.toString(),
         fee,
-        msgs: messages.map((m) => m.toEip712()),
+        msgs: injMessages.map((m) => m.toEip712()),
         memo: memo || '',
       }
     )
@@ -88,5 +82,11 @@ export default class InjectiveSigningAdapter extends DefaultSigningAdapter {
     txRawEip712.signatures = [signatureBuff]
 
     return txRawEip712
+  }
+
+  pubkeyTypeUrl(pub_key){
+    if(pub_key && pub_key['@type']) return pub_key['@type']
+
+    return '/injective.crypto.v1beta1.ethsecp256k1.PubKey'
   }
 }

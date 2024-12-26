@@ -54,8 +54,9 @@ function SigningClient(network, signerProvider) {
   }
 
   async function signAndBroadcast(address, messages, gas, memo, gasPrice) {
-    if (!gas)
-      gas = await simulate(address, messages, memo);
+    messages = Array.isArray(messages) ? messages : [messages]
+    console.log(messages)
+    gas = gas || await simulate(address, messages, memo);
     const fee = getFee(gas, gasPrice);
     const txBody = await sign(address, messages, memo, fee)
     return broadcast(txBody)
@@ -67,6 +68,7 @@ function SigningClient(network, signerProvider) {
   }
 
   async function simulate(address, messages, memo, modifier) {
+    messages = Array.isArray(messages) ? messages : [messages]
     const account = await restClient.getAccount(address)
     const fee = getFee(100_000)
     const txBody = await adapter.simulate(account, messages, memo, fee)

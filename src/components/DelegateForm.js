@@ -1,5 +1,4 @@
 import React, { useState, useReducer } from 'react';
-import { MsgDelegate, MsgUndelegate, MsgBeginRedelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 
 import {
   Button,
@@ -10,8 +9,10 @@ import { pow, multiply, divide, subtract, bignumber } from 'mathjs'
 
 import AlertMessage from './AlertMessage'
 import Coins from './Coins'
-import { buildExecMessage, coin } from '../utils/Helpers.mjs'
-import Delegate from '../messages/delegate.mjs';
+import { coin, execableMessage } from '../utils/Helpers.mjs'
+import { MsgBeginRedelegate } from '../messages/MsgBeginRedelegate.mjs';
+import { MsgUndelegate } from '../messages/MsgUndelegate.mjs';
+import { MsgDelegate } from '../messages/MsgDelegate.mjs';
 
 function DelegateForm(props) {
   const { network, wallet, address, validator, selectedValidator, action } = props
@@ -62,39 +63,23 @@ function DelegateForm(props) {
   }
 
   function buildMessages(amount) {
-    let message, type, typeUrl, value
+    let message
     if (action === 'redelegate') {
-      type = MsgBeginRedelegate
-      typeUrl = "/cosmos.staking.v1beta1.MsgBeginRedelegate"
-      value = {
+      message = new MsgBeginRedelegate({
         delegatorAddress: address,
         validatorSrcAddress: validator.operator_address,
         validatorDstAddress: selectedValidator.operator_address,
         amount: coin(amount, network.denom)
-      }
+      })
     } else {
-      type = action === 'undelegate' ? MsgUndelegate : MsgDelegate
-      typeUrl = "/cosmos.staking.v1beta1.Msg" + (action === 'undelegate' ? 'Undelegate' : 'Delegate')
-      value = {
+      const type = action === 'undelegate' ? MsgUndelegate : MsgDelegate
+      message = new type({
         delegatorAddress: address,
         validatorAddress: validator.operator_address,
         amount: coin(amount, network.denom)
-      }
+      })
     }
-    if (wallet?.address !== address) {
-      message = buildExecMessage(wallet.address, [{
-        typeUrl: typeUrl,
-        value: type.encode(type.fromPartial(value)).finish()
-      }])
-    } else {
-      message = {
-        typeUrl: typeUrl,
-        value: value
-      }
-    }
-    // pass network to messages and allow customisation inside message classes per network
-    const newMessage = new Delegate(value)
-    return [newMessage]
+    return execableMessage(message, wallet.address, address)
   }
 
   function hasPermission() {

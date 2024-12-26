@@ -5,11 +5,10 @@ import {
   Form,
   Button
 } from 'react-bootstrap'
-import { MsgVote } from "cosmjs-types/cosmos/gov/v1beta1/tx.js";
 
 import Vote from '../utils/Vote.mjs';
-import { buildExecMessage } from '../utils/Helpers.mjs';
-import NewVote from '../messages/vote.mjs';
+import { MsgVote } from '../messages/MsgVote.mjs';
+import { execableMessage } from '../utils/Helpers.mjs';
 
 function VoteForm(props) {
   const { proposal, vote, address, wallet, granter, setError } = props
@@ -62,28 +61,13 @@ function VoteForm(props) {
       ]
     })
 
-    let message
-    const value = {
+    const message = new MsgVote({
       proposalId: proposal.proposal_id,
       voter: newVote.voter,
       option: newVote.optionValue
-    }
-    if(granter){
-      message = buildExecMessage(wallet.address, [{
-        typeUrl: "/cosmos.gov.v1beta1.MsgVote",
-        value: MsgVote.encode(MsgVote.fromPartial(value)).finish()
-      }])
-    }else{
-      message = {
-        typeUrl: "/cosmos.gov.v1beta1.MsgVote",
-        value: value
-      }
-    }
-    console.log(value)
-    const newMessage = new NewVote(value)
-    console.log(newMessage)
+    })
 
-    wallet.signAndBroadcast([newMessage]).then((result) => {
+    wallet.signAndBroadcast(execableMessage(message, wallet.address, granter)).then((result) => {
       console.log("Successfully broadcasted:", result);
       setLoading(false)
       setError(null)

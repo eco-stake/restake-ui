@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import _ from 'lodash'
 import moment from 'moment'
 
-import { MsgGrant } from "cosmjs-types/cosmos/authz/v1beta1/tx";
-import { GenericAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
-import { Timestamp } from "cosmjs-types/google/protobuf/timestamp";
-
 import {
   Modal,
   Button,
@@ -15,7 +11,9 @@ import {
 
 import AlertMessage from './AlertMessage';
 import { messageTypes } from '../utils/Wallet.mjs';
-import { buildExecMessage, truncateAddress } from '../utils/Helpers.mjs';
+import { execableMessage } from '../utils/Helpers.mjs';
+import { MsgGrant } from '../messages/MsgGrant.mjs';
+import { GenericAuthorization } from '../messages/authorizations/GenericAuthorization.mjs';
 
 function GrantModal(props) {
   const { show, network, address, wallet } = props
@@ -60,19 +58,28 @@ function GrantModal(props) {
     if(!address || !walletAuthzSupport || !valid()) return
 
     showLoading(true)
+    setError(null)
     const expiry = moment(state.expiryDateValue)
+    let authorization
 
-    const messages = [
-      buildGrantMsg(state.grantTypeValue,
-        GenericAuthorization.encode(GenericAuthorization.fromPartial({
+    switch(state.grantTypeValue){
+      case '/cosmos.authz.v1beta1.GenericAuthorization':
+        authorization = new GenericAuthorization({
           msg: messageType()
-        })).finish(),
-        expiry
-      )
-    ]
-    console.log(messages)
+        })
+        break
+    }
 
-    wallet.signAndBroadcast(messages).then((result) => {
+    const message = new MsgGrant({
+      granter: address,
+      grantee: grantee(),
+      grant: {
+        authorization: authorization,
+        expiration: expiry.unix()
+      }
+    })
+
+    wallet.signAndBroadcast(execableMessage(message, wallet.address, address)).then((result) => {
       console.log("Successfully broadcasted:", result);
       showLoading(false)
       props.onGrant(grantee(), {
@@ -94,34 +101,6 @@ function GrantModal(props) {
   function handleClose() {
     setError(null)
     props.onHide();
-  }
-
-  function buildGrantMsg(type, authValue, expiryDate) {
-    const value = {
-      granter: address,
-      grantee: grantee(),
-      grant: {
-        authorization: {
-          typeUrl: type,
-          value: authValue
-        },
-        expiration: Timestamp.fromPartial({
-          seconds: expiryDate.unix(),
-          nanos: 0
-        })
-      }
-    }
-    if(wallet?.address !== address){
-      return buildExecMessage(wallet.address, [{
-        typeUrl: "/cosmos.authz.v1beta1.MsgGrant",
-        value: MsgGrant.encode(MsgGrant.fromPartial(value)).finish()
-      }])
-    }else{
-      return {
-        typeUrl: "/cosmos.authz.v1beta1.MsgGrant",
-        value: value
-      }
-    }
   }
 
   function grantee(){
