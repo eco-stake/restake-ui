@@ -41,8 +41,6 @@ class Delegations extends React.Component {
   }
 
   async componentDidMount() {
-    const walletAuthzSupport = this.props.wallet?.authzSupport();
-    this.setState({ walletAuthzSupport });
     this.refresh(true);
 
     if (this.props.validator) {
@@ -58,9 +56,7 @@ class Delegations extends React.Component {
     if ((this.props.network !== prevProps.network && !this.props.address)
       || (this.props.address !== prevProps.address)) {
       this.clearRefreshInterval()
-      const walletAuthzSupport = this.props.wallet?.authzSupport();
       this.setState({
-        walletAuthzSupport: walletAuthzSupport,
         delegations: undefined,
         rewards: undefined,
         commission: {},
@@ -336,7 +332,7 @@ class Delegations extends React.Component {
   }
 
   restakePossible() {
-    return this.props.address && this.state.walletAuthzSupport && this.restakeSupport();
+    return this.props.address && this.props.wallet.authzSupport() && this.restakeSupport();
   }
 
   totalRewards(validators) {
@@ -406,6 +402,18 @@ class Delegations extends React.Component {
     )
   }
 
+  restakeAlertProps() {
+    if(!this.props.network.restakeAlert) return {}
+
+    let props = { variant: 'info', dismissible: false }
+    if(typeof this.props.network.restakeAlert === 'string'){
+      props = { ...props, message: this.props.network.restakeAlert }
+    }else{
+      props = { ...props, ...this.props.network.restakeAlert }
+    }
+    return props
+  }
+
   render() {
     if (!this.props.validators) {
       return (
@@ -420,9 +428,7 @@ class Delegations extends React.Component {
     const alerts = (
       <>
         {this.props.network.restakeAlert && (
-          <AlertMessage variant="info" dismissible={false}>
-            {this.props.network.restakeAlert}
-          </AlertMessage>
+          <AlertMessage {...this.restakeAlertProps()} />
         )}
         {!this.authzSupport() && (
           <AlertMessage variant="info" dismissible={false}>
@@ -432,7 +438,7 @@ class Delegations extends React.Component {
         {this.authzSupport() &&
           this.props.operators.length > 0 &&
           this.props.wallet &&
-          !this.state.walletAuthzSupport && (
+          !this.props.wallet.authzSupport() && (
             <>
               <AlertMessage
                 variant="warning"
