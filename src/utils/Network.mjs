@@ -101,6 +101,7 @@ class Network {
     this.aminoPreventTypes = this.chain.aminoPreventTypes
     this.restakeSupport = this.chain.restakeSupport
     this.restakeAlert = data.restakeAlert
+    this.networkAlert = data.networkAlert
     this.txTimeout = this.data.txTimeout || 60_000
     this.keywords = this.buildKeywords()
 

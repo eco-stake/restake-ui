@@ -518,6 +518,18 @@ class App extends React.Component {
     return <span>REStake allows validators to <strong onClick={() => this.setState({ showAbout: true })} className="text-decoration-underline" role="button">auto-compound</strong> your {this.props.network && <strong onClick={this.showNetworkSelect} className="text-decoration-underline" role="button">{this.props.network.prettyName}</strong>} staking rewards</span>
   }
 
+  networkAlertProps() {
+    if(!this.props.network?.networkAlert) return {}
+
+    let props = { variant: 'info', dismissible: false }
+    if(typeof this.props.network.networkAlert === 'string'){
+      props = { ...props, message: this.props.network.networkAlert }
+    }else{
+      props = { ...props, ...this.props.network.networkAlert }
+    }
+    return props
+  }
+
   render() {
     return (
       <Container fluid="lg">
@@ -730,6 +742,9 @@ class App extends React.Component {
             <AlertMessage variant="info" dismissible={false}>
               This network was added to REStake automatically and has not been thoroughly tested yet. <a href="https://github.com/eco-stake/restake-ui/issues" target="_blank">Raise an issue</a> if you have any problems.
             </AlertMessage>
+          )}
+          {this.props.network?.networkAlert && (
+            <AlertMessage {...this.networkAlertProps()} />
           )}
           <AlertMessage message={this.state.error} variant="danger" dismissible={false} />
           {this.props.active === 'networks' && (
