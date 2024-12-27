@@ -83,7 +83,7 @@ function NetworkChecks(props) {
         renderCheck({
           title: !network.authzAminoGenericOnly ? <strong>Full Authz support</strong> : 'Authz support',
           failTitle: 'Authz not supported',
-          failDescription: "This network doesn't support Authz just yet. You can stake and compound manually, REStake will update automatically when support is added.",
+          failDescription: "This network doesn't support Authz just yet. You can stake and compound manually until support is added.",
           state: network.authzSupport,
           identifier: 'authz'
         }),

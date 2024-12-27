@@ -432,7 +432,7 @@ class Delegations extends React.Component {
         )}
         {!this.authzSupport() && (
           <AlertMessage variant="info" dismissible={false}>
-            {this.props.network.prettyName} doesn't support Authz just yet. You can stake and compound manually, REStake will update automatically when support is added.
+            {this.props.network.prettyName} doesn't support Authz just yet. You can stake and compound manually until support is added.
           </AlertMessage>
         )}
         {this.authzSupport() &&
