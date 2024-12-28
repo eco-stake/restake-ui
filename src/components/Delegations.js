@@ -332,7 +332,7 @@ class Delegations extends React.Component {
   }
 
   restakePossible() {
-    return this.props.address && this.props.wallet.authzSupport() && this.restakeSupport();
+    return this.props.address && this.props.wallet?.authzSupport() && this.restakeSupport();
   }
 
   totalRewards(validators) {
