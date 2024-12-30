@@ -500,6 +500,7 @@ class Delegations extends React.Component {
                         </Dropdown.Item>
                         <hr />
                         <ClaimRewards
+                          disabled={!rewards}
                           network={network}
                           address={address}
                           wallet={wallet}
@@ -509,6 +510,7 @@ class Delegations extends React.Component {
                           setError={this.setError}
                         />
                         <ClaimRewards
+                          disabled={!rewards}
                           restake={true}
                           network={network}
                           address={address}
@@ -522,6 +524,7 @@ class Delegations extends React.Component {
                           <>
                             <hr />
                             <ClaimRewards
+                              disabled={!rewards}
                               commission={true}
                               network={network}
                               address={address}
