@@ -50,7 +50,7 @@ export function execableMessage(messages, walletAddress, granterAddress){
   if (granterAddress && walletAddress !== granterAddress) {
     return new MsgExec({
       grantee: walletAddress,
-      msgs: Array.isArray() ? messages : [messages]
+      msgs: Array.isArray(messages) ? messages : [messages]
     })
   }else{
     return messages
