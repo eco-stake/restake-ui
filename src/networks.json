@@ -46,8 +46,7 @@
     ]
   },
   {
-    "name": "terra",
-    "authzAminoLiftedValues": false
+    "name": "terra"
   },
   {
     "name": "terra2"
@@ -253,7 +252,13 @@
     "ownerAddress": "injvaloper1vqz7mgm47xhx25xu5g9qagnz48naks6pk6fmg2",
     "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
-    ]
+    ],
+    "ledgerSupport": true,
+    "authzAminoGenericOnly": true,
+    "networkAlert": {
+      "message": "REStake now supports Ledger wallets on Injective! 🥷",
+      "variant": "success"
+    }
   },
   {
     "name": "xpla"

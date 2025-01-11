@@ -1,5 +1,4 @@
 import React, { useState, useReducer } from 'react';
-import { MsgDelegate, MsgUndelegate, MsgBeginRedelegate } from "cosmjs-types/cosmos/staking/v1beta1/tx";
 
 import {
   Button,
@@ -10,7 +9,10 @@ import { pow, multiply, divide, subtract, bignumber } from 'mathjs'
 
 import AlertMessage from './AlertMessage'
 import Coins from './Coins'
-import { buildExecMessage, coin } from '../utils/Helpers.mjs'
+import { coin, execableMessage } from '../utils/Helpers.mjs'
+import { MsgBeginRedelegate } from '../messages/MsgBeginRedelegate.mjs';
+import { MsgUndelegate } from '../messages/MsgUndelegate.mjs';
+import { MsgDelegate } from '../messages/MsgDelegate.mjs';
 
 function DelegateForm(props) {
   const { network, wallet, address, validator, selectedValidator, action } = props
@@ -36,7 +38,6 @@ function DelegateForm(props) {
 
     const amount = state.amount
     const memo = state.memo
-    const client = props.signingClient
 
     const decimals = pow(10, network.decimals)
     const denomAmount = bignumber(multiply(amount, decimals))
@@ -44,13 +45,14 @@ function DelegateForm(props) {
     let messages = buildMessages(denomAmount)
     let gas
     try {
-      gas = await client.simulate(wallet.address, messages)
+      gas = await wallet.simulate(messages)
     } catch (error) {
+      console.log(error)
       setState({ loading: false, error: error.message })
       return
     }
 
-    client.signAndBroadcast(wallet.address, messages, gas, memo).then((result) => {
+    wallet.signAndBroadcast(messages, gas, memo).then((result) => {
       console.log("Successfully broadcasted:", result);
       setState({ loading: false, error: null })
       props.onDelegate()
@@ -61,37 +63,23 @@ function DelegateForm(props) {
   }
 
   function buildMessages(amount) {
-    let message, type, typeUrl, value
+    let message
     if (action === 'redelegate') {
-      type = MsgBeginRedelegate
-      typeUrl = "/cosmos.staking.v1beta1.MsgBeginRedelegate"
-      value = {
+      message = new MsgBeginRedelegate({
         delegatorAddress: address,
         validatorSrcAddress: validator.operator_address,
         validatorDstAddress: selectedValidator.operator_address,
         amount: coin(amount, network.denom)
-      }
+      })
     } else {
-      type = action === 'undelegate' ? MsgUndelegate : MsgDelegate
-      typeUrl = "/cosmos.staking.v1beta1.Msg" + (action === 'undelegate' ? 'Undelegate' : 'Delegate')
-      value = {
+      const type = action === 'undelegate' ? MsgUndelegate : MsgDelegate
+      message = new type({
         delegatorAddress: address,
         validatorAddress: validator.operator_address,
         amount: coin(amount, network.denom)
-      }
+      })
     }
-    if (wallet?.address !== address) {
-      message = buildExecMessage(wallet.address, [{
-        typeUrl: typeUrl,
-        value: type.encode(type.fromPartial(value)).finish()
-      }])
-    } else {
-      message = {
-        typeUrl: typeUrl,
-        value: value
-      }
-    }
-    return [message]
+    return execableMessage(message, wallet.address, address)
   }
 
   function hasPermission() {
@@ -109,8 +97,8 @@ function DelegateForm(props) {
     if (['redelegate', 'undelegate'].includes(action)) {
       return setState({ amount: divide(balance, decimals) })
     }
-    props.signingClient.simulate(wallet.address, messages).then(gas => {
-      const gasPrice = props.signingClient.getFee(gas).amount[0].amount
+    wallet.simulate(messages).then(gas => {
+      const gasPrice = wallet.getFee(gas).amount[0].amount
       const saveTxFeeNum = 10
       const amount = divide(subtract(balance, multiply(gasPrice, saveTxFeeNum)), decimals)
 

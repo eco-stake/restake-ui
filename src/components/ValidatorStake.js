@@ -141,7 +141,6 @@ function ValidatorStake(props) {
               validatorApy={props.validatorApy}
               authzSupport={props.authzSupport}
               restakePossible={props.restakePossible}
-              signingClient={props.signingClient}
               closeForm={() => setAction()}
               onGrant={onGrant}
               onRevoke={onRevoke}
@@ -156,7 +155,6 @@ function ValidatorStake(props) {
               wallet={wallet}
               balance={balance}
               delegation={delegation}
-              signingClient={props.signingClient}
               closeForm={() => setAction()}
               onDelegate={onDelegate} />
           )}
@@ -377,7 +375,6 @@ function ValidatorStake(props) {
                       address={address}
                       wallet={wallet}
                       rewards={validatorRewards && [validatorRewards]}
-                      signingClient={props.signingClient}
                       onClaimRewards={props.onClaimRewards}
                       setLoading={(loading) =>
                         setLoading(loading)
@@ -390,7 +387,6 @@ function ValidatorStake(props) {
                       address={address}
                       wallet={wallet}
                       rewards={validatorRewards && [validatorRewards]}
-                      signingClient={props.signingClient}
                       onClaimRewards={props.onClaimRewards}
                       setLoading={(loading) =>
                         setLoading(loading)
@@ -404,7 +400,6 @@ function ValidatorStake(props) {
                         address={address}
                         wallet={wallet}
                         rewards={validatorRewards && [validatorRewards]}
-                        signingClient={props.signingClient}
                         onClaimRewards={props.onClaimRewards}
                         setLoading={(loading) =>
                           setLoading(loading)
@@ -469,7 +464,6 @@ function ValidatorStake(props) {
                     grantAddress={operator.botAddress}
                     grants={[validatorGrants.stakeGrant, validatorGrants.claimGrant]}
                     buttonText="Disable REStake"
-                    signingClient={props.signingClient}
                     onRevoke={onRevoke}
                     setLoading={(loading) =>
                       setLoading(loading)

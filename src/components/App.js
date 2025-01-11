@@ -8,8 +8,6 @@ import Delegations from './Delegations';
 import Coins from './Coins'
 import About from './About'
 
-import { MsgGrant, MsgRevoke } from "cosmjs-types/cosmos/authz/v1beta1/tx.js";
-
 import {
   Container,
   Dropdown,
@@ -55,10 +53,8 @@ import Wallet from '../utils/Wallet.mjs';
 import SendModal from './SendModal';
 import KeplrSignerProvider from '../utils/KeplrSignerProvider.mjs';
 import LeapSignerProvider from '../utils/LeapSignerProvider.mjs';
-import ConnectWalletModal from './ConnectWalletModal';
 import { truncateAddress } from '../utils/Helpers.mjs';
 import CosmostationSignerProvider from '../utils/CosmostationSignerProvider.mjs';
-import SigningClient from '../utils/SigningClient.mjs';
 
 class App extends React.Component {
   constructor(props) {
@@ -136,6 +132,10 @@ class App extends React.Component {
     return this.props.network?.connected
   }
 
+  restClient() {
+    return this.props.network?.restClient
+  }
+
   getSignerProvider(providerKey){
     if(this.props.network?.disabledWallets?.includes(providerKey)) return
 
@@ -144,14 +144,12 @@ class App extends React.Component {
 
   disconnect() {
     localStorage.removeItem('connected')
-    this.state.signerProvider?.disconnect()
+    this.state.wallet?.disconnect()
     this.setState({
       error: null,
       address: null,
       balance: null,
-      wallet: null,
-      signingClient: null,
-      signerProvider: null
+      wallet: null
     })
   }
 
@@ -191,8 +189,6 @@ class App extends React.Component {
       return
     }
 
-    this.setState({ signerProvider })
-
     const wallet = new Wallet(network, signerProvider)
     try {
       const key = await wallet.connect();
@@ -201,34 +197,20 @@ class App extends React.Component {
       }
     } catch (e) {
       return this.setState({
-        error: `Unable to connect to ${signerProvider?.label || 'signer'}: ${e.message}`,
+        error: `Unable to connect to ${signerProvider?.label || 'signer'}: ${e?.message}`,
         address: null,
         wallet: null,
-        signingClient: null
       })
     }
-    try {
-      const signingClient = SigningClient(network, signerProvider)
-      signingClient.registry.register("/cosmos.authz.v1beta1.MsgGrant", MsgGrant)
-      signingClient.registry.register("/cosmos.authz.v1beta1.MsgRevoke", MsgRevoke)
-
-      const address = await wallet.getAddress();
-
-      localStorage.setItem('connected', providerKey)
-      this.setState({
-        address,
-        wallet,
-        signingClient,
-        error: false,
-        qrCodeUri: null,
-        qrCodeCallback: null
-      })
-    } catch (e) {
-      console.log(e)
-      return this.setState({
-        error: `Failed to connect to ${signerProvider?.label || 'signer'}: ${e.message}`
-      })
-    }
+    const address = wallet.address;
+    localStorage.setItem('connected', providerKey)
+    this.setState({
+      address,
+      wallet,
+      error: false,
+      qrCodeUri: null,
+      qrCodeCallback: null
+    })
   }
 
   refreshInterval() {
@@ -306,7 +288,7 @@ class App extends React.Component {
   async getBalance() {
     if (!this.state.address) return
 
-    this.props.queryClient.getBalance(this.state.address)
+    this.restClient().getBalance(this.state.address)
       .then(
         (balances) => {
           const balance = balances?.find(
@@ -328,9 +310,9 @@ class App extends React.Component {
     let granterGrants, granteeGrants, grantQuerySupport
 
     try {
-      granterGrants = await this.props.queryClient.getGranterGrants(address)
+      granterGrants = await this.restClient().getGranterGrants(address)
       this.setGrants(address, granterGrants, 'granter', true)
-      granteeGrants = await this.props.queryClient.getGranteeGrants(address)
+      granteeGrants = await this.restClient().getGranteeGrants(address)
       return this.setGrants(address, granteeGrants, 'grantee')
     } catch (error) {
       console.log('Failed to get all grants in batch', error.message)
@@ -364,7 +346,7 @@ class App extends React.Component {
       return () => {
         if (address !== this.state.address) return
 
-        return this.props.queryClient.getGrants(grantee, granter).then(
+        return this.restClient().getGrants(grantee, granter).then(
           (result) => {
             return result.map(grant => {
               return {
@@ -536,6 +518,18 @@ class App extends React.Component {
     return <span>REStake allows validators to <strong onClick={() => this.setState({ showAbout: true })} className="text-decoration-underline" role="button">auto-compound</strong> your {this.props.network && <strong onClick={this.showNetworkSelect} className="text-decoration-underline" role="button">{this.props.network.prettyName}</strong>} staking rewards</span>
   }
 
+  networkAlertProps() {
+    if(!this.props.network?.networkAlert) return {}
+
+    let props = { variant: 'info', dismissible: false }
+    if(typeof this.props.network.networkAlert === 'string'){
+      props = { ...props, message: this.props.network.networkAlert }
+    }else{
+      props = { ...props, ...this.props.network.networkAlert }
+    }
+    return props
+  }
+
   render() {
     return (
       <Container fluid="lg">
@@ -640,7 +634,7 @@ class App extends React.Component {
                           ) : (
                             <select className="form-select form-select-sm d-none d-lg-block ms-2" aria-label="Address" value={this.state.address || ''} onChange={(e) => this.setState({ address: e.target.value })} style={{maxWidth: 200}}>
                               {this.state.wallet ? (
-                                <optgroup label={this.state.signerProvider.label}>
+                                <optgroup label={this.state.wallet.signerProvider.label}>
                                   <option value={this.state.wallet.address}>{this.state.wallet.name || truncateAddress(this.state.wallet.address)}</option>
                                 </optgroup>
                               ) : (
@@ -730,7 +724,7 @@ class App extends React.Component {
                             {this.state.address && (
                               <>
                                 <Dropdown.Divider />
-                                <Dropdown.Item as="button" onClick={this.disconnect}>{this.state.wallet ? `Disconnect ${this.state.signerProvider?.label}` : 'Close'}</Dropdown.Item>
+                                <Dropdown.Item as="button" onClick={this.disconnect}>{this.state.wallet ? `Disconnect ${this.state.wallet.signerProvider?.label}` : 'Close'}</Dropdown.Item>
                               </>
                             )}
                           </Dropdown.Menu>
@@ -749,12 +743,10 @@ class App extends React.Component {
               This network was added to REStake automatically and has not been thoroughly tested yet. <a href="https://github.com/eco-stake/restake-ui/issues" target="_blank">Raise an issue</a> if you have any problems.
             </AlertMessage>
           )}
-          <AlertMessage message={this.state.error} variant="danger" dismissible={false} />
-          {!this.state.providerError === 'keplr' && (
-            <AlertMessage variant="warning" dismissible={true} onClose={() => this.setState({ providerError: false })}>
-              Please install the <a href="https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?hl=en" target="_blank" rel="noreferrer">Keplr browser extension</a> using desktop Google Chrome.
-            </AlertMessage>
+          {this.props.network?.networkAlert && (
+            <AlertMessage {...this.networkAlertProps()} />
           )}
+          <AlertMessage message={this.state.error} variant="danger" dismissible={false} />
           {this.props.active === 'networks' && (
             <Networks
               networks={Object.values(this.props.networks)}
@@ -779,8 +771,7 @@ class App extends React.Component {
                 showAbout={() => this.setState({ showAbout: true })}
                 onGrant={this.onGrant}
                 onRevoke={this.onRevoke}
-                queryClient={this.props.queryClient}
-                signingClient={this.state.signingClient} />
+              />
             </>
           }
           {this.props.active === 'voting' && (
@@ -789,8 +780,7 @@ class App extends React.Component {
               address={this.state.address}
               wallet={this.state.wallet}
               favouriteAddresses={this.favouriteAddresses()}
-              queryClient={this.props.queryClient}
-              signingClient={this.state.signingClient} />
+            />
           )}
           {this.props.active === 'grants' && this.state.address && this.props.network.authzSupport && (
             <Grants
@@ -805,9 +795,8 @@ class App extends React.Component {
               toggleFavouriteAddress={this.toggleFavouriteAddress}
               onGrant={this.onGrant}
               onRevoke={this.onRevoke}
-              queryClient={this.props.queryClient}
               grantQuerySupport={this.state.grantQuerySupport}
-              signingClient={this.state.signingClient} />
+            />
           )}
         </div>
         <footer className="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
@@ -846,7 +835,6 @@ class App extends React.Component {
           networks={Object.values(this.props.networks)}
           address={this.state.address}
           wallet={this.state.wallet}
-          signerProvider={this.state.signerProvider}
           balances={this.state.balances}
           favouriteAddresses={this.state.favouriteAddresses}
           updateFavouriteAddresses={this.updateFavouriteAddresses}
@@ -856,13 +844,6 @@ class App extends React.Component {
             this.hideWalletModal()
           }}
         />
-        <ConnectWalletModal
-          show={this.state.connectWallet}
-          signerProvider={this.state.signerProvider}
-          uri={this.state.qrCodeUri}
-          callback={this.state.qrCodeCallback}
-          onClose={() => this.setState({connectWallet: false})}
-        />
         {this.props.network && (
           <SendModal
             show={this.state.showSendModal}
@@ -871,7 +852,6 @@ class App extends React.Component {
             wallet={this.state.wallet}
             balance={this.state.balance}
             favouriteAddresses={this.favouriteAddresses()}
-            signingClient={this.state.signingClient}
             onHide={() => this.setState({ showSendModal: false })}
             onSend={this.onSend}
           />

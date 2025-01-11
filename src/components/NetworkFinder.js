@@ -77,7 +77,7 @@ function NetworkFinder() {
       window.location.replace('https://' + domain);
     } else {
       const directory = CosmosDirectory(networkMode === 'testnet');
-      setState({ networkMode, directory, active: 'networks', network: null, queryClient: null, networks: {}, validators: {}, operators: [] });
+      setState({ networkMode, directory, active: 'networks', network: null, networks: {}, validators: {}, operators: [] });
     }
   }
 
@@ -86,7 +86,6 @@ function NetworkFinder() {
 
     setState({
       network: network,
-      queryClient: network.queryClient,
       validators: network.getValidators(),
       operators: network.getOperators(),
       loading: false
@@ -190,7 +189,6 @@ function NetworkFinder() {
             setState({
               active: grantMatch ? 'grants' : voteMatch ? 'voting' : 'delegations',
               network: network,
-              queryClient: network.queryClient,
               validators: network.getValidators(),
               operators: network.getOperators(),
               loading: false
@@ -228,7 +226,7 @@ function NetworkFinder() {
     )
   }
 
-  return <App networks={state.networks} network={state.network} active={state.active} queryClient={state.queryClient}
+  return <App networks={state.networks} network={state.network} active={state.active}
     networkMode={state.networkMode} directory={state.directory} changeNetworkMode={changeNetworkMode}
     operators={state.operators} validators={state.validators} validator={state.validator}
     changeNetwork={(network, validators) => changeNetwork(network, validators)} setActive={setActive}
