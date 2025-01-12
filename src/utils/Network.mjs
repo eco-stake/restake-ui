@@ -131,10 +131,9 @@ class Network {
     this.gasModifier = this.data.gasModifier || 1.5
   }
 
-  async connect(opts) {
+  async connect() {
     try {
       this.restClient = await RestClient(this.chain.chainId, this.restUrl, {
-        connectTimeout: opts?.timeout,
         apiVersions: this.chain.apiVersions
       })
       this.restUrl = this.restClient.restUrl
