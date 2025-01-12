@@ -36,9 +36,12 @@ const Proposal = async (data) => {
         }else{
           ipfsUrl = `https://ipfs.io/ipfs/${metadata}`
         }
-        metadata = await axios.get(ipfsUrl, { timeout: 5000 }).then(res => res.data)
-        title = metadata.title
-        description = metadata.summary || metadata.description || metadata.details
+        response = await axios.get(ipfsUrl, { timeout: 5000 })
+        if(response.headers['content-type'] === 'application/json'){
+          metadata = response.data
+          title = metadata.title
+          description = metadata.summary || metadata.description || metadata.details
+        }
       } catch (e) {
         console.log(e)
       }

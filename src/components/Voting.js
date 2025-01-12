@@ -88,7 +88,7 @@ function Voting(props) {
         return async () => {
           return await Proposal(el)
         }
-      }))
+      }), 5)
 
       setError()
       setProposals(sortProposals(newProposals))
