@@ -83,12 +83,12 @@ function Voting(props) {
     const { clearExisting } = opts || {}
 
     try {
-      let newProposals = await network.restClient.getProposals()
+      let newProposals = await network.restClient.getProposals({ timeout: 10000 })
       newProposals = await mapSync(newProposals.map(el => {
         return async () => {
           return await Proposal(el)
         }
-      }))
+      }), 5)
 
       setError()
       setProposals(sortProposals(newProposals))
