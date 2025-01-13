@@ -14,7 +14,7 @@ const RestClient = async (chainId, restUrls, opts) => {
   }, opts)
   const restUrl = await findAvailableUrl(restUrls, { timeout: 10000 })
   const client = axios.create({ baseURL: restUrl, timeout: config.timeout });
-  axiosRetry(client, { retries: config.retries, shouldResetTimeout: true });
+  axiosRetry(client, { retries: config.retries, shouldResetTimeout: true, retryCondition: () => true });
 
   function getAllValidators(pageSize, opts, pageCallback) {
     return getAllPages((nextKey) => {
@@ -285,7 +285,7 @@ const RestClient = async (chainId, restUrls, opts) => {
   }
 
   function broadcast(params){
-    return client.post(apiPath('tx', `txs`), params, { timeout: 30000 })
+    return client.post(apiPath('tx', `txs`), params, { timeout: 30000, 'axios-retry': { retries: 0 } })
       .then((res) => parseTxResult(res.data.tx_response))
   }
 
