@@ -280,12 +280,12 @@ const RestClient = async (chainId, restUrls, opts) => {
   };
 
   function simulate(params){
-    return client.post(apiPath('tx', `simulate`), params)
+    return client.post(apiPath('tx', `simulate`), params, { timeout: 30000 })
       .then((res) => res.data)
   }
 
   function broadcast(params){
-    return client.post(apiPath('tx', `txs`), params)
+    return client.post(apiPath('tx', `txs`), params, { timeout: 30000 })
       .then((res) => parseTxResult(res.data.tx_response))
   }
 
@@ -390,10 +390,6 @@ const RestClient = async (chainId, restUrls, opts) => {
       }
       throw(error)
     }
-  }
-
-  function apiUrl(type, path){
-    return restUrl + apiPath(type, path)
   }
 
   function apiPath(type, path){
