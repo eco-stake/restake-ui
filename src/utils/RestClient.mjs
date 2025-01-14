@@ -219,13 +219,17 @@ const RestClient = async (chainId, restUrls, opts) => {
     if (order)
       searchParams.append('order_by', order);
     return client.get(apiPath('tx', `txs?${searchParams.toString()}`), {
-      'axios-retry': { retries: retries },
+      'axios-retry': { retries: retries ?? config.retries },
       ...opts
     }).then((res) => res.data);
   }
 
-  function getTransaction(txHash) {
-    return client.get(apiPath('tx', `txs/${txHash}`)).then((res) => res.data);
+  function getTransaction(txHash, _opts) {
+    const { retries, ...opts } = _opts;
+    return client.get(apiPath('tx', `txs/${txHash}`), {
+      'axios-retry': { retries: retries ?? config.retries },
+      ...opts
+    }).then((res) => res.data);
   }
 
   function getAccount(address) {
@@ -305,7 +309,7 @@ const RestClient = async (chainId, restUrls, opts) => {
       }
       await sleep(pollIntervalMs);
       try {
-        const response = await getTransaction(txId);
+        const response = await getTransaction(txId, { retries: 0 });
         const result = parseTxResult(response.tx_response)
         return result
       } catch {
