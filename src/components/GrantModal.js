@@ -11,7 +11,7 @@ import {
 
 import AlertMessage from './AlertMessage';
 import { messageTypes } from '../utils/Wallet.mjs';
-import { execableMessage } from '../utils/Helpers.mjs';
+import { execableMessage, truncateAddress } from '../utils/Helpers.mjs';
 import { MsgGrant } from '../messages/MsgGrant.mjs';
 import { GenericAuthorization } from '../messages/authorizations/GenericAuthorization.mjs';
 
