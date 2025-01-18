@@ -35,6 +35,7 @@ import {
 } from 'react-bootstrap-icons'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import GitHubButton from 'react-github-btn'
+import { Cosmiframe } from '@dao-dao/cosmiframe'
 import Logo from '../assets/logo.png'
 import Logo2x from '../assets/logo@2x.png'
 import Logo3x from '../assets/logo@3x.png'
@@ -55,6 +56,7 @@ import Wallet from '../utils/Wallet.mjs';
 import SendModal from './SendModal';
 import KeplrSignerProvider from '../utils/KeplrSignerProvider.mjs';
 import LeapSignerProvider from '../utils/LeapSignerProvider.mjs';
+import CosmiframeSignerProvider from '../utils/CosmiframeSignerProvider.mjs';
 import { truncateAddress } from '../utils/Helpers.mjs';
 import CosmostationSignerProvider from '../utils/CosmostationSignerProvider.mjs';
 
@@ -70,7 +72,8 @@ class App extends React.Component {
     this.signerProviders = [
       new KeplrSignerProvider(window.keplr),
       new LeapSignerProvider(window.leap),
-      new CosmostationSignerProvider(window.cosmostation?.providers?.keplr, window.cosmostation?.cosmos)
+      new CosmostationSignerProvider(window.cosmostation?.providers?.keplr, window.cosmostation?.cosmos),
+      new CosmiframeSignerProvider(new Cosmiframe(["https://daodao.zone", "https://dao.daodao.zone"]))
     ]
     this.signerConnectors = {}
     this.connectAuto = this.connectAuto.bind(this);
@@ -95,6 +98,12 @@ class App extends React.Component {
       const connector = (event) => this.connectAuto(event, provider.name)
       this.signerConnectors[provider.name] = connector
       window.addEventListener(provider.keychangeEvent, connector)
+
+      provider.autoconnect().then((connected) => {
+        if(connected){
+          this.connect(provider.name, true)
+        }
+      })
     })
   }
 
@@ -187,7 +196,7 @@ class App extends React.Component {
     const { network } = this.props
     if (!network || !signerProvider.available()) return
 
-    if (!manual && (providerKey !== storedKey || !signerProvider.connected())) {
+    if (!manual && providerKey !== storedKey) {
       return
     }
 
@@ -734,6 +743,7 @@ class App extends React.Component {
                             ) : (
                               <>
                                 {this.signerProviders.map(provider => {
+                                  if(!provider.visible) return null
                                   const disabledWallets = this.props.network?.disabledWallets || []
                                   return <Dropdown.Item as="button" key={provider.name} onClick={() => this.connect(provider.name, true)} disabled={!provider.available() || disabledWallets.includes(provider.name)}>Connect {provider.label}</Dropdown.Item>
                                 })}
