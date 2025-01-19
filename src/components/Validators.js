@@ -150,8 +150,10 @@ function Validators(props) {
     const operator = operatorForValidator(validatorAddress);
     const grants = operator && operatorGrants[operator.botAddress]
 
-    let rowVariant
-    if (validatorOperator) rowVariant = 'table-info'
+    let rowVariants = []
+    if (validatorOperator) rowVariant.push('table-info')
+    if (validator.path == 'ecostake') rowVariants.push('border-bottom border-info fw-bold')
+    const rowVariant = _.compact(rowVariants).join(' ')
 
     const delegationBalance = (delegation && delegation.balance) || {
       amount: 0,
