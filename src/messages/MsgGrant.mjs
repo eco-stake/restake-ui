@@ -43,6 +43,12 @@ export class MsgGrant extends MsgBase {
     return this
   }
 
+  toDirectSign(){
+    return {
+      type: this.typeUrl,
+      message: this.params,
+    }
+  }
 
   toEip712Types(){
     const amino = this.toAmino()
