@@ -84,6 +84,18 @@ export default class InjectiveSigningAdapter extends DefaultSigningAdapter {
     return txRawEip712
   }
 
+  toProto(message){
+    if(!this.signerProvider.isLedger()){
+      return super.toProto(message)
+    }
+
+    const injMessage = message.toInjective()
+    return {
+      typeUrl: injMessage.toDirectSign().type,
+      value: injMessage.toBinary()
+    }
+  }
+
   pubkeyTypeUrl(pub_key){
     if(pub_key && pub_key['@type']) return pub_key['@type']
 
