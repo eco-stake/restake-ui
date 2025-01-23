@@ -199,7 +199,7 @@ function Validators(props) {
           />
         </td>
         {network.apyEnabled && (
-          <td className="text-center">
+          <td className={filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}>
             <span role="button" onClick={() => props.showValidator(validator, { activeTab: 'stake' })}>
               {props.validatorApy[validatorAddress] !== undefined
                 ? <small>{round(props.validatorApy[validatorAddress] * 100, 1).toLocaleString() + "%"}</small>
@@ -208,7 +208,7 @@ function Validators(props) {
             </span>
           </td>
         )}
-        <td className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : 'text-center'}>
+        <td className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}>
           <small>{format(validator.commission.commission_rates.rate * 100, 2)}%</small>
         </td>
         {props.isLoading('delegations') || Object.keys(delegations || {}).length ? (
@@ -356,7 +356,7 @@ function Validators(props) {
               <th colSpan={2}>Validator</th>
               <th className="text-center">REStake</th>
               {network.apyEnabled && (
-                <th className="text-center">
+                <th className={filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}>
                   <TooltipIcon
                     icon={<span className="text-decoration-underline">APY</span>}
                     identifier="delegations-apy"
@@ -368,7 +368,7 @@ function Validators(props) {
                   </TooltipIcon>
                 </th>
               )}
-              <th className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : 'text-center'}>Fee</th>
+              <th className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}>Fee</th>
               {props.isLoading('delegations') || Object.keys(delegations || {}).length ? (
                 <th className={filter.group === 'delegated' ? '' : 'd-none d-sm-table-cell'}>Delegation</th>
               ) : null}
@@ -396,9 +396,9 @@ function Validators(props) {
               <td colSpan={2}></td>
               <td className="text-center"></td>
               {network.apyEnabled && (
-                <td className="text-center"></td>
+                <td className={filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}></td>
               )}
-              <td className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : 'text-center'}></td>
+              <td className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}></td>
               {props.isLoading('delegations') || Object.keys(delegations || {}).length ? (
                 <td className={filter.group === 'delegated' ? '' : 'd-none d-sm-table-cell'}>
                   <strong className="small">
