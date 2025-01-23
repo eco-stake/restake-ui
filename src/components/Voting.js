@@ -165,7 +165,7 @@ function Voting(props) {
       options.status = Object.keys(PROPOSAL_STATUSES).indexOf(filter.status)
     }
 
-    const data = await network.restClient.getProposals({ pageSize, timeout: 10000, ...options })
+    const data = await network.restClient.getProposals({ pageSize, ...options })
     if(!ignoreNextKey) setNextKey(data.pagination?.next_key)
     let newProposals = data.proposals
     newProposals = await mapSync(newProposals.map(el => {
