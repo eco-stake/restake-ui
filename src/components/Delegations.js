@@ -93,7 +93,6 @@ class Delegations extends React.Component {
 
   refreshInterval() {
     const refreshInterval = setInterval(() => {
-      this.props.getBalance();
       this.getRewards(true);
     }, 15_000);
     const delegateInterval = setInterval(() => {

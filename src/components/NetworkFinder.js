@@ -20,6 +20,7 @@ function NetworkFinder() {
   const navigate = useNavigate()
   const voteMatch = useMatch("/:network/vote/*");
   const grantMatch = useMatch("/:network/grants");
+  const swapMatch = useMatch("/:network/swap/*");
 
   const networkMode = process.env.TESTNET_MODE === '1' ? 'testnet' : 'mainnet'
   const directory = getDirectory()
@@ -94,6 +95,8 @@ function NetworkFinder() {
       setActive('voting', network);
     } else if(grantMatch && network.authzSupport) {
       setActive('grants', network);
+    } else if (swapMatch) {
+      setActive('swap', network);
     } else {
       setActive('delegations', network);
     }
@@ -107,6 +110,9 @@ function NetworkFinder() {
         break;
       case 'voting':
         navigate("/" + network.path + '/vote');
+        break;
+      case 'swap':
+        navigate("/" + network.path + '/swap');
         break;
       case 'delegations':
         navigate("/" + network.path);
@@ -169,7 +175,7 @@ function NetworkFinder() {
     if (!params.network) {
       setState({ active: 'networks' })
     }
-  }, [voteMatch, grantMatch, params.network])
+  }, [voteMatch, grantMatch, swapMatch, params.network])
 
   useEffect(() => {
     if (Object.keys(state.networks).length && (!state.network || state.network.path !== params.network)) {
@@ -187,7 +193,7 @@ function NetworkFinder() {
         return network.connect().then(() => {
           if (network.connected) {
             setState({
-              active: grantMatch ? 'grants' : voteMatch ? 'voting' : 'delegations',
+              active: grantMatch ? 'grants' : voteMatch ? 'voting' : swapMatch ? 'swap' : 'delegations',
               network: network,
               validators: network.getValidators(),
               operators: network.getOperators(),

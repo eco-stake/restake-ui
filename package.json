@@ -5,9 +5,10 @@
   "dependencies": {
     "@bugsnag/js": "^7.16.1",
     "@bugsnag/plugin-react": "^7.16.1",
-    "@cosmjs/proto-signing": "^0.32.4",
-    "@cosmjs/stargate": "^0.32.4",
+    "@cosmjs/proto-signing": "^0.31.3",
+    "@cosmjs/stargate": "^0.31.3",
     "@injectivelabs/sdk-ts": "^1.14.33",
+    "@skip-go/widget": "^3.1.10",
     "@terra-money/terra.js": "^3.1.10",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^15.0.7",
@@ -24,6 +25,7 @@
     "dotenv": "^16.4.5",
     "fuzzy-search": "^3.2.1",
     "lodash": "^4.17.21",
+    "long": "^5.2.4",
     "mathjs": "^13.0.0",
     "micromark": "^4.0.0",
     "micromark-extension-gfm": "^3.0.0",
@@ -84,5 +86,8 @@
     "stream-http": "^3.2.0",
     "url": "^0.11.4",
     "vm-browserify": "^1.1.2"
+  },
+  "@parcel/resolver-default": {
+    "packageExports": true
   }
 }
