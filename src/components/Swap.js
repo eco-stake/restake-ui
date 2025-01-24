@@ -1,27 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash'
 import { Widget } from '@skip-go/widget';
+import AlertMessage from './AlertMessage';
 
 function Swap(props) {
   const { address, wallet, network, theme, getBalance } = props
   const [connectedAddresses, setConnectedAddresses] = useState({})
   const [defaultRoute, setDefaultRoute] = useState({})
+  const [error, setError] = useState()
 
   useEffect(() => {
-    if(network) {
-      setDefaultRoute({
-        destChainId: network.chainId,
-        destAssetDenom: network.denom
-      })
-    }
+    if(!network) return
+
+    setDefaultRoute({
+      destChainId: network.chainId,
+      destAssetDenom: network.denom
+    })
   }, [network])
 
   useEffect(() => {
     if(wallet) {
+      if(network.ethermint && wallet.isLedger()){
+        return setError('Swap from Ethermint chains is not supported with Ledger just yet')
+      }
+
       setConnectedAddresses((prev) => ({
         ...prev,
         [network.chainId]: wallet.address
       }))
+      setError()
     }
   }, [network, wallet?.address])
 
@@ -107,6 +114,7 @@ function Swap(props) {
 
   return (
     <>
+      <AlertMessage message={error} />
       <div className="mb-2 px-2 mx-auto" style={{ maxWidth: '500px' }}>
         <Widget
           connectedAddresses={connectedAddresses}

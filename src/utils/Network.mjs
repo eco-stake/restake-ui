@@ -91,6 +91,7 @@ class Network {
     this.image = this.chain.image
     this.coinGeckoId = this.chain.coinGeckoId
     this.estimatedApr = this.chain.estimatedApr
+    this.ethermint = this.chain.ethermint
     this.apyEnabled = data.apyEnabled !== false && !!this.estimatedApr && this.estimatedApr > 0
     this.ledgerSupport = this.chain.ledgerSupport ?? true
     this.authzSupport = this.chain.authzSupport

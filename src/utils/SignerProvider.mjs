@@ -155,7 +155,7 @@ export default class SignerProvider {
     }
     if(network.data.keplrFeatures){
       data.features = network.data.keplrFeatures
-    }else if(network.slip44 === 60){
+    }else if(network.ethermint){
       data.features = ["ibc-transfer", "ibc-go", "eth-address-gen", "eth-key-sign"]
     }
     return data

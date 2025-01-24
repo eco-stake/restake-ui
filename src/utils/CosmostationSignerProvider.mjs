@@ -49,7 +49,7 @@ export default class CosmostationSignerProvider extends KeplrSignerProvider {
       },
       // sendGas: "80000", // optional (default: '100000')
     }
-    if(network.data.keplrFeatures?.includes('eth-address-gen') || network.slip44 === 60){
+    if(network.data.keplrFeatures?.includes('eth-address-gen') || network.ethermint){
       data.type = 'ETHERMINT'
     }
     return data
