@@ -49,6 +49,7 @@ function Voting(props) {
 
   useEffect(() => {
     setProposals([])
+    setProposal(null)
     setPagesLoaded(0)
     setFilter({status: '', group: 'voting'})
     setTallies(false)
