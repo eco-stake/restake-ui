@@ -11,6 +11,7 @@ import {
 import { XCircle, BookmarkStar, BookmarkStarFill } from "react-bootstrap-icons";
 import NetworkChecks from './NetworkChecks';
 import NetworkImage from './NetworkImage';
+import Favourite from './Favourite';
 
 function Networks(props) {
   const { networks, favourites } = props
@@ -66,30 +67,22 @@ function Networks(props) {
     props.changeNetwork(network)
   }
 
-  function toggleFavourite(network){
-    props.toggleFavourite(network)
-  }
-
-  function renderFavourite(network){
-    const favourited = favourites.includes(network.path)
-    const className="text-success favourite-" + (favourited ? 'on' : 'off')
-    return (
-      <div className={className}>
-        <BookmarkStarFill width={20} height={20} className="on" />
-        <BookmarkStar width={20} height={20} className="off" />
-      </div>
-    )
-  }
-
-  function renderNetworks(networks, opts){
+  function renderNetworks(networks){
     return (
       <Row xs={1} sm={2} lg={3} xxl={4} className="g-4 justify-content-center">
         {networks.map((network) => (
           <Col key={network.path} className={network.online ? '' : 'opacity-50'}>
             <Card>
-              <span onClick={() => toggleFavourite(network)} role="button" className="text-right position-absolute top-0 end-0 py-1 px-2" style={{ zIndex: 2 }}>
-                {renderFavourite(network)}
-              </span>
+              <Favourite
+                value={favourites.includes(network.path)}
+                toggle={() => props.toggleFavourite(network)}
+                onTooltip="Remove favourite network"
+                offTooltip="Favourite network"
+                onIcon={BookmarkStarFill}
+                offIcon={BookmarkStar}
+                className="text-success text-right position-absolute top-0 end-0 p-2"
+                style={{ zIndex: 2 }}
+              />
               <span role={ network.online ? "button" : "" } className="stretched-link" onClick={() => changeNetwork(network)}>
                 <Row className="g-0">
                   <Col xs={3} className="text-center">
