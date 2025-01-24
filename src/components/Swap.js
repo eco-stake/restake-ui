@@ -10,8 +10,8 @@ function Swap(props) {
   useEffect(() => {
     if(network) {
       setDefaultRoute({
-        srcChainId: network.chainId,
-        srcAssetDenom: network.denom
+        destChainId: network.chainId,
+        destAssetDenom: network.denom
       })
     }
   }, [network])
