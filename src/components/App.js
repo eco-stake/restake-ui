@@ -30,7 +30,8 @@ import {
   Clipboard,
   ClipboardCheck,
   Eye,
-  Key
+  Key,
+  CurrencyExchange
 } from 'react-bootstrap-icons'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import GitHubButton from 'react-github-btn'
@@ -47,6 +48,7 @@ import TooltipIcon from './TooltipIcon';
 import Voting from './Voting';
 import Networks from './Networks';
 import Grants from './Grants';
+import Swap from './Swap';
 import Favourite from './Favourite';
 import WalletModal from './WalletModal';
 import Wallet from '../utils/Wallet.mjs';
@@ -214,7 +216,11 @@ class App extends React.Component {
   }
 
   refreshInterval() {
-    this.setState({ refresh: true })
+    const balanceInterval = setInterval(() => {
+      this.getBalance();
+    }, 15_000);
+
+    this.setState({ refresh: true, balanceInterval })
     this.refreshTimeout()
   }
 
@@ -231,6 +237,7 @@ class App extends React.Component {
 
   clearRefreshInterval() {
     clearTimeout(this.state.grantTimeout);
+    clearInterval(this.state.balanceInterval);
     this.setState({ refresh: false })
   }
 
@@ -288,7 +295,7 @@ class App extends React.Component {
   async getBalance() {
     if (!this.state.address) return
 
-    this.restClient().getBalance(this.state.address)
+    return this.restClient().getBalance(this.state.address)
       .then(
         (balances) => {
           const balance = balances?.find(
@@ -511,11 +518,11 @@ class App extends React.Component {
       case 'networks':
         return <span>REStake automatically imports <a href="https://cosmos.network/" target="_blank" className="text-reset"><strong>Cosmos</strong></a> chains from the <a href="https://github.com/cosmos/chain-registry" target="_blank" className="text-reset"><strong>Chain Registry</strong></a></span>
       case 'voting':
-        return <span>REStake let's you vote on behalf of your other {this.props.network && <strong onClick={this.showNetworkSelect} className="text-decoration-underline" role="button">{this.props.network.prettyName}</strong>} wallets using Authz</span>
+        return <span>REStake let's you vote on behalf of your other {this.props.network && <strong onClick={this.showNetworkSelect} className="text-decoration-underline text-nowrap" role="button">{this.props.network.prettyName}</strong>} wallets using Authz</span>
       case 'grants':
-        return <span>REStake manages all your {this.props.network && <strong onClick={this.showNetworkSelect} className="text-decoration-underline" role="button">{this.props.network.prettyName}</strong>} Authz grants in one place</span>
+        return <span>REStake manages all your {this.props.network && <strong onClick={this.showNetworkSelect} className="text-decoration-underline text-nowrap" role="button">{this.props.network.prettyName}</strong>} Authz grants in one place</span>
     }
-    return <span>REStake allows validators to <strong onClick={() => this.setState({ showAbout: true })} className="text-decoration-underline" role="button">auto-compound</strong> your {this.props.network && <strong onClick={this.showNetworkSelect} className="text-decoration-underline" role="button">{this.props.network.prettyName}</strong>} staking rewards</span>
+    return <span>REStake allows validators to <strong onClick={() => this.setState({ showAbout: true })} className="text-decoration-underline" role="button">auto-compound</strong> your {this.props.network && <strong onClick={this.showNetworkSelect} className="text-decoration-underline text-nowrap" role="button">{this.props.network.prettyName}</strong>} staking rewards</span>
   }
 
   networkAlertProps() {
@@ -532,7 +539,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <Container fluid="lg">
+      <Container fluid="xl">
         <header className="">
           <div className="d-flex justify-content-between align-items-center py-3 border-bottom">
             <div className="logo d-flex align-items-end text-reset text-decoration-none">
@@ -549,7 +556,7 @@ class App extends React.Component {
               )}
             </div>
             <div className="d-flex align-items-center text-reset text-decoration-none">
-              <p className="lead fs-6 text-center m-0 px-3 d-lg-block d-none">
+              <p className="lead fs-6 text-center m-0 px-5 d-lg-block d-none">
                 {this.introText()}
               </p>
             </div>
@@ -566,33 +573,38 @@ class App extends React.Component {
             </div>
           </div>
           <div className="d-flex justify-content-between border-bottom">
-            <Navbar className={`navbar navbar-expand ${this.props.theme === 'dark' ? 'navbar-dark' : 'navbar-light'}`}>
+            <Navbar className={`navbar navbar-expand ${this.props.theme === 'dark' ? 'navbar-dark' : 'navbar-light'} me-3`}>
               <div className="justify-content-center">
                 <Nav activeKey={this.props.active} onSelect={(e) => this.props.setActive(e)}>
-                  <div className="nav-item pe-2 border-end">
+                  <div className="nav-item pe-2 border-end text-center">
                     <Nav.Link eventKey="networks">
                       <Stars className="mb-1 me-1" /><span className="d-none d-sm-inline"> Explore</span>
                     </Nav.Link>
                   </div>
                   {this.props.network && (
                     <>
-                      <div className="nav-item px-2 border-end">
+                      <div className="nav-item px-2 border-end text-center">
                         <Nav.Link eventKey="delegations">
                           <Coin className="mb-1 me-1" /><span className="d-none d-sm-inline"> Stake</span>
                         </Nav.Link>
                       </div>
-                      <div className="nav-item px-2 border-end">
+                      <div className="nav-item px-2 border-end text-center">
                         <Nav.Link eventKey="voting">
                           <EnvelopePaper className="mb-1 me-1" /><span className="d-none d-sm-inline"> Vote</span>
                         </Nav.Link>
                       </div>
                       {this.state.address && this.props.network.authzSupport && (
-                        <div className="nav-item ps-2">
+                        <div className="nav-item px-2 border-end text-center">
                           <Nav.Link eventKey="grants">
                             <Magic className="mb-1 me-1" /><span className="d-none d-sm-inline"> Grant</span>
                           </Nav.Link>
                         </div>
                       )}
+                      <div className="nav-item px-2 text-center">
+                        <Nav.Link eventKey="swap">
+                          <CurrencyExchange className="mb-1 me-1" /><span className="d-none d-sm-inline"> Swap</span>
+                        </Nav.Link>
+                      </div>
                     </>
                   )}
                 </Nav>
@@ -799,6 +811,15 @@ class App extends React.Component {
               onGrant={this.onGrant}
               onRevoke={this.onRevoke}
               grantQuerySupport={this.state.grantQuerySupport}
+            />
+          )}
+          {this.props.active === 'swap' && (
+            <Swap
+              network={this.props.network}
+              address={this.state.address}
+              wallet={this.state.wallet}
+              theme={this.props.theme}
+              getBalance={this.getBalance}
             />
           )}
         </div>

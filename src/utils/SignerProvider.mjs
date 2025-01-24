@@ -71,9 +71,13 @@ export default class SignerProvider {
   async getSigner(network) {
     if(!this.signer){
       const { chainId } = network
-      this.signer = await this.provider.getOfflineSignerAuto(chainId)
+      this.signer = await this.getSignerForChainId(chainId)
     }
     return this.signer
+  }
+
+  async getSignerForChainId(chainId) {
+    return await this.provider.getOfflineSignerAuto(chainId)
   }
 
   async getAddress(){
