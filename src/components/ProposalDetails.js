@@ -151,7 +151,7 @@ function ProposalDetails(props) {
           <div className="col-12 col-lg-6">
             <p className="mb-2">
               {props.granters.length > 0 ? (
-                <select className="form-select form-select-sm" aria-label="Granter" value={granter} onChange={(e) => setGranter(e.target.value)}>
+                <select className="form-select form-select-sm" aria-label="Granter" disabled={!proposal.isVoting} value={granter} onChange={(e) => setGranter(e.target.value)}>
                   <option value="">Your vote</option>
                   <optgroup label="Authz Grants">
                     {props.granters.map(granterAddress => {
