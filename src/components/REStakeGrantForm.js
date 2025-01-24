@@ -31,6 +31,18 @@ function REStakeGrantForm(props) {
   const reward = rewardAmount(props.rewards, network.denom)
 
   useEffect(() => {
+    if(!address) return
+
+    network.restClient.getWithdrawAddress(address).then(withdraw => {
+      if (withdraw !== address) {
+        setError('You have a different withdraw address set. REStake WILL NOT WORK!')
+      }
+    }, error => {
+      console.log('Failed to get withdraw address', error)
+    })
+  }, [address])
+
+  useEffect(() => {
     setState({
       validators: validators || (!stakeGrant && !genericGrantOnly && [operator.address]),
       maxTokens,
