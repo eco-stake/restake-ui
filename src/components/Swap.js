@@ -21,14 +21,15 @@ function Swap(props) {
   useEffect(() => {
     if(wallet) {
       if(network.ethermint && wallet.isLedger()){
-        return setError('Swap from Ethermint chains is not supported with Ledger just yet')
+        setError('Swap from Ethermint chains is not supported with Ledger just yet')
+      }else{
+        setError()
       }
 
       setConnectedAddresses((prev) => ({
         ...prev,
         [network.chainId]: wallet.address
       }))
-      setError()
     }
   }, [network, wallet?.address])
 
