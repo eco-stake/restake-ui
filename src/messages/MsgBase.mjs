@@ -32,7 +32,7 @@ export class MsgBase {
 
   toBinary() {
     const protoType = this.protoType()
-    return protoType.encode(this.params).finish()
+    return protoType.encode(protoType.fromPartial(this.params)).finish()
   }
 
   toAmino () {
