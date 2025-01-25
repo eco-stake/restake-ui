@@ -2,7 +2,7 @@ import _ from 'lodash'
 import SignerProvider from "./SignerProvider.mjs"
 import {
   isMobile,
-} from "@walletconnect/browser-utils";
+} from "react-device-detect";
 
 export default class LeapSignerProvider extends SignerProvider {
   name = 'leap'
@@ -12,7 +12,7 @@ export default class LeapSignerProvider extends SignerProvider {
   async connect(network) {
     if(this.provider){
       return super.connect(network)
-    }else if(isMobile()){
+    }else if(isMobile){
       window.location.href = 'https://leapcosmoswallet.page.link/HawhyWcCuygLbkvT6';
       throw new Error('Please use the in-app browser to access REStake.')
     }
@@ -23,6 +23,6 @@ export default class LeapSignerProvider extends SignerProvider {
   }
 
   available() {
-    return !!this.provider || isMobile()
+    return !!this.provider || isMobile
   }
 }
