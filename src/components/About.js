@@ -35,13 +35,13 @@ function About(props) {
           <p>You can also optionally add a total number of tokens the validator is allowed to delegate, or adjust the expiry date.</p>
           <h5>How to use REStake</h5>
           <ol>
-            <li>Choose a network. Some don't support Authz yet but many do.</li>
+            <li>Choose a network. Some don't support Authz yet but most do.</li>
             <li>Delegate to any validators who offers the REStake service.</li>
             <li>Enable REStake on the validators you want to compound rewards.</li>
-            <li>Watch the countdown timer and profit!</li>
+            <li>Profit!</li>
           </ol>
           <h5>Run REStake yourself</h5>
-          <p>REStake is intended to be run by as many validators as possible, giving delegators the choice of who to auto-compound their rewards with. Ask your favourite validator to become an operator or run it yourself, it's easy!</p>
+          <p>REStake is intended to be run by as many validators as possible, giving delegators the choice of who to auto-compound their rewards with. Ask your favourite validator to become an operator, it's easy!</p>
           <p>The project is entirely open source and instructions for running and contributing to REStake can be <a href="https://github.com/eco-stake/restake" target="_blank" rel="noreferrer">found on Github</a>.</p>
           <h5>ECO Stake 🌱</h5>
           <p>ECO Stake is an independent, climate positive validator focussed on building useful tools for the Cosmos ecosystem. We built REStake to make it easy for all validators to run an autocompounder with Authz, and it's one of many projects we work on in the ecosystem. <a href="https://ecostake.com" target="_blank" rel="noreferrer">Delegate with us</a> to support more projects like this.</p>
