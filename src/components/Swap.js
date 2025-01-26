@@ -61,10 +61,6 @@ function Swap(props) {
   useEffect(() => {
     if(!networks) return
 
-    let chainIds = new Set(_.at(networks, initialConnectNetworks).map((network) => network.chainId))
-    chainIds.add(network.chainId)
-    chainIds = Array.from(chainIds)
-
     if(wallet) {
       if(network.ethermint && wallet.isLedger()){
         setError('Swap from Ethermint chains is not supported with Ledger just yet')
@@ -72,8 +68,11 @@ function Swap(props) {
         setError()
       }
 
-      const connected = {}
+      let chainIds = new Set(_.at(networks, initialConnectNetworks).map((network) => network.chainId))
+      chainIds.add(network.chainId)
+      chainIds = Array.from(chainIds)
       wallet.signerProvider.provider.enable(chainIds).then(() => {
+        const connected = {}
         Promise.all(
           chainIds.map(async (chainId) => {
             try {
