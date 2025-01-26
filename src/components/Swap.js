@@ -3,8 +3,48 @@ import _ from 'lodash'
 import { Widget } from '@skip-go/widget';
 import AlertMessage from './AlertMessage';
 
+const initialConnectNetworks = [
+  "agoric",
+  "akash",
+  "axelar",
+  "celestia",
+  "chihuahua",
+  "cosmoshub",
+  "cryptoorgchain",
+  "dydx",
+  "dymension",
+  "evmos",
+  "gateway",
+  "injective",
+  "juno",
+  "kava",
+  "kyve",
+  "lava",
+  "mars",
+  "noble",
+  "omniflixhub",
+  "osmosis",
+  "passage",
+  "persistence",
+  "pryzm",
+  "quasar",
+  "quicksilver",
+  "regen",
+  "saga",
+  "secretnetwork",
+  "seda",
+  "sentinel",
+  "sommelier",
+  "stargaze",
+  "stride",
+  "terra",
+  "terra2",
+  "umee",
+  "xpla"
+];
+
 function Swap(props) {
-  const { address, wallet, network, theme, getBalance } = props
+  const { networks, network, wallet, theme, getBalance } = props
   const [connectedAddresses, setConnectedAddresses] = useState({})
   const [defaultRoute, setDefaultRoute] = useState({})
   const [error, setError] = useState()
@@ -19,6 +59,12 @@ function Swap(props) {
   }, [network])
 
   useEffect(() => {
+    if(!networks) return
+
+    let chainIds = new Set(_.at(networks, initialConnectNetworks).map((network) => network.chainId))
+    chainIds.add(network.chainId)
+    chainIds = Array.from(chainIds)
+
     if(wallet) {
       if(network.ethermint && wallet.isLedger()){
         setError('Swap from Ethermint chains is not supported with Ledger just yet')
@@ -26,12 +72,30 @@ function Swap(props) {
         setError()
       }
 
-      setConnectedAddresses((prev) => ({
-        ...prev,
-        [network.chainId]: wallet.address
-      }))
+      const connected = {}
+      wallet.signerProvider.provider.enable(chainIds).then(() => {
+        Promise.all(
+          chainIds.map(async (chainId) => {
+            try {
+              const keyInfo = await wallet.signerProvider.provider.getKey(chainId);
+              if (keyInfo && keyInfo.bech32Address) {
+                connected[chainId] = keyInfo.bech32Address
+              }
+            } catch (error) {
+              console.log(chainId, error)
+            }
+          })
+        ).then (() => {
+          setConnectedAddresses((prev) => ({
+            ...prev,
+            ...connected
+          }))
+        })
+      })
+    }else{
+      setConnectedAddresses({})
     }
-  }, [network, wallet?.address])
+  }, [networks, network, wallet?.address])
 
   async function getSigner(chainId) {
     if(wallet){

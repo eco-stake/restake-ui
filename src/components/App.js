@@ -812,8 +812,8 @@ class App extends React.Component {
           )}
           {this.props.active === 'swap' && (
             <Swap
+              networks={this.props.networks}
               network={this.props.network}
-              address={this.state.address}
               wallet={this.state.wallet}
               theme={this.props.theme}
               getBalance={this.getBalance}
