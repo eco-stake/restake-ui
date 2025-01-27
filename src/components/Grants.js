@@ -144,7 +144,12 @@ function Grants(props) {
         <td className="text-break">
           {filter.group === 'grantee' ? (
             <div className="d-flex">
-              <Favourite favourites={props.favouriteAddresses} value={granter} toggle={props.toggleFavouriteAddress} />
+              <Favourite
+                value={props.favouriteAddresses.some(el => el['address'] === granter)}
+                toggle={() => props.toggleFavouriteAddress(granter)}
+                onTooltip="Remove saved address"
+                offTooltip="Save address"
+              />
               <span className="ps-2">{favourite?.label || <Address address={granter} />}</span>
             </div>
           ) : (

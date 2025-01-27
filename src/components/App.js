@@ -560,7 +560,9 @@ class App extends React.Component {
                 network={this.props.network}
                 favourites={this.state.favourites || []}
                 validators={this.props.validators}
-                changeNetwork={this.props.changeNetwork} />
+                changeNetwork={this.props.changeNetwork}
+                toggleFavourite={this.toggleFavourite}
+              />
             </div>
           </div>
           <div className="d-flex justify-content-between border-bottom">
@@ -607,10 +609,11 @@ class App extends React.Component {
                             <>
                               <span className="d-none d-md-inline pe-2">
                                 <Favourite
-                                  favourites={this.favouriteAddresses()}
-                                  value={this.state.address}
-                                  label={this.viewingWallet() && this.state.wallet?.name}
-                                  toggle={this.toggleFavouriteAddress} />
+                                  value={this.favouriteAddresses().some(el => el['address'] === this.state.address)}
+                                  toggle={() => this.toggleFavouriteAddress(this.state.address, this.viewingWallet() && this.state.wallet?.name)}
+                                  onTooltip="Remove saved address"
+                                  offTooltip="Save address"
+                                />
                               </span>
                               <span>
                                 {this.viewingWallet() ? (

@@ -10,6 +10,8 @@ import {
 import Select from 'react-select';
 import NetworkChecks from './NetworkChecks.js';
 import NetworkImage from './NetworkImage.js';
+import Favourite from './Favourite.js';
+import { BookmarkStar, BookmarkStarFill } from 'react-bootstrap-icons';
 
 function NetworkSelect(props) {
   const [show, setShow] = useState(props.show);
@@ -110,7 +112,7 @@ function NetworkSelect(props) {
         }
       ]
     })
-  }, [props.networks, selectedNetwork])
+  }, [props.networks, selectedNetwork, props.favourites])
 
   const price = props.network?.baseAsset?.prices?.coingecko
 
@@ -153,43 +155,58 @@ function NetworkSelect(props) {
             {props.networks &&
               <div className="row mb-3">
                 <div className="col">
-                  <Select
-                    value={selectedOption()}
-                    isClearable={false}
-                    name="network"
-                    options={options.grouped || options.networks}
-                    onChange={selectNetwork}
-                    formatOptionLabel={network => (
-                      <div className={'d-flex' + (!network.online ? ' text-muted' : '')}>
-                        <div className="pe-2">
-                          <NetworkImage network={network} width={30} height={30} alt={network.label} />
-                        </div>
-                        <div className="pt-1 me-auto">
-                          <span className="ms-1">{network.label} {!network.online && <small>(Offline)</small>}</span>
-                        </div>
-                        <div className="text-end pt-1 d-none d-sm-block">
-                          {network.restakeSupport && network.operatorCount > 0 &&
-                            <small>{network.operatorCount} Operator{network.operatorCount > 1 ? 's' : ''}</small>
-                          }
-                        </div>
-                        <div className="text-end pt-1">
-                          {network.authz
-                            ? <Badge className={`ms-3 rounded-pill` + (!network.online ? ' opacity-50' : '')} bg="success">Authz</Badge>
-                            : <Badge className={`ms-3 rounded-pill text-decoration-line-through` + (!network.online ? ' opacity-50' : '')} bg="danger">Authz</Badge>
-                          }
-                        </div>
-                      </div>
+                  <div className="d-flex align-content-center">
+                    <div className="flex-fill">
+                      <Select
+                        value={selectedOption()}
+                        isClearable={false}
+                        name="network"
+                        options={options.grouped || options.networks}
+                        onChange={selectNetwork}
+                        formatOptionLabel={network => (
+                          <div className={'d-flex' + (!network.online ? ' text-muted' : '')}>
+                            <div className="pe-2">
+                              <NetworkImage network={network} width={30} height={30} alt={network.label} />
+                            </div>
+                            <div className="pt-1 me-auto">
+                              <span className="ms-1">{network.label} {!network.online && <small>(Offline)</small>}</span>
+                            </div>
+                            <div className="text-end pt-1 d-none d-sm-block">
+                              {network.restakeSupport && network.operatorCount > 0 &&
+                                <small>{network.operatorCount} Operator{network.operatorCount > 1 ? 's' : ''}</small>
+                              }
+                            </div>
+                            <div className="text-end pt-1">
+                              {network.authz
+                                ? <Badge className={`ms-3 rounded-pill` + (!network.online ? ' opacity-50' : '')} bg="success">Authz</Badge>
+                                : <Badge className={`ms-3 rounded-pill text-decoration-line-through` + (!network.online ? ' opacity-50' : '')} bg="danger">Authz</Badge>
+                              }
+                            </div>
+                          </div>
+                        )}
+                        theme={(theme) => ({
+                          ...theme,
+                          colors: {
+                            ...theme.colors,
+                            neutral0: 'var(--bs-body-bg)',
+                            neutral80: 'var(--bs-body)',
+                            primary25: 'var(--bs-light)'
+                          },
+                        })}
+                      />
+                    </div>
+                    {selectedNetwork && (
+                      <Favourite
+                        value={props.favourites.includes(selectedNetwork.path)}
+                        toggle={() => props.toggleFavourite(selectedNetwork)}
+                        onTooltip="Remove favourite network"
+                        offTooltip="Favourite network"
+                        onIcon={BookmarkStarFill}
+                        offIcon={BookmarkStar}
+                        className="text-success align-self-center ms-2"
+                      />
                     )}
-                    theme={(theme) => ({
-                      ...theme,
-                      colors: {
-                        ...theme.colors,
-                        neutral0: 'var(--bs-body-bg)',
-                        neutral80: 'var(--bs-body)',
-                        primary25: 'var(--bs-light)'
-                      },
-                    })}
-                  />
+                  </div>
                 </div>
               </div>
             }
