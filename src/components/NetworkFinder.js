@@ -49,8 +49,10 @@ function NetworkFinder() {
   async function getNetworks() {
     let registryNetworks, operatorAddresses;
     try {
-      registryNetworks = await state.directory.getChains();
-      operatorAddresses = await state.directory.getOperatorAddresses();
+      [registryNetworks, operatorAddresses] = await Promise.all([
+        state.directory.getChains(),
+        state.directory.getOperatorAddresses()
+      ]);
     } catch (error) {
       setState({ error: error.message, loading: false });
       return {};
