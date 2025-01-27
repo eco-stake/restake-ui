@@ -600,11 +600,13 @@ class App extends React.Component {
                           </Nav.Link>
                         </div>
                       )}
-                      <div className="nav-item px-2 text-center">
-                        <Nav.Link eventKey="swap">
-                          <CurrencyExchange className="mb-1 me-1" /><span className="d-none d-sm-inline"> Swap</span>
-                        </Nav.Link>
-                      </div>
+                      {!this.props.directory.testnet && (
+                        <div className="nav-item px-2 text-center">
+                          <Nav.Link eventKey="swap">
+                            <CurrencyExchange className="mb-1 me-1" /><span className="d-none d-sm-inline"> Swap</span>
+                          </Nav.Link>
+                        </div>
+                      )}
                     </>
                   )}
                 </Nav>
@@ -813,7 +815,7 @@ class App extends React.Component {
               grantQuerySupport={this.state.grantQuerySupport}
             />
           )}
-          {this.props.active === 'swap' && (
+          {this.props.active === 'swap' && !this.props.directory.testnet && (
             <Swap
               networks={this.props.networks}
               network={this.props.network}
