@@ -10,16 +10,16 @@ export class MsgGrant extends MsgBase {
 
   toBinary () {
     const protoType = MsgBase.binaryConverters.get(this.typeUrl)
-    return protoType.encode({
+    return protoType.encode(protoType.fromPartial({
       ...this.params,
       grant: {
         authorization: this.params.grant.authorization.toProto(),
-        expiration: Timestamp.fromPartial({
+        expiration: {
           seconds: this.params.grant.expiration,
           nanos: 0
-        })
+        }
       }
-    }).finish()
+    })).finish()
   }
 
   toAmino () {
