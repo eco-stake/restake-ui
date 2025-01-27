@@ -124,19 +124,24 @@ const RestClient = async (chainId, restUrls, opts) => {
   }
 
   function getProposals(opts) {
-    const { pageSize } = opts || {};
-    return getAllPages((nextKey) => {
-      const searchParams = new URLSearchParams();
-      searchParams.append("pagination.limit", pageSize || 100);
-      if (nextKey)
-        searchParams.append("pagination.key", nextKey);
+    const { pageSize, nextKey, status, ...options } = opts || {};
+    const searchParams = new URLSearchParams();
+    searchParams.append("pagination.reverse", true);
+    searchParams.append("pagination.limit", pageSize || 10);
+    if (nextKey) searchParams.append("pagination.key", nextKey);
+    if (status) searchParams.append("proposal_status", status);
 
-      return client
-        .get(apiPath('gov', `proposals?${searchParams.toString()}`), opts)
-        .then((res) => res.data);
-    }).then((pages) => {
-      return pages.map(el => el.proposals).flat();
-    });
+    return client
+      .get(apiPath('gov', `proposals?${searchParams.toString()}`), options)
+      .then((res) => res.data);
+  }
+
+  function getProposal(proposalId, opts) {
+    const { ...options } = opts || {};
+
+    return client
+      .get(apiPath('gov', `proposals/${proposalId}`), options)
+      .then((res) => res.data.proposal);
   }
 
   function getProposalTally(proposal_id, opts) {
@@ -413,6 +418,7 @@ const RestClient = async (chainId, restUrls, opts) => {
     getRewards,
     getCommission,
     getProposals,
+    getProposal,
     getProposalTally,
     getProposalVote,
     getGrants,
