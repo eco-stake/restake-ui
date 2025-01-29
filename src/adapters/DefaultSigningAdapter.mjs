@@ -156,7 +156,7 @@ export default class DefaultSigningAdapter {
   pubkeyTypeUrl(pub_key){
     if(pub_key && pub_key['@type']) return pub_key['@type']
 
-    if(this.network.slip44 === 60){
+    if(this.network.ethermint){
       return '/ethermint.crypto.v1.ethsecp256k1.PubKey'
     }
     return '/cosmos.crypto.secp256k1.PubKey'

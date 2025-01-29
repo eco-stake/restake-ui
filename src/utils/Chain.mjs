@@ -6,7 +6,8 @@ const Chain = (data) => {
   const baseAsset = assets[0]
   const { cosmos_sdk_version } = data.versions || {}
   const slip44 = data.slip44 || 118
-  const ledgerSupport = data.ledgerSupport ?? slip44 !== 60 // no ethereum ledger support for now
+  const ethermint = data.ethermint ?? slip44 === 60
+  const ledgerSupport = data.ledgerSupport ?? !ethermint // no ethereum ledger support for now
   const sdk46OrLater = validate(cosmos_sdk_version) && compareVersions(cosmos_sdk_version, '0.46') >= 0
   const sdk50OrLater = validate(cosmos_sdk_version) && compareVersions(cosmos_sdk_version, '0.50') >= 0
   const sdkAuthzAminoSupport = sdk46OrLater
@@ -29,6 +30,7 @@ const Chain = (data) => {
     prefix: data.prefix || data.bech32_prefix,
     slip44,
     estimatedApr: data.params?.calculated_apr,
+    ethermint,
     ledgerSupport,
     aminoPreventTypes,
     authzSupport,

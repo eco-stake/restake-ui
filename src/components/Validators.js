@@ -29,7 +29,7 @@ function Validators(props) {
 
   const [filter, setFilter] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
-    {keywords: '', status: 'active', group: 'delegated'}
+    {keywords: '', status: 'active', group: 'all'}
   )
   const [results, setResults] = useState([])
 

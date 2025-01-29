@@ -84,6 +84,10 @@ class Wallet {
   signAminoSupport(){
     return this.signerProvider.signAminoSupport()
   }
+
+  isLedger(){
+    return this.signerProvider.isLedger()
+  }
 }
 
 export default Wallet
