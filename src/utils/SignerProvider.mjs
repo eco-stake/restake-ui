@@ -27,12 +27,13 @@ export default class SignerProvider {
   }
 
   async connect(network) {
+    const { chainId } = network
     this.key = null
     this.signer = null
     try {
-      await this.enable(network)
-      await this.getKey(network)
-      await this.getSigner(network)
+      await this.enable([chainId])
+      this.key = await this.getKey(chainId)
+      this.signer = await this.getSigner(chainId)
 
       return this.key
     } catch (e) {
@@ -42,8 +43,8 @@ export default class SignerProvider {
       }
       try {
         await this.suggestChain(network)
-        await this.getKey(network)
-        await this.getSigner(network)
+        this.key = await this.getKey([chainId])
+        this.signer = await this.getSigner(chainId)
         return this.key
       } catch (s) {
         console.log(s)
@@ -55,29 +56,16 @@ export default class SignerProvider {
   disconnect() {
   }
 
-  enable(network) {
-    const { chainId } = network
-    return this.provider.enable(chainId)
+  enable(chainIds) {
+    return this.provider.enable(chainIds)
   }
 
-  async getKey(network) {
-    if(!this.key){
-      const { chainId } = network
-      this.key = await this.provider.getKey(chainId)
-    }
-    return this.key
+  getKey(chainId) {
+    return this.provider.getKey(chainId)
   }
 
-  async getSigner(network) {
-    if(!this.signer){
-      const { chainId } = network
-      this.signer = await this.getSignerForChainId(chainId)
-    }
-    return this.signer
-  }
-
-  async getSignerForChainId(chainId) {
-    return await this.provider.getOfflineSignerAuto(chainId)
+  getSigner(chainId) {
+    return this.provider.getOfflineSignerAuto(chainId)
   }
 
   async getAddress(){

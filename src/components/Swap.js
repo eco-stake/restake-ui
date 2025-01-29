@@ -71,12 +71,12 @@ function Swap(props) {
       let chainIds = new Set(_.at(networks, initialConnectNetworks).map((network) => network.chainId))
       chainIds.add(network.chainId)
       chainIds = Array.from(chainIds)
-      wallet.signerProvider.provider.enable(chainIds).then(() => {
+      wallet.signerProvider.enable(chainIds).then(() => {
         const connected = {}
         Promise.all(
           chainIds.map(async (chainId) => {
             try {
-              const keyInfo = await wallet.signerProvider.provider.getKey(chainId);
+              const keyInfo = await wallet.signerProvider.getKey(chainId);
               if (keyInfo && keyInfo.bech32Address) {
                 connected[chainId] = keyInfo.bech32Address
               }
@@ -90,6 +90,9 @@ function Swap(props) {
             ...connected
           }))
         })
+      }).catch((error) => {
+        console.log(error)
+        setConnectedAddresses({})
       })
     }else{
       setConnectedAddresses({})
@@ -98,7 +101,7 @@ function Swap(props) {
 
   async function getSigner(chainId) {
     if(wallet){
-      return await wallet.signerProvider.getSignerForChainId(chainId)
+      return await wallet.signerProvider.getSigner(chainId)
     }
   }
 

@@ -12,16 +12,12 @@ export default class CosmostationSignerProvider extends KeplrSignerProvider {
     this.cosmostationProvider = cosmostationProvider
   }
 
-  async getSigner(network) {
-    if(!this.signer){
-      const { chainId } = network
-      if(this.isLedger()){
-        this.signer = await this.provider.getOfflineSignerOnlyAmino(chainId)
-      }else{
-        this.signer = await this.provider.getOfflineSigner(chainId)
-      }
+  getSigner(chainId) {
+    if(this.isLedger()){
+      return this.provider.getOfflineSignerOnlyAmino(chainId)
+    }else{
+      return this.provider.getOfflineSigner(chainId)
     }
-    return this.signer
   }
 
   suggestChain(network) {
