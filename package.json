@@ -5,10 +5,10 @@
   "dependencies": {
     "@bugsnag/js": "^7.16.1",
     "@bugsnag/plugin-react": "^7.16.1",
-    "@cosmjs/proto-signing": "^0.31.3",
-    "@cosmjs/stargate": "^0.31.3",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
     "@injectivelabs/sdk-ts": "^1.14.33",
-    "@skip-go/widget": "^3.1.10",
+    "@skip-go/widget": "^3.2.0",
     "@terra-money/terra.js": "^3.1.10",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^15.0.7",
