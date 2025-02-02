@@ -91,10 +91,11 @@ function WalletModal(props) {
                           <div className="d-flex gap-2">
                             <Address address={wallet.address} />
                             <Favourite
-                              favourites={favouriteAddresses[network.path] || []}
-                              value={wallet.address}
-                              label={props.address === wallet?.address && wallet.name}
-                              toggle={props.toggleFavouriteAddress} />
+                              value={(favouriteAddresses[network.path] || []).some(el => el['address'] === wallet.address)}
+                              toggle={() => props.toggleFavouriteAddress(wallet.address, props.address === wallet?.address && wallet.name)}
+                              onTooltip="Remove saved address"
+                              offTooltip="Save address"
+                            />
                           </div>
                         </td>
                       </tr>
