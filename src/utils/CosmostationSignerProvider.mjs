@@ -12,16 +12,12 @@ export default class CosmostationSignerProvider extends KeplrSignerProvider {
     this.cosmostationProvider = cosmostationProvider
   }
 
-  async getSigner(network) {
-    if(!this.signer){
-      const { chainId } = network
-      if(this.isLedger()){
-        this.signer = await this.provider.getOfflineSignerOnlyAmino(chainId)
-      }else{
-        this.signer = await this.provider.getOfflineSigner(chainId)
-      }
+  getSigner(chainId) {
+    if(this.isLedger()){
+      return this.provider.getOfflineSignerOnlyAmino(chainId)
+    }else{
+      return this.provider.getOfflineSigner(chainId)
     }
-    return this.signer
   }
 
   suggestChain(network) {
@@ -49,7 +45,7 @@ export default class CosmostationSignerProvider extends KeplrSignerProvider {
       },
       // sendGas: "80000", // optional (default: '100000')
     }
-    if(network.data.keplrFeatures?.includes('eth-address-gen') || network.slip44 === 60){
+    if(network.data.keplrFeatures?.includes('eth-address-gen') || network.ethermint){
       data.type = 'ETHERMINT'
     }
     return data

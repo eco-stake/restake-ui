@@ -27,12 +27,13 @@ export default class SignerProvider {
   }
 
   async connect(network) {
+    const { chainId } = network
     this.key = null
     this.signer = null
     try {
-      await this.enable(network)
-      await this.getKey(network)
-      await this.getSigner(network)
+      await this.enable([chainId])
+      this.key = await this.getKey(chainId)
+      this.signer = await this.getSigner(chainId)
 
       return this.key
     } catch (e) {
@@ -42,8 +43,8 @@ export default class SignerProvider {
       }
       try {
         await this.suggestChain(network)
-        await this.getKey(network)
-        await this.getSigner(network)
+        this.key = await this.getKey([chainId])
+        this.signer = await this.getSigner(chainId)
         return this.key
       } catch (s) {
         console.log(s)
@@ -55,25 +56,16 @@ export default class SignerProvider {
   disconnect() {
   }
 
-  enable(network) {
-    const { chainId } = network
-    return this.provider.enable(chainId)
+  enable(chainIds) {
+    return this.provider.enable(chainIds)
   }
 
-  async getKey(network) {
-    if(!this.key){
-      const { chainId } = network
-      this.key = await this.provider.getKey(chainId)
-    }
-    return this.key
+  getKey(chainId) {
+    return this.provider.getKey(chainId)
   }
 
-  async getSigner(network) {
-    if(!this.signer){
-      const { chainId } = network
-      this.signer = await this.provider.getOfflineSignerAuto(chainId)
-    }
-    return this.signer
+  getSigner(chainId) {
+    return this.provider.getOfflineSignerAuto(chainId)
   }
 
   async getAddress(){
@@ -151,7 +143,7 @@ export default class SignerProvider {
     }
     if(network.data.keplrFeatures){
       data.features = network.data.keplrFeatures
-    }else if(network.slip44 === 60){
+    }else if(network.ethermint){
       data.features = ["ibc-transfer", "ibc-go", "eth-address-gen", "eth-key-sign"]
     }
     return data

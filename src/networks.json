@@ -255,7 +255,7 @@
     ],
     "ledgerSupport": true,
     "authzAminoGenericOnly": true,
-    "networkAlert": {
+    "restakeAlert": {
       "message": "REStake now supports Ledger wallets on Injective! 🥷",
       "variant": "success"
     }
