@@ -9,10 +9,10 @@ export class MsgExec extends MsgBase {
 
   toBinary() {
     const protoType = MsgBase.binaryConverters.get(this.typeUrl)
-    return protoType.encode({
+    return protoType.encode(protoType.fromPartial({
       ...this.params,
       msgs: this.params.msgs.map(msg => msg.toProto())
-    }).finish()
+    })).finish()
   }
 
   toAmino () {
