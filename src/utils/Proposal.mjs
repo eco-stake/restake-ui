@@ -13,7 +13,8 @@ export const PROPOSAL_SCAM_URLS = [
   'v2terra.d',
   'terrapro.a',
   'cosmos-network.io',
-  'terraweb.at'
+  'terraweb.at',
+  'cosmoweb.at'
 ]
 
 const Proposal = async (data) => {
