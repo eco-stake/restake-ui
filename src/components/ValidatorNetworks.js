@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash'
 import {
-  OverlayTrigger, 
+  OverlayTrigger,
   Tooltip,
   Spinner
 } from 'react-bootstrap'
@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom'
 import NetworkImage from './NetworkImage'
 
 function ValidatorNetworks(props) {
-  const { validator, registryData, network, networks } = props
+  const { registryData, network, networks } = props
   const [networkLoading, setNetworkLoading] = useState()
 
   useEffect(() => {
@@ -48,7 +48,7 @@ function ValidatorNetworks(props) {
             }
           >
             {!validatorNetwork.online || validatorNetwork.active ? (
-              <span>{validatorNetwork.image}</span>
+              <span className={!validatorNetwork.online ? "opacity-50" : ""}>{validatorNetwork.image}</span>
             ) : (
               <Link to={validatorNetwork.path} onClick={() => setNetworkLoading(validatorNetwork.path)}>
                 {validatorNetwork.image}
