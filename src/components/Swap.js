@@ -56,7 +56,7 @@ function Swap(props) {
       destChainId: network.chainId,
       destAssetDenom: network.denom
     })
-  }, [network])
+  }, [network?.path])
 
   useEffect(() => {
     if(!networks) return
