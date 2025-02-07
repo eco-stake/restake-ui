@@ -33,7 +33,7 @@ const Operator = (network, data) => {
   }
 
   function isInterval(){
-    return runTime.length === 1 && runTime[0].startsWith('every')
+    return runTime.length === 1 && runTime[0].toLowerCase().startsWith('every')
   }
 
   function runTimes(start) {
@@ -64,7 +64,7 @@ const Operator = (network, data) => {
   function runsPerDay(max) {
     let runs
     if(isInterval()){
-      const interval = parse(runTime[0].replace('every ', ''))
+      const interval = parse(runTime[0].toLowerCase().replace('every ', ''))
       runs = parse('1d') / interval
     }else{
       runs = runTimes().length
@@ -75,12 +75,12 @@ const Operator = (network, data) => {
   function runTimesString(){
     if (!isInterval()) {
       if(runTime.length > 1){
-        return `at ${runTime.join(', ')}`
+        return `at ${runTime.join(', ').toLowerCase()}`
       }else{
-        return `at ${runTime.join(', ')} every day`
+        return `at ${runTime.join(', ').toLowerCase()} every day`
       }
     }
-    return runTime.join(', ')
+    return runTime.join(', ').toLowerCase()
   }
 
   function frequency(includeEvery) {
@@ -88,7 +88,7 @@ const Operator = (network, data) => {
       return runTime.length + 'x daily'
     }else{
       if(isInterval()){
-        return includeEvery ? runTime[0] : runTime[0].replace('every ', '')
+        return includeEvery ? runTime[0].toLowerCase() : runTime[0].toLowerCase().replace('every ', '')
       }
       return 'daily'
     }
