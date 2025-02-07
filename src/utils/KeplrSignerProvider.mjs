@@ -39,4 +39,8 @@ export default class KeplrSignerProvider extends SignerProvider {
   getOptions(){
     return this.provider.defaultOptions
   }
+
+  isMobile(){
+    return isMobile
+  }
 }

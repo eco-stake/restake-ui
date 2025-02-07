@@ -68,7 +68,14 @@ function Swap(props) {
         setError()
       }
 
-      let chainIds = new Set(_.at(networks, initialConnectNetworks).map((network) => network.chainId))
+      let defaultNetworks = _.at(networks, initialConnectNetworks).filter((network) => {
+        const signerProvider = wallet.signerProvider
+        if(signerProvider.name === 'keplr' && signerProvider.isMobile()){
+          return network.path !== 'gateway'
+        }
+        return true
+      })
+      let chainIds = new Set(defaultNetworks.map((network) => network.chainId))
       chainIds.add(network.chainId)
       chainIds = Array.from(chainIds)
       wallet.signerProvider.enable(chainIds).then(() => {
