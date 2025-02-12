@@ -52,7 +52,7 @@ function ValidatorProfile(props) {
             <tbody>
               <tr>
                 <td scope="row">Validator Address</td>
-                <td className="text-break"><Address address={validator.operator_address} /></td>
+                <td className="text-break"><Address address={validator.operator_address} addressClassName="text-nowrap" /></td>
               </tr>
               {!validator.active && (
                 <tr>
@@ -156,7 +156,7 @@ function ValidatorProfile(props) {
                 <tr>
                   <td className="align-middle" scope="row">Networks</td>
                   <td className="w-75">
-                    <ValidatorNetworks validator={validator} registryData={registryData} network={network} networks={networks} />
+                    <ValidatorNetworks registryData={registryData} network={network} networks={networks} />
                   </td>
                 </tr>
               )}
