@@ -196,7 +196,7 @@ function ProposalDetails(props) {
             <div className="row mt-3">
               <div className="col">
                 <h5 className="mb-3">{title}</h5>
-                <div dangerouslySetInnerHTML={{ __html: transformedDescription }}></div>
+                <div className="proposal-content" dangerouslySetInnerHTML={{ __html: transformedDescription }}></div>
               </div>
             </div>
           </Tab.Pane>
