@@ -43,7 +43,7 @@ export default class SignerProvider {
       }
       try {
         await this.suggestChain(network)
-        this.key = await this.getKey([chainId])
+        this.key = await this.getKey(chainId)
         this.signer = await this.getSigner(chainId)
         return this.key
       } catch (s) {
