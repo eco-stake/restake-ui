@@ -11,7 +11,7 @@ import {
 import { QuestionCircle } from "react-bootstrap-icons";
 
 import TooltipIcon from './TooltipIcon'
-import Coins from './Coins';
+import Coin from './Coin';
 
 function ValidatorCalculator(props) {
   const { validator, operator, network, delegation } = props
@@ -229,11 +229,14 @@ function ValidatorCalculator(props) {
                       {amountDenom === network.symbol ? (
                         <span>${usdAmount().toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
                       ) : (
-                        <Coins
-                          coins={{ amount: multiply(delegationAmount(), pow(10, decimals)), denom: network.denom }}
+                        <Coin
+                          amount={multiply(delegationAmount(), pow(10, decimals))}
+                          denom={network.denom}
                           asset={network.baseAsset}
                           fullPrecision={true}
-                          hideValue={true} />
+                          showValue={false}
+                          showImage={false}
+                        />
                       )}
                     </div>
                   )}
@@ -337,11 +340,14 @@ function ValidatorCalculator(props) {
                   </div>
                   {frequencyLimited && operator && (
                     <div className="form-text">
-                      <Coins
-                        coins={{ amount: operator.minimumReward, denom: network.denom }}
+                      <Coin
+                        amount={operator.minimumReward}
+                        denom={network.denom}
                         asset={network.baseAsset}
                         fullPrecision={true}
-                        hideValue={true} /> minimum reward required
+                        showValue={false}
+                        showImage={false}
+                      /> minimum reward required
                     </div>
                   )}
                 </td>
@@ -410,19 +416,51 @@ function ValidatorCalculator(props) {
             <tbody>
               <tr>
                 <td scope="row" className="w-25">Daily</td>
-                <td className="text-break"><Coins coins={{ amount: divide(rewardsPerYear(), 365), denom: network.denom }} asset={network.baseAsset} fullPrecision={true} /></td>
+                <td className="text-break">
+                  <Coin
+                    amount={divide(rewardsPerYear(), 365)}
+                    denom={network.denom}
+                    asset={network.baseAsset}
+                    fullPrecision={true}
+                    showImage={false}
+                  />
+                </td>
               </tr>
               <tr>
                 <td scope="row" className="w-25">Weekly</td>
-                <td className="text-break"><Coins coins={{ amount: divide(rewardsPerYear(), 52), denom: network.denom }} asset={network.baseAsset} fullPrecision={true} /></td>
+                <td className="text-break">
+                  <Coin
+                    amount={divide(rewardsPerYear(), 52)}
+                    denom={network.denom}
+                    asset={network.baseAsset}
+                    fullPrecision={true}
+                    showImage={false}
+                  />
+                </td>
               </tr>
               <tr>
                 <td scope="row" className="w-25">Monthly</td>
-                <td className="text-break"><Coins coins={{ amount: divide(rewardsPerYear(), 12), denom: network.denom }} asset={network.baseAsset} fullPrecision={true} /></td>
+                <td className="text-break">
+                  <Coin
+                    amount={divide(rewardsPerYear(), 12)}
+                    denom={network.denom}
+                    asset={network.baseAsset}
+                    fullPrecision={true}
+                    showImage={false}
+                  />
+                </td>
               </tr>
               <tr>
                 <td scope="row" className="w-25">Yearly</td>
-                <td className="text-break"><Coins coins={{ amount: rewardsPerYear(), denom: network.denom }} asset={network.baseAsset} fullPrecision={true} /></td>
+                <td className="text-break">
+                  <Coin
+                    amount={rewardsPerYear()}
+                    denom={network.denom}
+                    asset={network.baseAsset}
+                    fullPrecision={true}
+                    showImage={false}
+                  />
+                </td>
               </tr>
             </tbody>
           </Table>

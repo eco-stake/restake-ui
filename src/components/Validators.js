@@ -6,6 +6,7 @@ import { round } from 'mathjs'
 import { format, add } from 'mathjs'
 
 import Coins from "./Coins";
+import Coin from "./Coin";
 import ValidatorImage from './ValidatorImage'
 import TooltipIcon from './TooltipIcon'
 
@@ -22,7 +23,7 @@ import ValidatorName from "./ValidatorName";
 import ValidatorServices from './ValidatorServices';
 import REStakeStatus from './REStakeStatus';
 import AlertMessage from './AlertMessage';
-import { omit } from '../utils/Helpers.mjs';
+import { omit, sumCoins } from '../utils/Helpers.mjs';
 
 function Validators(props) {
   const { address, wallet, network, validators, operators, delegations, operatorGrants } = props
@@ -134,19 +135,35 @@ function Validators(props) {
     return Object.values(validators).find(validator => validator.address === network.ownerAddress)
   }
 
+  function totalDelegation(){
+    return results.reduce((sum, result) => {
+      const delegation = delegations && delegations[result.operator_address]
+      if (!delegation) return sum
+
+      return add(sum, delegation.balance.amount)
+    }, 0)
+  }
+
+  function totalRewards(){
+    return sumCoins(results.flatMap(result => {
+      const rewards = props.rewards[result.operator_address]?.reward || []
+      return rewards
+    }))
+  }
+
+  function totalCommission(){
+    return sumCoins(results.flatMap(result => {
+      const commission = props.commission[result.operator_address]?.commission || []
+      return commission
+    }))
+  }
+
   function renderValidator(validator) {
     const validatorAddress = validator.operator_address
     const delegation = delegations && delegations[validatorAddress];
     const validatorOperator = validator.isValidatorOperator(address)
-    const rewards =
-      props.rewards && props.rewards[validatorAddress];
-    const denomRewards = rewards && rewards.reward.find(
-      (reward) => reward.denom === network.denom
-    );
+    const rewards = props.rewards && props.rewards[validatorAddress];
     const commission = props.commission && props.commission[validatorAddress]
-    const denomCommission = commission && commission.commission.find(
-      (commission) => commission.denom === network.denom
-    );
     const operator = operatorForValidator(validatorAddress);
     const grants = operator && operatorGrants[operator.botAddress]
 
@@ -169,23 +186,31 @@ function Validators(props) {
 
     return (
       <tr key={validatorAddress} className={rowVariant}>
-        <td className="px-1" width={30}>
+        <td
+          className="px-1" width={30}
+          role="button"
+          onClick={() => props.showValidator(validator, { activeTab: 'profile' })}
+        >
           <ValidatorImage
             validator={validator}
             width={30}
             height={30}
           />
         </td>
-        <td className="ps-1 text-break">
-          <div role="button" onClick={() => props.showValidator(validator, { activeTab: 'profile' })}>
-            <div className="d-flex align-items-start align-items-sm-center justify-content-end flex-column flex-sm-row gap-1 gap-sm-3">
-              <ValidatorName validator={validator} className="me-auto" />
-              {badge ? <small><Badge bg={badge.bg} className="opacity-75">{badge.text}</Badge></small> : null}
-              <div className="text-muted small d-none d-md-block">#{validator.rank}</div>
-            </div>
+        <td
+          className="ps-1 text-break"
+          role="button"
+          onClick={() => props.showValidator(validator, { activeTab: 'profile' })}
+        >
+          <div className="d-flex align-items-start align-items-sm-center justify-content-end flex-column flex-sm-row gap-1 gap-sm-3">
+            <ValidatorName validator={validator} className="me-auto" />
+            {badge ? <small><Badge bg={badge.bg} className="opacity-75">{badge.text}</Badge></small> : null}
+            <div className="text-muted small d-none d-md-block text-nowrap">#{validator.rank}</div>
           </div>
         </td>
-        <td className="text-center">
+        <td
+          className="text-center"
+        >
           <REStakeStatus
             network={network}
             validator={validator}
@@ -199,31 +224,39 @@ function Validators(props) {
           />
         </td>
         {network.apyEnabled && (
-          <td className={filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}>
-            <span role="button" onClick={() => props.showValidator(validator, { activeTab: 'stake' })}>
-              {props.validatorApy[validatorAddress] !== undefined
-                ? <small>{round(props.validatorApy[validatorAddress] * 100, 1).toLocaleString() + "%"}</small>
-                : "-"
-              }
-            </span>
+          <td
+            className={filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}
+            role="button"
+            onClick={() => props.showValidator(validator, { activeTab: 'profile' })}
+          >
+            {props.validatorApy[validatorAddress] !== undefined
+              ? <small>{round(props.validatorApy[validatorAddress] * 100, 1).toLocaleString() + "%"}</small>
+              : "-"
+            }
           </td>
         )}
-        <td className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}>
+        <td
+          className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}
+          role="button"
+          onClick={() => props.showValidator(validator, { activeTab: 'profile' })}
+        >
           <small>{format(validator.commission.commission_rates.rate * 100, 2)}%</small>
         </td>
         {props.isLoading('delegations') || Object.keys(delegations || {}).length ? (
-          <td className={filter.group === 'delegated' ? '' : 'd-none d-sm-table-cell'}>
+          <td
+            className={filter.group === 'delegated' ? '' : 'd-none d-sm-table-cell'}
+            role="button"
+            onClick={() => props.showValidator(validator, { activeTab: 'stake' })}
+          >
             {!props.isLoading('delegations') ? (
               delegationBalance?.amount ? (
-                <div role="button" onClick={() => props.showValidator(validator, { activeTab: 'stake' })}>
-                  <small>
-                    <Coins
-                      coins={delegationBalance}
-                      asset={network.baseAsset}
-                      precision={3}
-                    />
-                  </small>
-                </div>
+                <small>
+                  <Coin
+                    {...delegationBalance}
+                    asset={network.baseAsset}
+                    precision={3}
+                  />
+                </small>
               ) : null
             ) : (
               <Spinner animation="border" role="status" className="spinner-border-sm text-secondary">
@@ -232,42 +265,33 @@ function Validators(props) {
             )}
           </td>
         ) : null}
-        {filter.group === 'delegated' && (
-          <>
-            {!props.modal && (
-              <td className="d-none d-md-table-cell">
-                {!props.isLoading('rewards') ? denomRewards && (
-                  <div role="button" onClick={() => props.showValidator(validator, { activeTab: 'stake' })}>
-                    <small>
-                      <Coins
-                        key={denomRewards.denom}
-                        coins={denomRewards}
-                        asset={network.baseAsset}
-                        precision={3}
-                      />
-                    </small>
-                  </div>
-                ) : (
-                  <Spinner animation="border" role="status" className="spinner-border-sm text-secondary">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                )}
-              </td>
+        {!props.modal && filter.group === 'delegated' && (
+          <td
+            className="d-none d-md-table-cell"
+            role="button"
+            onClick={() => props.showValidator(validator, { activeTab: 'stake' })}
+          >
+            {!props.isLoading('rewards') ? rewards && (
+              <small>
+                <Coins coins={rewards.reward} network={network} precision={3} allowShowLowValue={false} />
+              </small>
+            ) : (
+              <Spinner animation="border" role="status" className="spinner-border-sm text-secondary">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
             )}
-            </>
-          )}
-          {!props.modal && showCommission && (
-          <td className="d-none d-lg-table-cell">
-            {!props.isLoading('commission') ? (
-              <div role="button" onClick={() => props.showValidator(validator, { activeTab: 'stake' })}>
-                <small>
-                  <Coins
-                    coins={denomCommission}
-                    asset={network.baseAsset}
-                    precision={3}
-                  />
-                </small>
-              </div>
+          </td>
+        )}
+        {!props.modal && filter.group === 'delegated' && showCommission && (
+          <td
+            className="d-none d-lg-table-cell"
+            role="button"
+            onClick={() => props.showValidator(validator, { activeTab: 'stake' })}
+          >
+            {!props.isLoading('commission') ? commission && (
+              <small>
+                <Coins coins={commission.commission} network={network} precision={3} allowShowLowValue={false} />
+              </small>
             ) : (
               <Spinner animation="border" role="status" className="spinner-border-sm text-secondary">
                 <span className="visually-hidden">Loading...</span>
@@ -372,14 +396,10 @@ function Validators(props) {
               {props.isLoading('delegations') || Object.keys(delegations || {}).length ? (
                 <th className={filter.group === 'delegated' ? '' : 'd-none d-sm-table-cell'}>Delegation</th>
               ) : null}
-              {filter.group === 'delegated' && (
-                <>
-                  {!props.modal && (
-                    <th className="d-none d-md-table-cell">Rewards</th>
-                  )}
-                </>
+              {!props.modal && filter.group === 'delegated' && (
+                <th className="d-none d-md-table-cell">Rewards</th>
               )}
-              {!props.modal && showCommission && (
+              {!props.modal && filter.group === 'delegated' && showCommission && (
                 <th className="d-none d-lg-table-cell">Commission</th>
               )}
               {!props.modal && (
@@ -391,85 +411,60 @@ function Validators(props) {
           <tbody>
             {results.map(item => renderValidator(item))}
           </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={2}></td>
-              <td className="text-center"></td>
-              {network.apyEnabled && (
-                <td className={filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}></td>
-              )}
-              <td className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}></td>
-              {props.isLoading('delegations') || Object.keys(delegations || {}).length ? (
-                <td className={filter.group === 'delegated' ? '' : 'd-none d-sm-table-cell'}>
-                  <strong className="small">
-                    <Coins
-                      coins={{
-                        amount: results.reduce((sum, result) => {
-                          const delegation = delegations && delegations[result.operator_address]
-                          if (!delegation) return sum
-
-                          return add(sum, delegation.balance.amount)
-                        }, 0),
-                        denom: network.denom
-                      }}
-                      asset={network.baseAsset}
-                      precision={3}
-                    />
-                  </strong>
-                </td>
-              ) : null}
-              {filter.group === 'delegated' && (
-                <>
-                  {!props.modal && (
-                    <td className="d-none d-md-table-cell">
-                      {props.rewards && (
-                        <strong className="small">
-                          <Coins
-                            coins={{
-                              amount: results.reduce((sum, result) => {
-                                const reward = props.rewards[result.operator_address]?.reward?.find(el => el.denom === network.denom)
-                                if (!reward) return sum
-
-                                return add(sum, reward.amount)
-                              }, 0),
-                              denom: network.denom
-                            }}
-                            asset={network.baseAsset}
-                            precision={3}
-                          />
-                        </strong>
-                      )}
-                    </td>
-                  )}
-                </>
-              )}
-              {!props.modal && showCommission && (
-                <td className="d-none d-lg-table-cell">
-                  {props.commission && (
+          {results.length > 1 && (
+            <tfoot>
+              <tr>
+                <td colSpan={2}></td>
+                <td className="text-center"></td>
+                {network.apyEnabled && (
+                  <td className={filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}></td>
+                )}
+                <td className={network.apyEnabled ? 'text-center d-none d-lg-table-cell' : filter.group === 'delegated' ? 'd-none d-lg-table-cell text-centre' : 'text-center'}></td>
+                {props.isLoading('delegations') || Object.keys(delegations || {}).length ? (
+                  <td className={filter.group === 'delegated' ? '' : 'd-none d-sm-table-cell'}>
                     <strong className="small">
-                      <Coins
-                        coins={{
-                          amount: results.reduce((sum, result) => {
-                            const commission = props.commission[result.operator_address]?.commission?.find(el => el.denom === network.denom)
-                            if (!commission) return sum
-
-                            return add(sum, commission.amount)
-                          }, 0),
-                          denom: network.denom
-                        }}
+                      <Coin
+                        amount={totalDelegation()}
+                        denom={network.denom}
                         asset={network.baseAsset}
                         precision={3}
                       />
                     </strong>
-                  )}
-                </td>
-              )}
-              {!props.modal && (
-                <td className={filter.group === 'delegated' ? 'd-none d-sm-table-cell' : ''}></td>
-              )}
-              <td className="d-none d-sm-table-cell"></td>
-            </tr>
-          </tfoot>
+                  </td>
+                ) : null}
+                {!props.modal && filter.group === 'delegated' && (
+                  <td className="d-none d-md-table-cell">
+                    {props.rewards && (
+                      <strong className="small">
+                        <Coins
+                          coins={totalRewards()}
+                          network={network}
+                          precision={3}
+                        />
+                      </strong>
+                    )}
+                  </td>
+                )}
+                {!props.modal && filter.group === 'delegated' && showCommission && (
+                  <td className="d-none d-lg-table-cell">
+                    {props.commission && (
+                      <strong className="small">
+                        <Coins
+                          coins={totalCommission()}
+                          network={network}
+                          precision={3}
+                        />
+                      </strong>
+                    )}
+                  </td>
+                )}
+                {!props.modal && (
+                  <td className={filter.group === 'delegated' ? 'd-none d-sm-table-cell' : ''}></td>
+                )}
+                <td className="d-none d-sm-table-cell"></td>
+              </tr>
+            </tfoot>
+          )}
         </Table>
       }
       {results.length < 1 &&

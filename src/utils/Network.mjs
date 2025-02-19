@@ -8,6 +8,7 @@ import Validator from './Validator.mjs'
 import Operator from './Operator.mjs'
 import Chain from './Chain.mjs'
 import CosmosDirectory from './CosmosDirectory.mjs'
+import SkipApi from './SkipApi.mjs';
 
 class Network {
   constructor(data, operatorAddresses) {
@@ -60,11 +61,12 @@ class Network {
   }
 
   async load() {
-    const [chainData, validatorsData] = await Promise.all([
+    const [chainData, validatorsData, skipAssets] = await Promise.all([
       this.directory.getChainData(this.path),
-      this.directory.getValidators(this.path)
+      this.directory.getValidators(this.path),
+      SkipApi().getAssets(this.chainId)
     ]);
-    this.setChain({...this.data, ...chainData});
+    this.setChain({...this.data, ...chainData}, skipAssets);
     this.validators = validatorsData.map(data => {
       return Validator(this, data);
     });
@@ -79,8 +81,8 @@ class Network {
     }
   }
 
-  async setChain(data){
-    this.chain = Chain(data)
+  async setChain(data, assets){
+    this.chain = Chain(data, assets)
     this.prettyName = this.chain.prettyName
     this.chainId = this.chain.chainId
     this.prefix = this.chain.prefix
@@ -88,7 +90,6 @@ class Network {
     this.assets = this.chain.assets
     this.baseAsset = this.chain.baseAsset
     this.denom = this.chain.denom
-    this.display = this.chain.display
     this.symbol = this.chain.symbol
     this.decimals = this.chain.decimals
     this.image = this.chain.image
@@ -205,7 +206,7 @@ class Network {
   }
 
   assetForDenom(denom){
-    return this.assets.find(el => el.base.denom === denom)
+    return this.assets.find(el => el.denom === denom)
   }
 }
 

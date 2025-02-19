@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { format, floor, bignumber } from 'mathjs'
+import { format, floor, bignumber, add, multiply, divide, numeric, pow } from 'mathjs'
 import truncateMiddle from 'truncate-middle'
 import { MsgExec } from '../messages/MsgExec.mjs';
 
@@ -23,12 +23,61 @@ export function truncateAddress(address) {
   return truncateMiddle(address, firstDigit + 6, 6, '…')
 }
 
+export function truncateDenom(denom) {
+  const firstDigit = denom.search(/\//)
+  return truncateMiddle(denom, firstDigit + 5, 5, '…')
+}
+
 export function rewardAmount(rewards, denom, type){
   if (!rewards)
     return 0;
   type = type || 'reward'
   const reward = rewards && rewards[type]?.find((el) => el.denom === denom);
   return reward ? bignumber(reward.amount) : 0;
+}
+
+export function sumCoins(coins){
+  return Object.values(coins.reduce((sum, coin) => {
+    if(sum[coin.denom]){
+      sum[coin.denom] = {
+        amount: add(sum[coin.denom].amount, coin.amount),
+        denom: coin.denom
+      }
+    }else{
+      sum[coin.denom] = coin
+    }
+    return sum
+  }, {}))
+}
+
+export function sortCoins(coins, network){
+  return sortCoinsByPriority(sortCoinsByValue(coins, network), network)
+}
+
+export function sortCoinsByValue(coins, network){
+  return _.sortBy(coins, (coin) => {
+    const asset = network.assetForDenom(coin.denom)
+    let value
+    if(asset && asset.prices?.coingecko?.usd){
+      value = numeric(multiply(divide(bignumber(coin.amount), pow(10, asset.decimals)), asset.prices.coingecko.usd), 'number')
+    }
+    return value
+  }).reverse()
+}
+
+export function sortCoinsByPriority(coins, network){
+  return _.sortBy(coins, (coin) => {
+    const asset = network.assetForDenom(coin.denom)
+    if (coin.denom === network.denom){
+      return -1
+    }else if(asset && !asset.prices?.coingecko?.usd){
+      return 1
+    }else if(!asset){
+      return 2
+    }else{
+      return 0
+    }
+  })
 }
 
 export function overrideNetworks(networks, overrides){

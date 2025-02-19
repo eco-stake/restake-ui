@@ -1,12 +1,10 @@
 function ChainAsset(data) {
-  const { symbol, base, display, image } = data
-  const decimals = display?.exponent ?? 6
+  const { denom, symbol, decimals, image } = data
 
   return {
     ...data,
+    denom,
     symbol,
-    base,
-    display,
     decimals,
     image
   }

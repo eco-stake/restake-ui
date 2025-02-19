@@ -13,7 +13,7 @@ import { XCircle } from "react-bootstrap-icons";
 
 import AlertMessage from './AlertMessage';
 import RevokeGrant from './RevokeGrant';
-import Coins from './Coins';
+import Coin from './Coin';
 import GrantModal from './GrantModal';
 import Favourite from './Favourite';
 import Address from './Address'
@@ -101,7 +101,7 @@ function Grants(props) {
         const restrictionList = grant.authorization.allow_list || grant.authorization.deny_list
         return (
           <small>
-            Maximum: {maxTokens ? <Coins coins={maxTokens} asset={network.baseAsset} fullPrecision={true} hideValue={true} /> : 'unlimited'}<br />
+            Maximum: {maxTokens ? <Coin {...maxTokens} asset={network.baseAsset} fullPrecision={true} showValue={false} showImage={false} /> : 'unlimited'}<br />
             {restrictionType}: {restrictionList.address.map(address => {
               const validator = validators[address]
               return address ? <div key={address}>{validator?.moniker || <Address address={address} />}</div> : null
