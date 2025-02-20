@@ -5,7 +5,7 @@ import _ from 'lodash'
 import AlertMessage from './AlertMessage'
 import NetworkSelect from './NetworkSelect'
 import Delegations from './Delegations';
-import Coins from './Coins'
+import Coin from './Coin'
 import About from './About'
 
 import {
@@ -21,7 +21,7 @@ import {
   DropletFill,
   DropletHalf,
   CashCoin,
-  Coin,
+  Coin as CoinIcon,
   EnvelopePaper,
   Stars,
   WrenchAdjustableCircle,
@@ -298,7 +298,8 @@ class App extends React.Component {
     return this.restClient().getBalance(this.state.address)
       .then(
         (balances) => {
-          const balance = balances?.find(
+          balances = _.compact(balances || [])
+          const balance = balances.find(
             (element) => element.denom === this.props.network.denom
           ) || { denom: this.props.network.denom, amount: 0 };
           this.setState({
@@ -585,7 +586,7 @@ class App extends React.Component {
                     <>
                       <div className="nav-item px-2 border-end text-center">
                         <Nav.Link eventKey="delegations">
-                          <Coin className="mb-1 me-1" /><span className="d-none d-sm-inline"> Stake</span>
+                          <CoinIcon className="mb-1 me-1" /><span className="d-none d-sm-inline"> Stake</span>
                         </Nav.Link>
                       </div>
                       <div className="nav-item px-2 border-end text-center">
@@ -682,10 +683,11 @@ class App extends React.Component {
                       <li className="nav-item px-3 border-end align-items-center d-none d-md-flex">
                         <div role="button" onClick={() => this.showWalletModal({activeTab: this.state.wallet ? 'wallet' : 'saved'})}>
                           {this.state.balance ? (
-                            <Coins
-                              coins={this.state.balance}
+                            <Coin
+                              {...this.state.balance}
                               asset={this.props.network.baseAsset}
                               className="small text-end"
+                              showImage={false}
                             />
                           ) : (
                             <Spinner animation="border" role="status" className="spinner-border-sm text-secondary">
@@ -709,10 +711,11 @@ class App extends React.Component {
                               <div className="d-block d-md-none">
                                 <Dropdown.Header className="text-truncate">{this.addressName()}</Dropdown.Header>
                                 <Dropdown.Item as="button" onClick={() => this.showWalletModal({activeTab: this.state.wallet ? 'wallet' : 'saved'})}>
-                                  <Coins
-                                    coins={this.state.balance}
+                                  <Coin
+                                    {...this.state.balance}
                                     asset={this.props.network.baseAsset}
                                     className="small"
+                                    showImage={false}
                                   />
                                 </Dropdown.Item>
                                 <Dropdown.Divider />
@@ -876,7 +879,7 @@ class App extends React.Component {
             network={this.props.network}
             address={this.state.address}
             wallet={this.state.wallet}
-            balance={this.state.balance}
+            balances={this.state.balances}
             favouriteAddresses={this.favouriteAddresses()}
             onHide={() => this.setState({ showSendModal: false })}
             onSend={this.onSend}

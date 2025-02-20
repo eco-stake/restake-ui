@@ -5,10 +5,10 @@ import {
   Form,
 } from 'react-bootstrap'
 
-import { pow, multiply, divide, subtract, bignumber } from 'mathjs'
+import { pow, multiply, divide, numeric, bignumber, format } from 'mathjs'
 
 import AlertMessage from './AlertMessage'
-import Coins from './Coins'
+import Coin from './Coin'
 import { coin, execableMessage } from '../utils/Helpers.mjs'
 import { MsgBeginRedelegate } from '../messages/MsgBeginRedelegate.mjs';
 import { MsgUndelegate } from '../messages/MsgUndelegate.mjs';
@@ -20,6 +20,12 @@ function DelegateForm(props) {
     (state, newState) => ({ ...state, ...newState }),
     { amount: '', memo: '' }
   )
+
+  const asset = network.baseAsset
+  let value
+  if(state.amount && asset && asset.prices?.coingecko?.usd){
+    value = numeric(multiply(state.amount, asset.prices.coingecko.usd), 'number')
+  }
 
   function handleInputChange(event) {
     const target = event.target;
@@ -90,22 +96,9 @@ function DelegateForm(props) {
   async function setAvailableAmount() {
     if (!wallet) return
 
-    setState({ error: undefined })
-    const messages = buildMessages(multiply(availableBalance().amount, 0.95))
     const decimals = pow(10, network.decimals)
-    const balance = bignumber(availableBalance().amount)
-    if (['redelegate', 'undelegate'].includes(action)) {
-      return setState({ amount: divide(balance, decimals) })
-    }
-    wallet.simulate(messages).then(gas => {
-      const gasPrice = wallet.getFee(gas).amount[0].amount
-      const saveTxFeeNum = 10
-      const amount = divide(subtract(balance, multiply(gasPrice, saveTxFeeNum)), decimals)
-
-      setState({ amount: amount > 0 ? amount : 0 })
-    }, error => {
-      setState({ error: error.message })
-    })
+    const amount = divide(bignumber(availableBalance().amount), decimals)
+    setState({ amount: format(amount, {notation: 'fixed'})})
   }
 
   function availableBalance() {
@@ -120,10 +113,6 @@ function DelegateForm(props) {
     if (action === 'redelegate') return 'Redelegate'
     if (action === 'undelegate') return 'Undelegate'
     return 'Delegate'
-  }
-
-  function denom() {
-    return network.symbol
   }
 
   function step() {
@@ -149,13 +138,20 @@ function DelegateForm(props) {
               <div className="mb-3">
                 <div className="input-group">
                   <Form.Control name="amount" type="number" min={0} step={step()} placeholder="10" required={true} value={state.amount} onChange={handleInputChange} />
-                  <span className="input-group-text">{denom()}</span>
+                  <span className="input-group-text">{network.symbol}</span>
                 </div>
-                {availableBalance() &&
-                  <div className="form-text text-end"><span role="button" onClick={() => setAvailableAmount()}>
-                    Available: <Coins coins={availableBalance()} asset={network.baseAsset} fullPrecision={true} hideValue={true} />
-                  </span></div>
-                }
+                <div className="form-text d-flex justify-content-between">
+                  <span className="value">
+                    {value ? (
+                      <em>${value.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</em>
+                    ) : null}
+                  </span>
+                  {availableBalance() ? (
+                    <span role="button" onClick={() => setAvailableAmount()}>
+                      Available: <Coin {...availableBalance()} asset={asset} fullPrecision={true} showValue={false} showImage={false} />
+                    </span>
+                  ) : <span></span>}
+                </div>
               </div>
             </Form.Group>
             <Form.Group className="mb-3">

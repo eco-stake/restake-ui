@@ -3,7 +3,7 @@ import React from 'react';
 import { round, add, multiply } from 'mathjs'
 
 import ValidatorLink from './ValidatorLink'
-import Coins from './Coins'
+import Coin from './Coin'
 import TooltipIcon from './TooltipIcon'
 
 import {
@@ -19,8 +19,6 @@ import ValidatorNetworks from './ValidatorNetworks';
 import OperatorLastRestake from './OperatorLastRestake';
 import Address from './Address';
 import ValidatorStatus from './ValidatorStatus'
-import SkipIcon from '../assets/skip.svg'
-import SkipWhiteIcon from '../assets/skip-white.svg'
 
 function ValidatorProfile(props) {
   const { validator, operator, network, networks, registryData, lastExec } = props
@@ -78,7 +76,15 @@ function ValidatorProfile(props) {
                         </tr>
                         <tr>
                           <td className={network.authzSupport ? '' : 'border-bottom-0'}>Minimum rewards</td>
-                          <td className={network.authzSupport ? '' : 'border-bottom-0'}><Coins coins={minimumReward()} asset={network.baseAsset} fullPrecision={true} hideValue={true} /></td>
+                          <td className={network.authzSupport ? '' : 'border-bottom-0'}>
+                            <Coin
+                              {...minimumReward()}
+                              asset={network.baseAsset}
+                              fullPrecision={true}
+                              showValue={false}
+                              showImage={false}
+                            />
+                          </td>
                         </tr>
                         {network.authzSupport && (
                           <tr>
@@ -126,7 +132,14 @@ function ValidatorProfile(props) {
               </tr>
               <tr>
                 <td scope="row">Voting power</td>
-                <td><span><Coins coins={{ amount: validator.tokens, denom: network.denom }} asset={network.baseAsset} /></span></td>
+                <td>
+                  <Coin
+                    amount={validator.tokens}
+                    denom={network.denom}
+                    asset={network.baseAsset}
+                    showImage={false}
+                  />
+                </td>
               </tr>
             </tbody>
           </Table>
@@ -149,7 +162,7 @@ function ValidatorProfile(props) {
               <tr>
                 <td className="align-middle" scope="row">Profiles</td>
                 <td>
-                  <ValidatorServices validator={validator} network={network} theme={props.theme} exclude={['nodes', 'skip']} />
+                  <ValidatorServices validator={validator} network={network} theme={props.theme} exclude={['nodes']} />
                 </td>
               </tr>
               {validator?.path && (
@@ -165,42 +178,6 @@ function ValidatorProfile(props) {
           <p className="mb-4">
             {validator.description?.details}
           </p>
-          {!!network.chain.services?.skip && !!validator.services?.skip && (
-            <>
-              <p className="mb-2 d-flex align-items-center gap-1">
-                <a href="https://skip.money" target="_blank"><img src={props.theme === 'dark' ? SkipWhiteIcon : SkipIcon} height={14} className="d-block" /></a><strong>Skip MEV</strong>
-              </p>
-              <Table className="table-sm">
-                <tbody>
-                  <tr>
-                    <td>Status</td>
-                    <td>
-                      {validator.services.skip.active ? (
-                        <>
-                          <span className="text-success">Active</span>
-                          {validator.services.skip.front_running_protection && <><br />Front-running protected</>}
-                        </>
-                      ) : <span className="text-warning">Inactive</span>}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Network profit</td>
-                    <td>
-                      {100 - validator.services.skip.val_payment_percentage}%<br />
-                      <Coins coins={{ amount: validator.services.skip.network_profit, denom: network.denom }} asset={network.baseAsset} hideValue={true} />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="border-bottom-0">Validator profit</td>
-                    <td className={'border-bottom-0'}>
-                      {validator.services.skip.val_payment_percentage}%<br />
-                      <Coins coins={{ amount: validator.services.skip.val_profit, denom: network.denom }} asset={network.baseAsset} hideValue={true} />
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
-            </>
-          )}
           {Object.entries(validator.public_nodes || {}).length > 0 && (
             <>
               <p className="mb-2 d-flex align-items-center gap-1"><HeartPulse /><strong>Public Nodes</strong></p>

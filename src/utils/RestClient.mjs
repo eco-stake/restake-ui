@@ -106,11 +106,7 @@ const RestClient = async (chainId, restUrls, opts) => {
       .get(apiPath('distribution', `delegators/${address}/rewards`), opts)
       .then((res) => res.data)
       .then((result) => {
-        const rewards = result.rewards.reduce(
-          (a, v) => ({ ...a, [v.validator_address]: v }),
-          {}
-        );
-        return rewards;
+        return result.rewards;
       });
   }
 
