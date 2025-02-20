@@ -7,7 +7,7 @@ function SkipApi(){
   async function getAssets(chainId){
     try {
       const res = await axios.get(`https://api.skip.build/v2/fungible/assets?chain_ids=${chainId}`)
-      const data = res.data.chain_to_assets_map[chainId].assets
+      const data = res.data.chain_to_assets_map[chainId]?.assets || []
       const coingeckoIds = _.compact(data.map((el) => el.coingecko_id))
       const prices = await CoingeckoApi().getPrices(coingeckoIds)
       return data.map((asset) => {
