@@ -254,7 +254,7 @@ function ValidatorStake(props) {
                       <td scope="row">Commission</td>
                       <td>
                         {!props.isLoading('commission') ? (
-                          <Coins coins={validatorCommission.commission} network={network} fullPrecision={true} />
+                          <Coins coins={validatorCommission?.commission} network={network} fullPrecision={true} />
                         ) : (
                           <Spinner animation="border" role="status" className="spinner-border-sm">
                             <span className="visually-hidden">Loading...</span>
