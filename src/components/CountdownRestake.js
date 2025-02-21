@@ -4,7 +4,7 @@ import TooltipIcon from './TooltipIcon';
 
 import Countdown from 'react-countdown';
 
-import Coins from './Coins';
+import Coin from './Coin';
 
 function CountdownRestake(props) {
   const { operator, network, maxAmount, icon } = props
@@ -35,7 +35,7 @@ function CountdownRestake(props) {
             renderer={countdownRenderer}
           />
           {maxAmount && (
-            <p>Grant remaining: <Coins coins={{amount: maxAmount, denom: props.network.denom}} asset={network.baseAsset} fullPrecision={true} hideValue={true} /></p>
+            <p>Grant remaining: <Coin amount={maxAmount} denom={props.network.denom} asset={network.baseAsset} fullPrecision={true} showValue={false} showImage={false} /></p>
           )}
         </div>
       </TooltipIcon>
@@ -46,7 +46,7 @@ function CountdownRestake(props) {
           renderer={countdownRenderer}
         />
         {maxAmount && (
-          <div>Grant remaining: <Coins coins={{amount: maxAmount, denom: props.network.denom}} asset={network.baseAsset} fullPrecision={true} hideValue={true} /></div>
+          <div>Grant remaining: <Coin amount={maxAmount} denom={props.network.denom} asset={network.baseAsset} fullPrecision={true} showValue={false} showImage={false} /></div>
         )}
       </div>
     )
@@ -54,4 +54,3 @@ function CountdownRestake(props) {
 }
 
 export default CountdownRestake;
-

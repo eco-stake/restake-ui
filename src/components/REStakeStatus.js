@@ -7,7 +7,7 @@ import {
 } from 'react-bootstrap'
 import { XCircle, ToggleOn, ToggleOff } from "react-bootstrap-icons";
 import { joinString } from "../utils/Helpers.mjs";
-import Coins from "./Coins";
+import Coin from "./Coin";
 
 function REStakeStatus(props) {
   const { network, validator, operator, delegation, grants, authzSupport, className } = props
@@ -26,7 +26,7 @@ function REStakeStatus(props) {
         if(grants?.grantsValid){
           let limit
           if(grants.maxTokens){
-            limit = <span><br />(<Coins coins={{ amount: grants.maxTokens, denom: network.denom }} asset={network.baseAsset} fullPrecision={true} hideValue={true} /> remaining)</span>
+            limit = <span><br />(<Coin amount={grants.maxTokens} denom={network.denom} asset={network.baseAsset} fullPrecision={true} showValue={false} showImage={false} /> remaining)</span>
           }else{
             limit = '(no limit)'
           }
@@ -66,11 +66,12 @@ function REStakeStatus(props) {
         <p>REStakes {operator.runTimesString()}</p>
         <p>
           Minimum reward is{" "}
-          <Coins
-            coins={minimumReward}
+          <Coin
+            {...minimumReward}
             asset={network.baseAsset}
             fullPrecision={true}
-            hideValue={true}
+            showValue={false}
+            showImage={false}
           />
         </p>
         <p>{tooltipContent}</p>

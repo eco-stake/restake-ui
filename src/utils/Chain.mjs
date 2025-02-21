@@ -1,9 +1,11 @@
+import _ from 'lodash';
 import { compareVersions, validate } from 'compare-versions';
 import ChainAsset from "./ChainAsset.mjs";
 
-const Chain = (data) => {
-  const assets = data.assets?.map(el => ChainAsset(el)) || []
-  const baseAsset = assets[0]
+const Chain = (data, assets) => {
+  assets = _.uniqBy([...(assets || []), ...(data.assets?.map(el => ChainAsset(el)) || [])], 'denom')
+  const stakingTokens = data.staking?.staking_tokens
+  const baseAsset = stakingTokens && assets.find(el => el.denom === stakingTokens[0].denom) || assets[0]
   const { cosmos_sdk_version } = data.versions || {}
   const slip44 = data.slip44 || 118
   const ethermint = data.ethermint ?? slip44 === 60
@@ -42,8 +44,7 @@ const Chain = (data) => {
     restakeSupport,
     sdk46OrLater,
     sdk50OrLater,
-    denom: data.denom || baseAsset?.base?.denom,
-    display: data.display || baseAsset?.display?.denom,
+    denom: data.denom || baseAsset.denom,
     symbol: data.symbol || baseAsset?.symbol,
     decimals: data.decimals || baseAsset?.decimals,
     image: baseAsset?.image || data.image,

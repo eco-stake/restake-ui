@@ -11,7 +11,7 @@ import {
   Nav
 } from 'react-bootstrap'
 
-import Coins from './Coins';
+import Coin from './Coin';
 import ProposalProgress from './ProposalProgress';
 import ProposalMessages from './ProposalMessages';
 import VoteForm from './VoteForm';
@@ -137,8 +137,8 @@ function ProposalDetails(props) {
                   <tr>
                     <td scope="row">Total deposit</td>
                     <td>
-                      {proposal.total_deposit.map(coins => {
-                        return <Coins key={coins.denom} coins={coins} asset={network.baseAsset} />
+                      {proposal.total_deposit.map(coin => {
+                        return <Coin key={coin.denom} {...coin} asset={network.baseAsset} />
                       })}
                     </td>
                   </tr>
