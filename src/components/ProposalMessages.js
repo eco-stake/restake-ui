@@ -5,9 +5,9 @@ import {
 import moment from 'moment'
 import _ from 'lodash'
 import Moment from 'react-moment';
-import Coins from './Coins';
-import { omit } from '../utils/Helpers.mjs';
 import truncateMiddle from 'truncate-middle';
+import { omit } from '../utils/Helpers.mjs';
+import Coins from './Coins';
 
 function ProposalMessages(props) {
   const { proposal, network } = props
@@ -46,13 +46,14 @@ function ProposalMessages(props) {
             )
           }
         }
-      case '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal':
+      case [
+        '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal',
+        '/cosmos.distribution.v1beta1.MsgCommunityPoolSpend'
+      ].find(type => type === message['@type']):
         return {
           ...data,
           amount: () => {
-            return data.amount?.map((coin, index) => {
-              return <Coins key={index} coins={coin} asset={network.assetForDenom(coin.denom)} fullPrecision={true} />
-            })
+            return <Coins coins={data.amount} network={network} showTotalValue={false} />
           }
         }
       default:

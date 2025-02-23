@@ -1,57 +1,74 @@
+import React, { useState } from 'react';
 import _ from 'lodash'
-import { divide, bignumber, round, format } from 'mathjs'
+import Coin from './Coin'
+import { divide, multiply, pow, bignumber, numeric } from 'mathjs'
+import { sortCoins } from '../utils/Helpers.mjs';
 
-function Coins(props) {
-  const { asset, coins, fullPrecision, inBaseDenom, hideValue, className } = props
-  let { decimals, symbol, prices } = asset || {}
-  const { coingecko } = prices || {}
-  decimals = decimals ?? 6
-  symbol = symbol || coins?.denom?.toUpperCase()
+function Coins({ coins, network, showTotalValue = true, hideLowValue = true, allowShowLowValue = true, ...props }) {
+  const [showHidden, setShowHidden] = useState(!hideLowValue)
 
-  function amount(coins){
-    if(inBaseDenom) return coins.amount
+  let items = sortCoins(coins || [], network).map((coin) => {
+    const asset = network.assetForDenom(coin.denom)
+    let value
+    if(asset && asset.prices?.coingecko?.usd){
+      value = numeric(multiply(divide(bignumber(coin.amount || 0), pow(10, asset.decimals)), asset.prices.coingecko.usd), 'number')
+    }
+    return {
+      coin,
+      asset,
+      value
+    }
+  })
+  const totalValue = items.reduce((a, v) => a + (v.value || 0), 0)
 
-    const prec = precision(coins)
-    return separator(format(round(divide(bignumber(coins.amount), Math.pow(10, decimals)), prec), {notation: 'fixed'}))
-  }
-
-  function value(coins){
-    return (coins.amount / Math.pow(10, decimals) * coingecko.usd).toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })
-  }
-
-  function separator(stringNum) {
-    var str = stringNum.split(".");
-    str[0] = str[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return str.join(".");
-}
-
-  if(!coins || !coins.denom){
-    return null
-  }
-
-  function precision(coins){
-    if(fullPrecision) return decimals;
-    if(props.precision) return props.precision;
-    if(coins.amount >= (1000 * Math.pow(10, decimals))) return 2
-    if(coins.amount >= (100 * Math.pow(10, decimals))) return 3
-    return 6
-  }
+  items.forEach((item, index) => {
+    if(index == 0) return
+    if(totalValue > 0 && (!item.value || item.value < 1)){
+      item.hide = true
+    }
+  })
 
   return (
-    <span className={['d-inline-block m-0 coins', className].join(' ')}>
-      <span>
-        <span className="amount">{amount(coins)}</span>&nbsp;
-        <small className="denom">{symbol}</small>
-      </span>
-      {!!coingecko?.usd && !hideValue && !!coins.amount && (
-        <>
-          <br />
-          <em className="text-muted">
-            <span className="amount">${value(coins)}</span>
-          </em>
-        </>
+    <div>
+      {items.map((item) => (
+        <div key={item.coin.denom} className={hideLowValue && !showHidden && item.hide ? 'd-none' : ''}>
+          <Coin
+            {...item.coin}
+            asset={item.asset}
+            showValue={!showTotalValue}
+            {...props}
+          />
+        </div>
+      ))}
+      {items.filter(item => item.hide).length > 0 && (
+        <div>
+          {showHidden ? (
+            <small
+              role={allowShowLowValue ? 'button' : ''}
+              className={`text-muted`}
+              onClick={() => allowShowLowValue && setShowHidden(false)}
+            >
+              ...hide low value
+            </small>
+          ) : (
+            <small
+              role={allowShowLowValue ? 'button' : ''}
+              className={`text-muted`}
+              onClick={() => allowShowLowValue && setShowHidden(true)}
+            >
+              ...and {items.filter(item => item.hide).length} more
+            </small>
+          )}
+        </div>
       )}
-    </span>
+      {showTotalValue && totalValue ? (
+        <>
+          <span className="total-value">
+            <em className="text-muted">${totalValue.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</em>
+          </span>
+        </>
+      ) : null}
+    </div>
   )
 }
 

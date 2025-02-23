@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash'
-import { pow, multiply, divide, subtract, bignumber } from 'mathjs'
+import { pow, multiply, divide, numeric, bignumber, format } from 'mathjs'
 
 import { MsgSend } from "../messages/MsgSend.mjs";
 
@@ -8,20 +8,28 @@ import {
   Modal,
   Button,
   Form,
+  Dropdown
 } from 'react-bootstrap'
 
 import AlertMessage from './AlertMessage';
-import { coin, execableMessage, truncateAddress } from '../utils/Helpers.mjs';
-import Coins from './Coins';
+import { coin, execableMessage, sortCoins, truncateAddress } from '../utils/Helpers.mjs';
+import Coin from './Coin';
 
 function SendModal(props) {
-  const { show, network, address, wallet } = props
+  const { show, network, address, wallet, balances } = props
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState()
-  const [state, setState] = useState({recipientValue: '', customRecipientValue: '', memoValue: ''});
+  const [state, setState] = useState({recipientValue: '', customRecipientValue: '', amountValue: '', denomValue: '', memoValue: ''});
 
-  const denom = network && network.symbol
-  const step = 1 / pow(10, network?.decimals || 6)
+  const asset = state.denomValue && network.assetForDenom(state.denomValue)
+  const balance = asset && balances?.find(el => el.denom === asset.denom)
+  const sortedBalances = sortCoins(balances, network)
+  const assets = _.compact(sortedBalances?.map(el => network.assetForDenom(el.denom)) || [])
+  const step = 1 / pow(10, asset?.decimals || 6)
+  let value
+  if(state.amountValue && asset && asset.prices?.coingecko?.usd){
+    value = numeric(multiply(state.amountValue, asset.prices.coingecko.usd), 'number')
+  }
 
   useEffect(() => {
     setState({
@@ -29,6 +37,7 @@ function SendModal(props) {
       recipientValue: '',
       customRecipientValue: '',
       amountValue: '',
+      denomValue: network.denom,
       memoValue: '',
     })
     setError(null)
@@ -36,6 +45,10 @@ function SendModal(props) {
 
   function handleInputChange(e) {
     setState({ ...state, [e.target.name]: e.target.value });
+  }
+
+  function handleDenomValueChange(denom) {
+    setState({ ...state, amountValue: '', denomValue: denom });
   }
 
   function showLoading(isLoading) {
@@ -63,6 +76,7 @@ function SendModal(props) {
         recipientValue: '',
         customRecipientValue: '',
         amountValue: '',
+        denomValue: network.denom,
         memoValue: '',
       })
       props.onSend(recipient(), coinValue);
@@ -88,19 +102,9 @@ function SendModal(props) {
   }
 
   async function setAvailableAmount(){
-    setError(null)
-    const decimals = pow(10, network.decimals)
-    const coinValue = coin(multiply(props.balance.amount, 0.95), network.denom)
-    const message = buildSendMsg(address, recipient(), [coinValue])
-    wallet.simulate([message]).then(gas => {
-      const gasPrice = wallet.getFee(gas).amount[0].amount
-      const amount = divide(subtract(bignumber(props.balance.amount), gasPrice), decimals)
-
-      setState({...state, amountValue: amount > 0 ? amount : 0})
-    }, error => {
-      console.log(error)
-      setError(error.message)
-    })
+    const decimals = pow(10, asset.decimals)
+    const amount = divide(bignumber(balance.amount), decimals)
+    setState({...state, amountValue: format(amount, {notation: 'fixed'})})
   }
 
   function recipient(){
@@ -110,16 +114,16 @@ function SendModal(props) {
   function coinAmount(){
     if(!state.amountValue) return null
 
-    const decimals = pow(10, network.decimals)
+    const decimals = pow(10, asset.decimals)
     const denomAmount = multiply(state.amountValue, decimals)
     if(denomAmount > 0){
-      return coin(denomAmount, network.denom)
+      return coin(denomAmount, asset.denom)
     }
   }
 
   function valid(){
     if(!state.recipientValue) return true
-    return validRecipient() && coinAmount() && wallet?.hasPermission(address, 'Send')
+    return validRecipient() && coinAmount() && validBalance() && wallet?.hasPermission(address, 'Send')
   }
 
   function validAmount(){
@@ -133,6 +137,15 @@ function SendModal(props) {
     if(!value) return true;
 
     return !network.prefix || value.startsWith(network.prefix)
+  }
+
+  function validBalance(){
+    if(!state.amountValue) return true
+
+    const coinValue = coinAmount()
+    if(!coinValue) return false
+
+    return bignumber(coinValue.amount).lte(balance.amount)
   }
 
   function favourites(){
@@ -151,61 +164,85 @@ function SendModal(props) {
               {error}
             </AlertMessage>
           }
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Recipient</Form.Label>
-              <select className="form-select" name="recipientValue" aria-label="Recipient" value={state.recipientValue} onChange={handleInputChange}>
-                <option value='' disabled>Choose address</option>
-                {favourites().length > 0 && (
-                  <optgroup label="Favourites">
-                    {favourites().map(({ label, address }) => {
-                      if (props.address === address) return null
+          <Form.Group className="mb-3">
+            <Form.Label>Recipient</Form.Label>
+            <select className="form-select" name="recipientValue" aria-label="Recipient" value={state.recipientValue} onChange={handleInputChange}>
+              <option value='' disabled>Choose address</option>
+              {favourites().length > 0 && (
+                <optgroup label="Favourites">
+                  {favourites().map(({ label, address }) => {
+                    if (props.address === address) return null
 
-                      return (
-                        <option key={address} value={address}>{label || truncateAddress(address)}</option>
-                      )
-                    })}
-                  </optgroup>
-                )}
-                <option value='custom'>Custom</option>
-              </select>
-              {state.recipientValue === 'custom' && (
-                <Form.Control placeholder={`${network.prefix}1...`} className="mt-1" type="text" name='customRecipientValue' required={true} value={state.customRecipientValue} isInvalid={!validRecipient()} onChange={handleInputChange} />
-              )}
-            </Form.Group>
-            {recipient() && (
-              <>
-                <Form.Group className="mb-3">
-                  <Form.Label>Amount</Form.Label>
-                  <div className="mb-3">
-                    <div className="input-group">
-                      <Form.Control name="amountValue" type="number" min={0} step={step} placeholder="10" required={true} isInvalid={!validAmount()} value={state.amountValue} onChange={handleInputChange} />
-                      <span className="input-group-text">{denom}</span>
-                    </div>
-                    {props.balance &&
-                      <div className="form-text text-end"><span role="button" onClick={() => setAvailableAmount()}>
-                        Available: <Coins coins={props.balance} asset={network.baseAsset} fullPrecision={true} hideValue={true} />
-                      </span></div>
-                    }
-                  </div>
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Memo</Form.Label>
-                  <Form.Control name="memoValue" as="textarea" rows={3} value={state.memoValue} onChange={handleInputChange} />
-                </Form.Group>
-                <p className="text-end">
-                  {!loading
-                    ? (
-                      <Button type="submit" className="btn btn-primary ms-2" disabled={!valid()}>Send {coinAmount() && <Coins coins={coinAmount()} asset={network.baseAsset} fullPrecision={true} hideValue={true} />}</Button>
+                    return (
+                      <option key={address} value={address}>{label || truncateAddress(address)}</option>
                     )
-                    : <Button className="btn btn-primary" type="button" disabled>
-                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;
-                    </Button>
-                  }
-                </p>
-              </>
+                  })}
+                </optgroup>
+              )}
+              <option value='custom'>Custom</option>
+            </select>
+            {state.recipientValue === 'custom' && (
+              <Form.Control placeholder={`${network.prefix}1...`} className="mt-1" type="text" name='customRecipientValue' required={true} value={state.customRecipientValue} isInvalid={!validRecipient()} onChange={handleInputChange} />
             )}
-          </Form>
+          </Form.Group>
+          {recipient() && (
+            <>
+              <Form.Group className="mb-3">
+                <Form.Label>Amount</Form.Label>
+                <div className="mb-3">
+                  <div className="input-group">
+                    <Form.Control name="amountValue" type="number" min={0} step={step} placeholder="10" required={true} isInvalid={!validAmount()} value={state.amountValue} onChange={handleInputChange} />
+                    <div className="input-group-append">
+                      <Dropdown>
+                        <Dropdown.Toggle variant="secondary">
+                          {asset?.symbol}
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                          {assets.map((asset, index) => (
+                            <Dropdown.Item
+                              as="button"
+                              key={asset.denom}
+                              onClick={() => handleDenomValueChange(asset.denom)}
+                            >
+                              {asset.symbol}
+                            </Dropdown.Item>
+                          ))}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </div>
+                  </div>
+                  <div className="form-text d-flex justify-content-between">
+                    <span className="value">
+                      {value ? (
+                        <em>${value.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</em>
+                      ) : null}
+                    </span>
+                    {balance ? (
+                      <span role="button" onClick={() => setAvailableAmount()}>
+                        Available: <Coin {...balance} asset={asset} fullPrecision={true} showValue={false} showImage={false} />
+                      </span>
+                    ) : <span></span>}
+                  </div>
+                </div>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Memo</Form.Label>
+                <Form.Control name="memoValue" as="textarea" rows={3} value={state.memoValue} onChange={handleInputChange} />
+              </Form.Group>
+              <p className="text-end">
+                {!loading
+                  ? (
+                    <Button type="button" onClick={handleSubmit} className="btn btn-primary ms-2" disabled={!valid()}>
+                      Send {coinAmount() && <Coin {...coinAmount()} asset={asset} fullPrecision={true} showValue={false} showImage={false} />}
+                    </Button>
+                  )
+                  : <Button className="btn btn-primary" type="button" disabled>
+                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>&nbsp;
+                  </Button>
+                }
+              </p>
+            </>
+          )}
         </Modal.Body>
       </Modal>
     </>

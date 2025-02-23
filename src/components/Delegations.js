@@ -1,6 +1,6 @@
 import React from "react";
 import _ from "lodash";
-import { larger, bignumber } from 'mathjs'
+import { larger, largerEq, bignumber, add } from 'mathjs'
 import AlertMessage from "./AlertMessage";
 import ClaimRewards from "./ClaimRewards";
 import ValidatorModal from "./ValidatorModal";
@@ -150,7 +150,16 @@ class Delegations extends React.Component {
       .getRewards(this.props.address, this.props.network.denom)
       .then(
         (rewards) => {
-          this.setState({ rewards: rewards });
+          this.setState({ rewards: rewards.reduce((sum, reward) => {
+            const validatorRewards = reward.reward.filter(reward => largerEq(reward.amount, 1))
+            if(validatorRewards.length > 0){
+              sum[reward.validator_address] = {
+                validator_address: reward.validator_address,
+                reward: validatorRewards
+              }
+            }
+            return sum
+          }, {}) });
         },
         (error) => {
           if ([404, 500].includes(error.response && error.response.status) && !this.state.rewards) {
@@ -169,7 +178,7 @@ class Delegations extends React.Component {
             commission: _.set(
               state.commission,
               validator.address,
-              commission
+              { commission: commission.filter(comm => largerEq(comm.amount, 1)) }
             ),
           }));
         })
@@ -308,7 +317,7 @@ class Delegations extends React.Component {
         grantsValid: !!(
           grant.stakeGrant &&
           (!grant.validators || grant.validators.includes(operator.address)) &&
-          (grant.maxTokens === null || larger(grant.maxTokens, rewardAmount(this.state.rewards, this.props.network.denom)))
+          (grant.maxTokens === null || larger(grant.maxTokens, rewardAmount(this.state.rewards?.[operator.address], this.props.network.denom)))
         ),
         grantsExist: !!(grant.claimGrant || grant.stakeGrant),
       }
@@ -326,12 +335,8 @@ class Delegations extends React.Component {
     const denom = this.props.network.denom;
     const total = Object.values(this.state.rewards).reduce((sum, item) => {
       const reward = item.reward.find((el) => el.denom === denom);
-      if (
-        reward &&
-        (validators === undefined ||
-          validators.includes(item.validator_address))
-      ) {
-        return sum + parseInt(reward.amount);
+      if (reward && (validators === undefined || validators.includes(item.validator_address))) {
+        return add(sum, reward.amount)
       }
       return sum;
     }, 0);
@@ -495,7 +500,7 @@ class Delegations extends React.Component {
                           setError={this.setError}
                         />
                         <ClaimRewards
-                          disabled={!rewards}
+                          disabled={!rewards || !rewardAmount(rewards, network.denom)}
                           restake={true}
                           network={network}
                           address={address}
@@ -552,7 +557,6 @@ class Delegations extends React.Component {
                     <Dropdown.Toggle
                       variant="secondary"
                       id="claim-dropdown"
-                      disabled={this.totalRewards().amount === 0}
                     >
                       All Rewards
                     </Dropdown.Toggle>
@@ -568,6 +572,7 @@ class Delegations extends React.Component {
                         setError={this.setError}
                       />
                       <ClaimRewards
+                        disabled={!this.totalRewards().amount}
                         restake={true}
                         network={this.props.network}
                         address={this.props.address}
@@ -594,7 +599,7 @@ class Delegations extends React.Component {
         </div>
         <hr />
         <p className="mt-5 text-center">
-          Enabling REStake will authorize the validator to send <em>Delegate</em> transactions on your behalf <a href="https://docs.cosmos.network/master/modules/authz/" target="_blank" rel="noreferrer" className="text-reset">using Authz</a>.<br />
+          Enabling REStake will authorize the validator to send <em>Delegate</em> transactions on your behalf <a href="https://docs.cosmos.network/main/modules/authz/" target="_blank" rel="noreferrer" className="text-reset">using Authz</a>.<br />
           They will only be authorized to delegate to their own validator. You can revoke the authorization at any time and everything is open source.
         </p>
         <p className="text-center mb-4">

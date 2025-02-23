@@ -7,7 +7,7 @@ import {
   Form,
 } from 'react-bootstrap'
 
-import Coins from './Coins';
+import Coin from './Coin';
 import { coin, execableMessage, rewardAmount } from '../utils/Helpers.mjs';
 import RevokeGrant from './RevokeGrant';
 import AlertMessage from './AlertMessage';
@@ -141,7 +141,7 @@ function REStakeGrantForm(props) {
     return (
       <>
         <p className="small">{operator.moniker} will be able to carry out the following transactions on your behalf:</p>
-        <p className="small"><strong>Delegate</strong> - allowed to delegate <em>{maxTokensDenom() ? <>a maximum of <Coins coins={{ amount: maxTokensDenom(), denom: network.denom }} asset={network.baseAsset} fullPrecision={true} hideValue={true} /></> : 'any amount'}</em> to <em>{!state.validators ? 'any validator' : !state.validators.length || (state.validators.length === 1 && state.validators.includes(operator.address)) ? 'only their own validator' : 'validators ' + state.validators.join(', ')}</em>.</p>
+        <p className="small"><strong>Delegate</strong> - allowed to delegate <em>{maxTokensDenom() ? <>a maximum of <Coin amount={maxTokensDenom()} denom={network.denom} asset={network.baseAsset} fullPrecision={true} showImage={false} showValue={false} /></> : 'any amount'}</em> to <em>{!state.validators ? 'any validator' : !state.validators.length || (state.validators.length === 1 && state.validators.includes(operator.address)) ? 'only their own validator' : 'validators ' + state.validators.join(', ')}</em>.</p>
         <p className="small">This grant will expire automatically on <em>{state.expiryDateValue}</em> and you can revoke it at any time.</p>
         <p className="small">{operator.moniker} will only auto-compound their accrued rewards and tries not to touch your balance.<br /><strong>They will pay the transaction fees for you.</strong></p>
         {genericGrantOnly && (
