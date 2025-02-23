@@ -11,7 +11,7 @@ function Coins({ coins, network, showTotalValue = true, hideLowValue = true, all
     const asset = network.assetForDenom(coin.denom)
     let value
     if(asset && asset.prices?.coingecko?.usd){
-      value = numeric(multiply(divide(bignumber(coin.amount), pow(10, asset.decimals)), asset.prices.coingecko.usd), 'number')
+      value = numeric(multiply(divide(bignumber(coin.amount || 0), pow(10, asset.decimals)), asset.prices.coingecko.usd), 'number')
     }
     return {
       coin,
