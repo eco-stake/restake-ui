@@ -178,7 +178,7 @@ class Delegations extends React.Component {
             commission: _.set(
               state.commission,
               validator.address,
-              { commission: commission.commission.filter(comm => largerEq(comm.amount, 1)) }
+              { commission: commission.filter(comm => largerEq(comm.amount, 1)) }
             ),
           }));
         })

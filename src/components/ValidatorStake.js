@@ -37,7 +37,6 @@ function ValidatorStake(props) {
   const validatorRewards = props.rewards && props.rewards[validator.address]
   const reward = rewardAmount(validatorRewards, network.denom)
   const validatorCommission = props.commission && props.commission[validator.address]
-  const commission = rewardAmount(validatorCommission, network.denom, 'commission')
   const validatorGrants = props.grants && operator && props.grants[operator.botAddress]
   const { grantsValid, grantsExist, maxTokens, stakeGrant } = validatorGrants || {}
 

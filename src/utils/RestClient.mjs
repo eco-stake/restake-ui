@@ -106,7 +106,7 @@ const RestClient = async (chainId, restUrls, opts) => {
       .get(apiPath('distribution', `delegators/${address}/rewards`), opts)
       .then((res) => res.data)
       .then((result) => {
-        return result.rewards;
+        return result.rewards || [];
       });
   }
 
@@ -115,7 +115,7 @@ const RestClient = async (chainId, restUrls, opts) => {
       .get(apiPath('distribution', `validators/${validatorAddress}/commission`), opts)
       .then((res) => res.data)
       .then((result) => {
-        return result.commission;
+        return result.commission?.commission || [];
       });
   }
 
