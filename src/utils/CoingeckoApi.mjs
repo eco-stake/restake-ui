@@ -10,6 +10,7 @@ function CoingeckoApi(){
       return res.data
     } catch (err) {
       console.error(err)
+      return {}
     }
   }
 

@@ -12,7 +12,7 @@ function SkipApi(){
       const prices = await CoingeckoApi().getPrices(coingeckoIds)
       return data.map((asset) => {
         const { name, description, denom, symbol, decimals, coingecko_id } = asset
-        const price = prices[asset.coingecko_id]
+        const price = asset.coingecko_id && prices[asset.coingecko_id]
         return ChainAsset({
           name,
           description,
