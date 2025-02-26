@@ -37,7 +37,7 @@ const Proposal = async (data) => {
         }else{
           ipfsUrl = `https://ipfs.io/ipfs/${metadata}`
         }
-        response = await axios.get(ipfsUrl, { timeout: 5000 })
+        let response = await axios.get(ipfsUrl, { timeout: 5000 })
         if(response.headers['content-type'] === 'application/json'){
           metadata = response.data
           title = metadata.title
@@ -52,7 +52,7 @@ const Proposal = async (data) => {
   if(messages){
     content = messages.find(el => el['@type'] === '/cosmos.gov.v1.MsgExecLegacyContent')?.content
     messages = messages.filter(el => el['@type'] !== '/cosmos.gov.v1.MsgExecLegacyContent')
-    typeHuman = messages.map(el => el['@type'].split('.').reverse()[0]).join(', ')
+    typeHuman = messages.map(el => el['@type'].split('.').reverse()[0]).slice(0, 3).join(', ')
   }
 
   if(content){
