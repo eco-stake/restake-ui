@@ -3,7 +3,14 @@ import { compareVersions, validate } from 'compare-versions';
 import ChainAsset from "./ChainAsset.mjs";
 
 const Chain = (data, assets) => {
-  assets = _.uniqBy([...(assets || []), ...(data.assets?.map(el => ChainAsset(el)) || [])], 'denom')
+  const dataAssets = data.assets?.map(el => ChainAsset(el)) || []
+  assets = _.uniqBy([...(assets || []), ...dataAssets], 'denom')
+  assets.forEach((el, i) => {
+    const dataAsset = dataAssets.find(asset => asset.denom === el.denom)
+    if(!el.prices && dataAsset?.prices){
+      el.prices = dataAsset.prices
+    }
+  })
   const stakingTokens = data.staking?.staking_tokens
   const baseAsset = stakingTokens && assets.find(el => el.denom === stakingTokens[0].denom) || assets[0]
   const { cosmos_sdk_version } = data.versions || {}
