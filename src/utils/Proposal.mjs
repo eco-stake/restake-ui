@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { cid as isIPFSCID } from 'is-ipfs'
 
 export const PROPOSAL_STATUSES = {
   '': 'All',
@@ -30,18 +31,20 @@ const Proposal = async (data) => {
     } catch {
       try {
         let ipfsUrl
-        if(metadata.startsWith('ipfs://')){
+        if(metadata.startsWith('ipfs://') && metadata !== 'ipfs://CID'){
           ipfsUrl = metadata.replace("ipfs://", "https://ipfs.io/ipfs/")
         }else if(metadata.startsWith('https://')){
           ipfsUrl = metadata
-        }else{
+        }else if(isIPFSCID(metadata)){
           ipfsUrl = `https://ipfs.io/ipfs/${metadata}`
         }
-        let response = await axios.get(ipfsUrl, { timeout: 5000 })
-        if(response.headers['content-type'] === 'application/json'){
-          metadata = response.data
-          title = metadata.title
-          description = metadata.summary || metadata.description || metadata.details
+        if(ipfsUrl) {
+          let response = await axios.get(ipfsUrl, { timeout: 5000 })
+          if(response.headers['content-type'] === 'application/json'){
+            metadata = response.data
+            title = metadata.title
+            description = metadata.summary || metadata.description || metadata.details
+          }
         }
       } catch (e) {
         console.log(e)
