@@ -102,7 +102,14 @@ function ProposalDetails(props) {
               </tr>
               <tr>
                 <td scope="row">Type</td>
-                <td>{proposal.typeHuman}</td>
+                <td>
+                  <div>
+                    {proposal.typeHuman}
+                  </div>
+                  {proposal.messages && proposal.messages.length > 3 ? (
+                    <span className="text-muted">and {(proposal.messages.length - 3).toLocaleString(undefined)} more...</span>
+                  ) : null}
+                </td>
               </tr>
               {!proposal.isDeposit && (
                 <>
