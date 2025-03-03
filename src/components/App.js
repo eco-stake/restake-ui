@@ -98,12 +98,6 @@ class App extends React.Component {
       const connector = (event) => this.connectAuto(event, provider.name)
       this.signerConnectors[provider.name] = connector
       window.addEventListener(provider.keychangeEvent, connector)
-
-      provider.autoconnect().then((connected) => {
-        if(connected){
-          this.connect(provider.name, true)
-        }
-      })
     })
   }
 
@@ -181,9 +175,20 @@ class App extends React.Component {
       localStorage.setItem('connected', storedKey)
     }
 
-    const signerProvider = this.getSignerProvider(providerKey || storedKey)
+    let signerProvider = this.getSignerProvider(providerKey || storedKey)
 
-    if(!signerProvider) return
+    if(!signerProvider){
+      await Promise.all(this.signerProviders.map(async provider => {
+        const connected = await provider.autoconnect();
+        if (connected) {
+          signerProvider = provider;
+          manual = true;
+        }
+      }))
+      if(!signerProvider) return
+    }else{
+      await signerProvider.autoconnect()
+    }
 
     providerKey = signerProvider.name
 
