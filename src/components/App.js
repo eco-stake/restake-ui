@@ -177,18 +177,15 @@ class App extends React.Component {
 
     let signerProvider = this.getSignerProvider(providerKey || storedKey)
 
-    if(!signerProvider){
-      await Promise.all(this.signerProviders.map(async provider => {
-        const connected = await provider.autoconnect();
-        if (connected) {
-          signerProvider = provider;
-          manual = true;
-        }
-      }))
-      if(!signerProvider) return
-    }else{
-      await signerProvider.autoconnect()
-    }
+    await Promise.all(this.signerProviders.map(async provider => {
+      const connected = await provider.autoconnect();
+      if (connected && !signerProvider) {
+        signerProvider = provider;
+        manual = true;
+      }
+    }))
+
+    if(!signerProvider) return
 
     providerKey = signerProvider.name
 
