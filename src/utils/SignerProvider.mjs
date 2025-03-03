@@ -1,4 +1,5 @@
 export default class SignerProvider {
+  visible = true
   suggestChainSupport = true
   authzAminoLiftedValueSupport = true
 
@@ -8,10 +9,6 @@ export default class SignerProvider {
 
   available() {
     return !!this.provider
-  }
-
-  connected() {
-    return this.available()
   }
 
   isLedger() {
@@ -24,6 +21,10 @@ export default class SignerProvider {
 
   signAminoSupport(){
     return !!this.signer?.signAmino
+  }
+
+  async autoconnect() {
+    return false
   }
 
   async connect(network) {

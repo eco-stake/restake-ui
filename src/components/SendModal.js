@@ -112,7 +112,7 @@ function SendModal(props) {
   }
 
   function coinAmount(){
-    if(!state.amountValue) return null
+    if(!state.amountValue || !asset) return null
 
     const decimals = pow(10, asset.decimals)
     const denomAmount = multiply(state.amountValue, decimals)

@@ -59,7 +59,7 @@ function NetworkChecks(props) {
     <ul className={className} style={props.style}>
       {([
         renderCheck({
-          title: <strong>{`$${price && price.usd.toLocaleString(undefined, { maximumFractionDigits: 8, minimumFractionDigits: 2 })}`}</strong>,
+          title: <strong>{`$${price?.usd && price.usd.toLocaleString(undefined, { maximumFractionDigits: 8, minimumFractionDigits: 2 })}`}</strong>,
           failTitle: 'Price unknown',
           state: price?.usd,
           identifier: 'price',
