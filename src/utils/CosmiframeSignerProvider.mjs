@@ -17,6 +17,10 @@ export default class CosmiframeSignerProvider extends SignerProvider {
     return this.isReady
   }
 
+  async getAddress(){
+    return this.key?.bech32Address
+  }
+
   async autoconnect() {
     const isReady = await this.client.isReady()
     if(isReady) {
