@@ -340,5 +340,9 @@
     "ownerAddress": "elysvaloper1wnv3j92za5cnsfuhlw4c9jl3ttdl36smk9yujm",
     "restakeEnabled": false,
     "restakeAlert": "Elys Network uses a novel rewards mechanism which isn't fully supported just yet..."
+  },
+  {
+    "name": "babylon",
+    "ownerAddress": "bbnvaloper1q2j9696tz69g8kyvavca5520hsr4raf387ls0e"
   }
 ]
