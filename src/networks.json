@@ -254,11 +254,7 @@
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ],
     "ledgerSupport": true,
-    "authzAminoGenericOnly": true,
-    "restakeAlert": {
-      "message": "REStake now supports Ledger wallets on Injective! 🥷",
-      "variant": "success"
-    }
+    "authzAminoGenericOnly": true
   },
   {
     "name": "xpla"
