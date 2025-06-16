@@ -38,7 +38,7 @@ function Coin(props) {
     return 6
   }
 
-  if(!denom){
+  if(!denom || amount === undefined){
     return null
   }
 
