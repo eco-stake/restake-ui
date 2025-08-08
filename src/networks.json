@@ -342,6 +342,7 @@
     "ownerAddress": "atonevaloper1v6pes3zvpu926pep0l636wwda357uc20t0x5vd",
     "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
-    ]
+    ],
+    "gasPriceDenom": "uphoton"
   }
 ]
