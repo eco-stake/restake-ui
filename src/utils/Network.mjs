@@ -142,7 +142,8 @@ class Network {
   async connect() {
     try {
       this.restClient = await RestClient(this.chain.chainId, this.restUrl, {
-        apiVersions: this.chain.apiVersions
+        apiVersions: this.chain.apiVersions,
+        apiPaths: this.chain.apiPaths
       })
       this.restUrl = this.restClient.restUrl
       this.connected = this.restClient.connected && (!this.usingDirectory || this.connectedDirectory())
