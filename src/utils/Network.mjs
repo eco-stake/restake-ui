@@ -110,10 +110,12 @@ class Network {
     this.txTimeout = this.data.txTimeout || 60_000
     this.keywords = this.buildKeywords()
 
-    const feeConfig = this.chain.fees?.fee_tokens?.find(el => el.denom === this.denom)
     let gasPrice
+    let gasPriceDenom = this.data.gasPriceDenom || this.denom
+    const feeConfig = this.chain.fees?.fee_tokens?.find(el => el.denom === gasPriceDenom) || this.chain.fees?.fee_tokens?.[0]
     if(this.data.gasPrice){
       gasPrice = number(GasPrice.fromString(this.data.gasPrice).amount.toString())
+      gasPriceDenom = GasPrice.fromString(this.data.gasPrice).denom
       this.gasPriceStep = this.data.gasPriceStep || {
         "low": gasPrice,
         "average": feeConfig?.average_gas_price ?? gasPrice,
@@ -126,13 +128,14 @@ class Network {
         defaultGasPrice = minimumGasPrice
       }
       gasPrice = feeConfig?.average_gas_price ?? defaultGasPrice
+      gasPriceDenom = feeConfig?.denom || gasPriceDenom
       this.gasPriceStep = this.data.gasPriceStep || {
         "low": minimumGasPrice ?? multiply(gasPrice, 0.5),
         "average": gasPrice,
         "high": feeConfig?.high_gas_price ?? multiply(gasPrice, 2),
       }
     }
-    this.gasPrice = gasPrice + this.denom
+    this.gasPrice = gasPrice + gasPriceDenom
     this.gasModifier = this.data.gasModifier || 1.5
   }
 
