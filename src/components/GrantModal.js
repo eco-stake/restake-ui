@@ -27,10 +27,7 @@ function GrantModal(props) {
   const { daemon_name, chain_id } = network.chain
 
   const availableTypes = messageTypes.map(type => {
-    if(network.data.messagePaths && network.data.messagePaths[type]){
-      return network.data.messagePaths[type]
-    }
-    return type
+    return network.messageType(type)
   })
 
   useEffect(() => {

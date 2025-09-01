@@ -212,6 +212,11 @@ class Network {
   assetForDenom(denom){
     return this.assets.find(el => el.denom === denom)
   }
+
+  messageType(type){
+    const messageTypes = this.data.messageTypes || {}
+    return messageTypes[type] || type
+  }
 }
 
 export default Network;
