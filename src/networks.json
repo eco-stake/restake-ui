@@ -347,7 +347,7 @@
     "apiPaths": {
       "/cosmos/gov/v1/proposals": "/atomone/gov/v1/proposals"
     },
-    "messagePaths": {
+    "messageTypes": {
       "/cosmos.gov.v1beta1.MsgVote": "/atomone.gov.v1.MsgVote"
     }
   }

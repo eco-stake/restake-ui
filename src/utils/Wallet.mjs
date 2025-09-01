@@ -54,15 +54,15 @@ class Wallet {
     if(address === this.address) return true
     if(!this.authzSupport()) return false
 
-    let message = messageTypes.find(el => {
+    let messageType = messageTypes.find(el => {
       return el.split('.').slice(-1)[0].replace('Msg', '') === action
     })
-    message = this.network.data.messagePaths[message] || message || action
+    messageType = this.network.messageType(messageType || action)
     return this.grants.some(grant => {
       return grant.granter === address &&
         (!grant.expiration || Date.parse(grant.expiration) > Date.now()) &&
         grant.authorization["@type"] === "/cosmos.authz.v1beta1.GenericAuthorization" &&
-        grant.authorization.msg === message
+        grant.authorization.msg === messageType
     })
   }
 
