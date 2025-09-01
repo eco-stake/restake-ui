@@ -7,7 +7,7 @@ import { MsgBase } from "./MsgBase.mjs";
 export class MsgWithdrawValidatorCommission extends MsgBase {
   typeUrl = "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission";
 
-  toInjective(){
+  forInjectiveLedger(){
     return new InjectiveMsgWithdrawValidatorCommission({
       ...this.params
     })

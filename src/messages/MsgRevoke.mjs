@@ -18,7 +18,7 @@ export class MsgRevoke extends MsgBase {
     }
   }
 
-  toInjective(){
+  forInjectiveLedger(){
     return new InjectiveMsgRevoke({
       ...this.params,
       messageType: this.params.msgTypeUrl

@@ -26,6 +26,13 @@ function GrantModal(props) {
 
   const { daemon_name, chain_id } = network.chain
 
+  const availableTypes = messageTypes.map(type => {
+    if(network.data.messagePaths && network.data.messagePaths[type]){
+      return network.data.messagePaths[type]
+    }
+    return type
+  })
+
   useEffect(() => {
     setState({
       ...state,
@@ -33,7 +40,7 @@ function GrantModal(props) {
       customGranteeValue: '',
       expiryDateValue: defaultExpiry.format('YYYY-MM-DD'),
       grantTypeValue: '/cosmos.authz.v1beta1.GenericAuthorization',
-      messageTypeValue: messageTypes[0],
+      messageTypeValue: availableTypes[0],
       customMessageTypeValue: '',
     })
     setShowLedger(!walletAuthzSupport)
@@ -178,7 +185,7 @@ function GrantModal(props) {
                 <Form.Group className="mb-3">
                   <Form.Label>Message type</Form.Label>
                   <select className="form-select" name="messageTypeValue" aria-label="Message type" value={state.messageTypeValue} onChange={handleInputChange}>
-                    {messageTypes.map(type => {
+                    {availableTypes.map(type => {
                       return (
                         <option key={type} value={type}>{_.startCase(type.split('.').slice(-1)[0].replace('Msg', ''))}</option>
                       )

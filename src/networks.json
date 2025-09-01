@@ -348,7 +348,7 @@
       "/cosmos/gov/v1/proposals": "/atomone/gov/v1/proposals"
     },
     "messagePaths": {
-      "/cosmos.gov.v1beta1.MsgVote": "/atomone/gov/v1/MsgVote"
+      "/cosmos.gov.v1beta1.MsgVote": "/atomone.gov.v1.MsgVote"
     }
   }
 ]
