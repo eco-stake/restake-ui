@@ -36,7 +36,7 @@ export class MsgGrant extends MsgBase {
     }
   }
 
-  toInjective () {
+  forInjectiveLedger () {
     // Injective MsgGrant throws an InvalidCharacterError currently.
     // For now we will implement the toEip712 methods on this class as the Amino
     // parameter order matches so we can avoid an Injective class right now.

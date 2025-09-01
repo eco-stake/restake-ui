@@ -44,7 +44,7 @@ function Voting(props) {
 
   const voteGrants = (wallet?.grants || []).filter(grant => {
     return grant.authorization['@type'] === '/cosmos.authz.v1beta1.GenericAuthorization' &&
-      grant.authorization.msg === '/cosmos.gov.v1beta1.MsgVote'
+      grant.authorization.msg === network.messageType('/cosmos.gov.v1beta1.MsgVote')
   })
 
   useEffect(() => {

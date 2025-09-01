@@ -32,7 +32,7 @@ export default class InjectiveSigningAdapter extends DefaultSigningAdapter {
       DEFAULT_BLOCK_TIMEOUT_HEIGHT,
     )
 
-    const injMessages = messages.map((m) => m.toInjective())
+    const injMessages = messages.map((m) => m.forInjectiveLedger())
 
     const eip712TypedData = getEip712TypedData({
       msgs: injMessages,
@@ -89,7 +89,7 @@ export default class InjectiveSigningAdapter extends DefaultSigningAdapter {
       return super.toProto(message)
     }
 
-    const injMessage = message.toInjective()
+    const injMessage = message.forInjectiveLedger()
     return {
       typeUrl: injMessage.toDirectSign().type,
       value: injMessage.toBinary()
