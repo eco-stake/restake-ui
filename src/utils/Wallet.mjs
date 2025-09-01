@@ -57,7 +57,7 @@ class Wallet {
     let message = messageTypes.find(el => {
       return el.split('.').slice(-1)[0].replace('Msg', '') === action
     })
-    message = message || action
+    message = this.network.data.messagePaths[message] || message || action
     return this.grants.some(grant => {
       return grant.granter === address &&
         (!grant.expiration || Date.parse(grant.expiration) > Date.now()) &&

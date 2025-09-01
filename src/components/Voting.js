@@ -43,8 +43,12 @@ function Voting(props) {
   const pageSize = 10
 
   const voteGrants = (wallet?.grants || []).filter(grant => {
+    let messageType = '/cosmos.gov.v1beta1.MsgVote'
+    if(network.data.messagePaths && network.data.messagePaths[messageType]){
+      messageType = network.data.messagePaths[messageType]
+    }
     return grant.authorization['@type'] === '/cosmos.authz.v1beta1.GenericAuthorization' &&
-      grant.authorization.msg === '/cosmos.gov.v1beta1.MsgVote'
+      grant.authorization.msg === messageType
   })
 
   useEffect(() => {

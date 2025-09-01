@@ -42,4 +42,12 @@ export class MsgBase {
       value: aminoType.toAmino(this.params)
     }
   }
+
+  forNetwork(network) {
+    const name = network.path[0].toUpperCase() + network.path.slice(1)
+    if(this[`for${name}`]){
+      return this[`for${name}`]()
+    }
+    return this
+  }
 }

@@ -10,7 +10,8 @@ const RestClient = async (chainId, restUrls, opts) => {
   const config = _.merge({
     timeout: 5000,
     retries: 2,
-    apiVersions: {}
+    apiVersions: {},
+    apiPaths: {}
   }, opts)
   const restUrl = await findAvailableUrl(restUrls, { timeout: 10000 })
   const client = axios.create({ baseURL: restUrl, timeout: config.timeout });
@@ -399,7 +400,14 @@ const RestClient = async (chainId, restUrls, opts) => {
 
   function apiPath(type, path){
     const version = config.apiVersions[type] || 'v1beta1'
-    return `/cosmos/${type}/${version}/${path}`
+    const defaultPath = `/cosmos/${type}/${version}/${path}`
+    let customPath;
+    Object.entries(config.apiPaths).forEach(([key, value]) => {
+      if (defaultPath.startsWith(key)) {
+        customPath = value + defaultPath.slice(key.length);
+      }
+    });
+    return customPath || defaultPath;
   }
 
   return {

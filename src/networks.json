@@ -340,9 +340,15 @@
   {
     "name": "atomone",
     "ownerAddress": "atonevaloper1v6pes3zvpu926pep0l636wwda357uc20t0x5vd",
+    "gasPriceDenom": "uphoton",
     "aminoPreventTypes": [
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ],
-    "gasPriceDenom": "uphoton"
+    "apiPaths": {
+      "/cosmos/gov/v1/proposals": "/atomone/gov/v1/proposals"
+    },
+    "messagePaths": {
+      "/cosmos.gov.v1beta1.MsgVote": "/atomone.gov.v1.MsgVote"
+    }
   }
 ]

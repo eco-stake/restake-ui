@@ -55,7 +55,6 @@ function SigningClient(network, signerProvider) {
 
   async function signAndBroadcast(address, messages, gas, memo, gasPrice) {
     messages = Array.isArray(messages) ? messages : [messages]
-    console.log(messages)
     gas = gas || await simulate(address, messages, memo);
     const fee = getFee(gas, gasPrice);
     const txBody = await sign(address, messages, memo, fee)
