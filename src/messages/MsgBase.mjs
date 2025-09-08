@@ -44,7 +44,8 @@ export class MsgBase {
   }
 
   forNetwork(network) {
-    const name = network.path[0].toUpperCase() + network.path.slice(1)
+    let name = network.path[0].toUpperCase() + network.path.slice(1)
+    name = name.replace(/testnet$/, "")
     if(this[`for${name}`]){
       return this[`for${name}`]()
     }
