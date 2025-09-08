@@ -344,5 +344,9 @@
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ],
     "gasPriceDenom": "uphoton"
+  },
+  {
+    "name": "intento",
+    "ownerAddress": "intovaloper193zk7phtkfqtexleg0wqjw6um8dax28gvmu9jt"
   }
 ]
