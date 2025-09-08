@@ -17,6 +17,7 @@ export default class DefaultSigningAdapter {
   async sign(account, messages, memo, fee){
     const { chainId } = this.network
     const { account_number: accountNumber, sequence, address } = account
+    messages = messages.map(m => m.forNetwork(this.network))
     let aminoMsgs
     try {
       aminoMsgs = messages.map(message => this.toAmino(message))
@@ -54,6 +55,7 @@ export default class DefaultSigningAdapter {
   }
 
   async simulate(account, messages, memo, fee) {
+    messages = messages.map(m => m.forNetwork(this.network))
     return {
       bodyBytes: this.makeBodyBytes(messages, memo),
       authInfoBytes: await this.makeAuthInfoBytes(account, {

@@ -1,0 +1,15 @@
+[
+  {
+    "name": "atomonetestnet",
+    "gasPriceDenom": "uphoton",
+    "aminoPreventTypes": [
+      "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+    ],
+    "apiPaths": {
+      "/cosmos/gov/v1/proposals": "/atomone/gov/v1/proposals"
+    },
+    "messageTypes": {
+      "/cosmos.gov.v1beta1.MsgVote": "/atomone.gov.v1.MsgVote"
+    }
+  }
+]
