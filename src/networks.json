@@ -338,5 +338,9 @@
     "messageTypes": {
       "/cosmos.gov.v1beta1.MsgVote": "/atomone.gov.v1.MsgVote"
     }
+  },
+  {
+    "name": "intento",
+    "ownerAddress": "intovaloper193zk7phtkfqtexleg0wqjw6um8dax28gvmu9jt"
   }
 ]
