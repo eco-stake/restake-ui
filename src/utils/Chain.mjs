@@ -4,7 +4,7 @@ import ChainAsset from "./ChainAsset.mjs";
 
 const Chain = (data, assets) => {
   const dataAssets = data.assets?.map(el => ChainAsset(el)) || []
-  assets = _.uniqBy([...(assets || []), ...dataAssets], 'denom')
+  assets = _.uniqBy([...dataAssets, ...(assets || [])], 'denom')
   assets.forEach((el, i) => {
     const dataAsset = dataAssets.find(asset => asset.denom === el.denom)
     if(!el.prices && dataAsset?.prices){
