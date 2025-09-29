@@ -350,6 +350,6 @@
   {
     "name": "babylon",
     "restakeEnabled": false,
-    "restakeAlert": "Babylon uses a novel rewards mechanism which isn't currently supported by REStake"
+    "restakeAlert": "Babylon uses a novel staking mechanism which isn't currently supported by REStake"
   }
 ]
