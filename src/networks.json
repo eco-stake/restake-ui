@@ -346,5 +346,10 @@
       "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
     ],
     "gasPriceDenom": "uphoton"
+  },
+  {
+    "name": "babylon",
+    "restakeEnabled": false,
+    "restakeAlert": "Babylon uses a novel rewards mechanism which isn't currently supported by REStake"
   }
 ]
