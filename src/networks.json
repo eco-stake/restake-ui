@@ -305,7 +305,9 @@
     "restakeAlert": "dYdX rewards are paid in USDC which cannot be automatically swapped to DYDX at this time. Auto-compounding is disabled for now."
   },
   {
-    "name": "celestia"
+    "name": "celestia",
+    "restakeEnabled": false,
+    "restakeAlert": "Celestia recently changed their reward mechanism and now requires manual restaking. Auto-compounding is disabled for now."
   },
   {
     "name": "dymension"
