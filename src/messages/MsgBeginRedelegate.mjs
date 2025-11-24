@@ -7,7 +7,7 @@ import { MsgBase } from "./MsgBase.mjs";
 export class MsgBeginRedelegate extends MsgBase {
   typeUrl = "/cosmos.staking.v1beta1.MsgBeginRedelegate";
 
-  toInjective(){
+  forInjectiveLedger(){
     return new InjectiveMsgBeginRedelegate({
       ...this.params,
       injectiveAddress: this.params.delegatorAddress,

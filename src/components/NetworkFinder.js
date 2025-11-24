@@ -10,7 +10,8 @@ import {
   Spinner
 } from 'react-bootstrap';
 
-import networksData from '../networks.json';
+import mainnetNetworks from '../networks.json';
+import testnetNetworks from '../networks.testnet.json';
 
 const LIGHT_THEME = 'cosmo'
 const DARK_THEME = 'superhero'
@@ -38,6 +39,7 @@ function NetworkFinder() {
 
   function getDirectory() {
     let testnet = networkMode === 'testnet';
+    const networksData = testnet ? testnetNetworks : mainnetNetworks
     if (params.network && !testnet) {
       const data = networksData.find(el => el.name === params.network);
       if (data && data.testnet) {
@@ -59,6 +61,7 @@ function NetworkFinder() {
       return {};
     }
 
+    const networksData = state.networkMode === 'testnet' ? testnetNetworks : mainnetNetworks
     const networks = Object.values(registryNetworks).map(data => {
       const networkData = networksData.find(el => el.name === data.path);
       if (networkData && networkData.enabled === false)
