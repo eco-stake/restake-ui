@@ -25,10 +25,17 @@ export class MsgExec extends MsgBase {
     }
   }
 
-  toInjective(){
+  forNetwork(network) {
+    return new MsgExec({
+      ...this.params,
+      msgs: this.params.msgs.map(msg => msg.forNetwork(network))
+    })
+  }
+
+  forInjectiveLedger(){
     return new InjectiveMsgExec({
       ...this.params,
-      msgs: this.params.msgs.map(msg => msg.toInjective())
+      msgs: this.params.msgs.map(msg => msg.forInjectiveLedger())
     })
   }
 }

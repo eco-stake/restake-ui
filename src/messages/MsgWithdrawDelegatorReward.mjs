@@ -7,7 +7,7 @@ import { MsgBase } from "./MsgBase.mjs";
 export class MsgWithdrawDelegatorReward extends MsgBase {
   typeUrl = "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward";
 
-  toInjective(){
+  forInjectiveLedger(){
     return new InjectiveMsgWithdrawDelegatorReward({
       ...this.params
     })
