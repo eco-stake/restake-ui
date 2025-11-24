@@ -11,8 +11,8 @@ const Chain = (data, assets) => {
       el.prices = dataAsset.prices
     }
   })
-  const stakingTokens = data.staking?.staking_tokens
-  const baseAsset = stakingTokens && assets.find(el => el.denom === stakingTokens[0].denom) || assets[0]
+  const stakingDenom = data.staking?.staking_tokens?.[0]?.denom || dataAssets[0]?.denom
+  const baseAsset = assets.find(el => el.denom === stakingDenom)
   const { cosmos_sdk_version } = data.versions || {}
   const slip44 = data.slip44 || 118
   const ethermint = data.ethermint ?? slip44 === 60
