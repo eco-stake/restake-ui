@@ -86,7 +86,7 @@ function ValidatorProfile(props) {
                             />
                           </td>
                         </tr>
-                        {network.authzSupport && (
+                        {network.authzSupport && network.data.lastRestake !== false && (
                           <tr>
                             <td className="border-bottom-0">Last REStake</td>
                             <td className={'border-bottom-0'}>
