@@ -300,7 +300,7 @@ function ValidatorStake(props) {
                           <Coin {...minimumReward()} asset={network.baseAsset} fullPrecision={true} showValue={false} showImage={false} />
                         </td>
                       </tr>
-                      {network.authzSupport && (
+                      {network.authzSupport && network.data.lastRestake !== false && (
                         <>
                           <tr>
                             <td scope="row">Last REStake</td>
