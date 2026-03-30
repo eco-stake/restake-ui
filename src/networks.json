@@ -344,5 +344,13 @@
     "name": "babylon",
     "restakeEnabled": false,
     "restakeAlert": "Babylon uses a novel staking mechanism which isn't currently supported by REStake"
+  },
+  {
+    "name": "union",
+    "enabled": false
+  },
+  {
+    "name": "sei",
+    "lastRestake": false
   }
 ]
