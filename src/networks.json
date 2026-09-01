@@ -349,6 +349,10 @@
   },
   {
     "name": "sei",
-    "lastRestake": false
+    "lastRestake": false,
+    "networkAlert": {
+      "message": "SEI is transitioning away from Cosmos SDK and will not support REStake in the future.",
+      "variant": "danger"
+    }
   }
 ]
