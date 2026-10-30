@@ -55,7 +55,8 @@
     "prebuild": "rm -rf dist/",
     "build": "npx parcel build src/index.html",
     "dryrun": "NODE_OPTIONS=--openssl-legacy-provider node scripts/dryrun.mjs",
-    "autostake": "NODE_OPTIONS=--openssl-legacy-provider node scripts/autostake.mjs"
+    "autostake": "NODE_OPTIONS=--openssl-legacy-provider node scripts/autostake.mjs",
+    "test": "node --test tests/*.test.mjs"
   },
   "eslintConfig": {
     "extends": [
@@ -87,6 +88,7 @@
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
+    "svgo": "3.3.5",
     "url": "^0.11.4",
     "vm-browserify": "^1.1.2"
   },

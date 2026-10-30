@@ -67,7 +67,7 @@ export default class InjectiveSigningAdapter extends DefaultSigningAdapter {
         amount: signed.fee.amount,
         gasLimit: signed.fee.gas,
       }, SignMode.SIGN_MODE_LEGACY_AMINO_JSON),
-      bodyBytes: this.makeBodyBytes(messages, signed.memo, timeoutHeight),
+      bodyBytes: this.makeBodyBytes(messages, signed.memo, timeoutHeight.toFixed()),
     }
 
     const web3Extension = createWeb3Extension({
