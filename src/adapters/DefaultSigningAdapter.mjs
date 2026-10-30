@@ -1,8 +1,5 @@
 import _ from 'lodash'
-import Long from "long";
-
-import { makeSignDoc } from "@cosmjs/proto-signing";
-import { makeSignDoc as makeAminoSignDoc } from "@cosmjs/amino";
+import { uint64, returnedAccountNumber, ExactBinaryWriter } from '../utils/Uint64.mjs';
 import { fromBase64 } from '@cosmjs/encoding'
 import { PubKey } from "cosmjs-types/cosmos/crypto/secp256k1/keys.js";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing.js";
@@ -16,7 +13,9 @@ export default class DefaultSigningAdapter {
 
   async sign(account, messages, memo, fee){
     const { chainId } = this.network
-    const { account_number: accountNumber, sequence, address } = account
+    const { address } = account
+    const accountNumber = uint64(account.account_number, 'account number')
+    const sequence = uint64(account.sequence, 'sequence')
     messages = messages.map(m => m.forNetwork(this.network))
     let aminoMsgs
     try {
@@ -24,11 +23,16 @@ export default class DefaultSigningAdapter {
     } catch (e) { console.log(e) }
     if(aminoMsgs && this.signerProvider.signAminoSupport()){
       // Sign as amino if possible for Ledger and Keplr support
-      const signDoc = makeAminoSignDoc(aminoMsgs, fee, chainId, memo, accountNumber, sequence);
+      const signDoc = { chain_id: chainId, account_number: accountNumber, sequence,
+        msgs: aminoMsgs, fee, memo: memo || '' }
+      const requested = _.cloneDeep(signDoc)
       const { signature, signed } = await this.signerProvider.signAmino(address, signDoc);
+      this.assertAminoResponse(signed, requested)
       const authInfoBytes = await this.makeAuthInfoBytes(account, {
         amount: signed.fee.amount,
         gasLimit: signed.fee.gas,
+        payer: signed.fee.payer,
+        granter: signed.fee.granter,
       }, SignMode.SIGN_MODE_LEGACY_AMINO_JSON)
       return {
         bodyBytes: this.makeBodyBytes(messages, signed.memo),
@@ -42,8 +46,10 @@ export default class DefaultSigningAdapter {
         gasLimit: fee.gas,
       }, SignMode.SIGN_MODE_DIRECT)
       const txBodyBytes = this.makeBodyBytes(messages, memo)
-      const signDoc = makeSignDoc(txBodyBytes, authInfoBytes, chainId, accountNumber);
+      const signDoc = { bodyBytes: txBodyBytes, authInfoBytes, chainId, accountNumber: BigInt(accountNumber) }
+      const requested = _.cloneDeep(signDoc)
       const { signature, signed } = await this.signerProvider.signDirect(address, signDoc);
+      this.assertDirectResponse(signed, requested)
       return {
         bodyBytes: signed.bodyBytes,
         authInfoBytes: signed.authInfoBytes,
@@ -51,6 +57,30 @@ export default class DefaultSigningAdapter {
       }
     }else{
       throw new Error('Unable to sign message with this wallet/signer')
+    }
+  }
+
+  assertAminoResponse(signed, requested) {
+    if (signed.chain_id !== requested.chain_id ||
+        uint64(signed.account_number, 'account number') !== requested.account_number ||
+        uint64(signed.sequence, 'sequence') !== requested.sequence ||
+        _.has(signed, 'timeout_height') !== _.has(requested, 'timeout_height') ||
+        signed.timeout_height !== requested.timeout_height ||
+        !_.isEqual(signed.msgs, requested.msgs)) {
+      throw new Error('Wallet changed the signing identity or messages')
+    }
+  }
+
+  assertDirectResponse(signed, requested) {
+    const beforeAuth = AuthInfo.decode(requested.authInfoBytes)
+    const afterAuth = AuthInfo.decode(signed.authInfoBytes)
+    const beforeBody = TxBody.decode(requested.bodyBytes)
+    const afterBody = TxBody.decode(signed.bodyBytes)
+    if (signed.chainId !== requested.chainId ||
+        returnedAccountNumber(signed.accountNumber) !== uint64(requested.accountNumber, 'account number') ||
+        !_.isEqual(afterAuth.signerInfos, beforeAuth.signerInfos) ||
+        !_.isEqual({ ...afterBody, memo: '' }, { ...beforeBody, memo: '' })) {
+      throw new Error('Wallet changed the signing identity or messages')
     }
   }
 
@@ -123,17 +153,18 @@ export default class DefaultSigningAdapter {
     }
 
     if (timeoutHeight) {
-      txBody.timeoutHeight = timeoutHeight.toString()
+      txBody.timeoutHeight = BigInt(uint64(timeoutHeight, 'timeout height'))
     }
 
     return TxBody.encode(
-      TxBody.fromPartial(txBody)
+      TxBody.fromPartial(txBody), new ExactBinaryWriter()
     ).finish()
   }
 
   async makeAuthInfoBytes(account, fee, mode){
     const { sequence } = account
-    const accountFromSigner = (await this.signerProvider.getAccounts())[0]
+    const accountFromSigner = (await this.signerProvider.getAccounts())
+      .find(signer => signer.address === account.address)
     if (!accountFromSigner) {
       throw new Error("Failed to retrieve account from signer");
     }
@@ -147,12 +178,12 @@ export default class DefaultSigningAdapter {
               key: signerPubkey,
             }).finish(),
           },
-          sequence: Long.fromNumber(sequence, true),
+          sequence: BigInt(uint64(sequence, 'sequence')),
           modeInfo: { single: { mode: mode } },
         },
       ],
-      fee: Fee.fromPartial(fee),
-    }).finish()
+      fee: Fee.fromPartial({ ...fee, gasLimit: BigInt(uint64(fee.gasLimit, 'gas limit')) }),
+    }, new ExactBinaryWriter()).finish()
   }
 
   pubkeyTypeUrl(pub_key){
